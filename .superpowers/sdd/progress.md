@@ -32,4 +32,9 @@ P2-3: complete (commit 3edf413, 가계 scope 격리+사업 훅+이체)
 P2-4: complete (commit 8850556, 사업 화면+양방향 이체+사업 입력+사업 탭)
 P2-5: complete (commit d4eea61, 설정 사업 카테고리 관리)
 
-*** Phase 1 + Phase 2 코드 전부 완성. 빌드/테스트(12개) 통과. 남은 것: (1)사용자 schema-phase2.sql 실행, (2)Vercel 배포, (3)로고, (4)두 폰 실제 검증, (5)최종 whole-branch 리뷰. ***
+*** Phase 1 + Phase 2 코드 전부 완성. ***
+로고: a4edcbe ('우리집' 워드마크). vercel.json: ddf028b.
+DB 검증: Phase1+Phase2 스키마 모두 반영 확인(사용자 schema-phase2 실행 완료), 공유계정 로그인 OK.
+최종 whole-branch 리뷰(opus): 치명 1(월조회 짧은달 버그)+중요 1(실시간 fund-data)+사소 2 발견.
+리뷰 수정: complete (commit cd8ae48, 13개 테스트 통과). 사소#4(auth실패 UX)는 미조치(부부 전용 모델상 낮은 우선순위).
+남은 것: main 병합 → 사용자 Vercel 배포 → 두 폰 실제 검증.
