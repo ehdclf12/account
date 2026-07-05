@@ -12,6 +12,7 @@ import HomeScreen from '@/screens/HomeScreen'
 import HouseholdSettingsScreen from '@/screens/HouseholdSettingsScreen'
 import LedgerScreen from '@/screens/LedgerScreen'
 import BusinessScreen from '@/screens/BusinessScreen'
+import BusinessCalculatorScreen from '@/screens/BusinessCalculatorScreen'
 import BusinessSettingsScreen from '@/screens/BusinessSettingsScreen'
 import BudgetEditScreen from '@/screens/BudgetEditScreen'
 
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/household/budget" element={<BudgetEditScreen scope="household" backTo="/household" />} />
             <Route path="/ledger" element={<LedgerScreen />} />
             <Route path="/business" element={<BusinessScreen />} />
+            <Route path="/business/calculator" element={<BusinessCalculatorScreen />} />
             <Route path="/business/manage" element={<BusinessSettingsScreen />} />
             <Route path="/business/budget" element={<BudgetEditScreen scope="business" backTo="/business" />} />
             <Route path="*" element={<Navigate to="/" />} />
