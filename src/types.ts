@@ -31,6 +31,17 @@ export interface Transaction {
   memo: string
   created_at: string
   scope: Scope
+  fixed_cost_id?: string | null
+}
+
+export interface FixedCost {
+  id: string
+  scope: Scope
+  name: string
+  amount: number
+  category_id: string | null
+  day: number
+  active: boolean
 }
 
 export interface Budget {

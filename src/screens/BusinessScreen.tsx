@@ -8,6 +8,7 @@ import { groupByDate } from '@/lib/grouping'
 import { formatDayHeader } from '@/lib/date'
 import TransactionRow from '@/components/TransactionRow'
 import BudgetProgress from '@/components/BudgetProgress'
+import FixedCostsSection from '@/components/FixedCostsSection'
 import BusinessSheet from '@/components/BusinessSheet'
 import TransferSheet from '@/components/TransferSheet'
 import type { Transaction } from '@/types'
@@ -71,6 +72,8 @@ export default function BusinessScreen() {
       </div>
 
       <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/business/budget" />
+
+      <FixedCostsSection scope="business" year={year} month={month} monthTxs={txs} editTo="/business/fixed" />
 
       <div>
         <p className="font-bold text-ink mb-1">{month}월 사업 내역</p>
