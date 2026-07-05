@@ -20,4 +20,8 @@ Task 11: complete (commit e184940, 내역 화면, 검토 clean)
 Task 12+재스타일: complete (commit b65d04c TDS 재스타일·이모지 제거, f3b905a 설정 화면; 검토 clean)
 
 Phase 1 남은 것: Task 13 실시간 동기화(자격증명 불필요, 진행가능), Task 14 배포(자격증명·schema 실행 후).
---- 신규 하위 시스템 요청(사업 장부): 사업 지출/수입을 사용자 정의 필드로 관리 + 월급에서 사업자금 이체 연동. → 별도 설계(Phase 2) 후 구현 예정. 아직 미착수. ---
+Task 13: complete (commit 473dda3, 실시간 동기화, 검토 clean)
+
+*** Phase 1 코드 전부 완성(Task 1-13). 남은 것: Task 14 배포 + 실제 계정 런타임 검증 → 자격증명(공유 이메일/비번) + schema.sql 실행 필요(블록됨). ***
+
+--- Phase 2(사업 장부): 설계서 docs/.../2026-07-05-business-ledger-phase2-design.md 작성·커밋(49b59e4). 예시 카테고리 시드 + 양방향 이체 확정. 구현 착수 예정(코드/빌드 검증은 자격증명 없이 가능). ---
