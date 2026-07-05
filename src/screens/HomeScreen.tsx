@@ -7,7 +7,6 @@ import { formatKRW } from '@/lib/format'
 import TransactionSheet from '@/components/TransactionSheet'
 import TransactionRow from '@/components/TransactionRow'
 import BudgetProgress from '@/components/BudgetProgress'
-import FixedCostsSection from '@/components/FixedCostsSection'
 
 export default function HomeScreen() {
   const now = new Date()
@@ -49,8 +48,6 @@ export default function HomeScreen() {
       </div>
 
       <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/household/budget" />
-
-      <FixedCostsSection scope="household" year={year} month={month} monthTxs={txs} editTo="/household/fixed" />
 
       <div>
         <div className="flex justify-between items-center mb-1">

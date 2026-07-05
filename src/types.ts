@@ -42,6 +42,7 @@ export interface FixedCost {
   category_id: string | null
   day: number
   active: boolean
+  who: Role | null   // null = 공동
 }
 
 export interface Budget {
