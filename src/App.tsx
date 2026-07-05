@@ -8,6 +8,7 @@ import PinGate from '@/screens/PinGate'
 import IdentityPick from '@/screens/IdentityPick'
 import HomeScreen from '@/screens/HomeScreen'
 import LedgerScreen from '@/screens/LedgerScreen'
+import BusinessScreen from '@/screens/BusinessScreen'
 import SettingsScreen from '@/screens/SettingsScreen'
 import BottomNav from '@/components/BottomNav'
 import { useRealtime } from '@/hooks/useRealtime'
@@ -33,6 +34,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomeScreen />} />
             <Route path="/ledger" element={<LedgerScreen />} />
+            <Route path="/business" element={<BusinessScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
