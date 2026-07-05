@@ -45,3 +45,5 @@ DB 검증: Phase1+Phase2 스키마 모두 반영 확인(사용자 schema-phase2 
 Phase 3: complete (commit cbf87f1, main 병합 8c8b7f7). 각자 로그인 전환, 10개 테스트 통과.
 Vercel 필요 env: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY 만. (SHARED 2개는 미사용)
 남은 것: 사용자 Vercel 재배포 → 두 폰 로그인 테스트.
+
+--- 홈 허브 개편: complete (commit 2a5531b, main 병합 40638c3). 홈="/"=허브(집/코스모스 카드), 집→/household, 코스모스→/business. 하단탭 홈·설정 2개. 코스모스=사업 이름. 스케줄러는 사용자가 "우선 무시" 요청→미착수. ---
