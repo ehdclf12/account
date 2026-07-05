@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useBusinessTransactions, useBusinessCategories, useFundData, useDeleteBusinessTx } from '@/hooks/useBusiness'
 import { computeFundBalance } from '@/lib/businessFund'
 import { computeSummary } from '@/lib/summary'
@@ -25,6 +26,7 @@ export default function BusinessScreen() {
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [transfer, setTransfer] = useState<null | 'to_business' | 'to_household'>(null)
   const groups = groupByDate(txs)
+  const nav = useNavigate()
 
   async function remove(id: string) {
     if (confirm('이 사업 내역을 삭제할까요?')) { await del.mutateAsync(id); setEditing(null) }
@@ -32,8 +34,10 @@ export default function BusinessScreen() {
 
   return (
     <div className="p-5 space-y-6">
+      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
       <div>
-        <p className="text-sub text-sm">사업자금 잔액</p>
+        <h1 className="text-xl font-bold text-ink">코스모스</h1>
+        <p className="text-sub text-sm mt-3">사업자금 잔액</p>
         <p className={`text-4xl font-bold mt-1 ${balance < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(balance)}</p>
         {balance < 0 && <p className="text-[#F04452] text-xs mt-1">사업자금이 부족해요</p>}
       </div>
