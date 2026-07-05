@@ -20,7 +20,7 @@ export default function TransferSheet(
 
   if (!open) return null
   const amt = Number(amount) || 0
-  const title = direction === 'to_business' ? '사업자금 보내기' : '사업자금 받기(역이체)'
+  const title = direction === 'to_business' ? '사업자금 받기' : '생활비로 사용'
 
   async function save() {
     if (amt <= 0 || !transferCatId) return
@@ -29,14 +29,14 @@ export default function TransferSheet(
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/30" onClick={onClose}>
-      <div className="w-full max-w-md mx-auto bg-white rounded-t-3xl p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30" onClick={onClose}>
+      <div className="w-full max-w-md bg-white rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center">
           <span className="font-bold text-ink">{title}</span>
           <button onClick={onClose} className="text-sub text-sm font-medium">닫기</button>
         </div>
         <p className="text-sub text-xs">
-          {direction === 'to_business' ? '월급(가계)에서 사업자금으로 보냅니다. 가계 지출로 기록돼요.' : '사업자금에서 가계로 가져옵니다. 가계 수입으로 기록돼요.'}
+          {direction === 'to_business' ? '가계(월급)에서 코스모스로 자금이 들어옵니다. 가계 지출로 기록돼요.' : '코스모스 자금을 생활비로 사용합니다. 가계 수입으로 기록돼요.'}
         </p>
         <div className="text-center text-3xl font-bold py-2 text-ink">{formatKRW(amt)}</div>
         <input value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
