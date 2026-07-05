@@ -4,8 +4,7 @@ import { useBusinessCategories } from '@/hooks/useBusiness'
 import { usePaymentMethods, useAddPaymentMethod, useDeletePaymentMethod } from '@/hooks/usePaymentMethods'
 import { useIdentity } from '@/App'
 import { supabase } from '@/lib/supabase'
-import { hashPin } from '@/lib/pin'
-import { setIdentity } from '@/lib/identity'
+import { NAME_BY_ROLE } from '@/lib/users'
 import type { TxType } from '@/types'
 
 export default function SettingsScreen() {
@@ -21,14 +20,6 @@ export default function SettingsScreen() {
   const [bizCatName, setBizCatName] = useState('')
   const [bizCatType, setBizCatType] = useState<TxType>('expense')
   const [pmName, setPmName] = useState('')
-  const [pin1, setPin1] = useState('')
-
-  async function changePin() {
-    if (pin1.length !== 4) { alert('4자리를 입력하세요'); return }
-    const h = await hashPin(pin1)
-    const { error } = await supabase.from('app_settings').update({ pin_hash: h }).eq('id', 1)
-    alert(error ? '변경 실패' : 'PIN을 변경했어요'); setPin1('')
-  }
 
   return (
     <div className="p-5 space-y-8">
@@ -36,10 +27,9 @@ export default function SettingsScreen() {
 
       <section>
         <p className="text-sub text-sm">현재 사용자</p>
-        <p className="font-bold text-ink">{who === 'husband' ? '남편' : '아내'}</p>
-        <button className="text-brand text-sm mt-1 font-medium"
-          onClick={() => { setIdentity(who === 'husband' ? 'wife' : 'husband'); location.reload() }}>
-          다른 사람으로 전환
+        <p className="font-bold text-ink">{NAME_BY_ROLE[who]}</p>
+        <button className="text-brand text-sm mt-1 font-medium" onClick={() => supabase.auth.signOut()}>
+          로그아웃
         </button>
       </section>
 
@@ -105,15 +95,6 @@ export default function SettingsScreen() {
             onClick={() => { if (pmName) { addPm.mutate({ name: pmName, icon: '', sort_order: 99 }); setPmName('') } }}>
             추가
           </button>
-        </div>
-      </section>
-
-      <section>
-        <p className="font-bold text-ink mb-2">PIN 변경</p>
-        <div className="flex gap-2">
-          <input value={pin1} onChange={(e) => setPin1(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            inputMode="numeric" type="password" placeholder="새 PIN 4자리" className="flex-1 bg-card rounded-xl px-3 py-2 outline-none" />
-          <button onClick={changePin} className="bg-brand text-white rounded-xl px-3 font-semibold">변경</button>
         </div>
       </section>
     </div>
