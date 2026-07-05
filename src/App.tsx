@@ -1,34 +1,48 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ensureSignedIn } from '@/lib/supabase'
-import { getIdentity, isPinOk } from '@/lib/identity'
+import { supabase } from '@/lib/supabase'
+import { userForEmail } from '@/lib/users'
 import type { Role } from '@/types'
-import PinGate from '@/screens/PinGate'
-import IdentityPick from '@/screens/IdentityPick'
+import { useRealtime } from '@/hooks/useRealtime'
+import Login from '@/screens/Login'
 import HomeScreen from '@/screens/HomeScreen'
 import LedgerScreen from '@/screens/LedgerScreen'
 import BusinessScreen from '@/screens/BusinessScreen'
 import SettingsScreen from '@/screens/SettingsScreen'
 import BottomNav from '@/components/BottomNav'
-import { useRealtime } from '@/hooks/useRealtime'
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
 
 export default function App() {
   const [ready, setReady] = useState(false)
-  const [pinOk, setPinOkState] = useState(isPinOk())
-  const [who, setWho] = useState<Role | null>(getIdentity())
+  const [email, setEmail] = useState<string | null>(null)
 
-  useEffect(() => { ensureSignedIn().then(() => setReady(true)).catch(() => setReady(true)) }, [])
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setEmail(data.session?.user?.email ?? null)
+      setReady(true)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setEmail(session?.user?.email ?? null)
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
 
   if (!ready) return <div className="p-6 text-sub">시작하는 중…</div>
-  if (!pinOk) return <PinGate onOk={() => setPinOkState(true)} />
-  if (!who) return <IdentityPick onPick={setWho} />
+  if (!email) return <Login />
+
+  const info = userForEmail(email)
+  if (!info) return (
+    <div className="p-6 text-sub">
+      등록되지 않은 계정이에요.
+      <button onClick={() => supabase.auth.signOut()} className="block mt-3 text-brand">로그아웃</button>
+    </div>
+  )
 
   return (
-    <IdentityCtx.Provider value={who}>
+    <IdentityCtx.Provider value={info.role}>
       <Shell>
         <div className="max-w-md mx-auto min-h-full pb-20">
           <Routes>

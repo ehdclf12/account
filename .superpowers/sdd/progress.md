@@ -37,4 +37,8 @@ P2-5: complete (commit d4eea61, 설정 사업 카테고리 관리)
 DB 검증: Phase1+Phase2 스키마 모두 반영 확인(사용자 schema-phase2 실행 완료), 공유계정 로그인 OK.
 최종 whole-branch 리뷰(opus): 치명 1(월조회 짧은달 버그)+중요 1(실시간 fund-data)+사소 2 발견.
 리뷰 수정: complete (commit cd8ae48, 13개 테스트 통과). 사소#4(auth실패 UX)는 미조치(부부 전용 모델상 낮은 우선순위).
-남은 것: main 병합 → 사용자 Vercel 배포 → 두 폰 실제 검증.
+리뷰 수정 후 main 병합 완료(0bb09dd).
+
+--- Phase 3(각자 로그인 전환): 사용자 요청으로 공유계정+PIN → 각자 이메일/비번 로그인으로 변경.
+매핑: ehdclf12@naver.com=동욱(husband), tmxlclt@naver.com=도영(wife). 라벨 남편/아내 → 이름 동욱/도영.
+두 계정 로그인·데이터접근 검증 OK. PinGate/IdentityPick/pin/identity 제거, Login 화면 추가, supabase.ts ensureSignedIn 제거, Settings PIN→로그아웃, WhoBadge 이름표시. VITE_SHARED_* 불필요해짐. 착수. ---
