@@ -58,6 +58,8 @@ IA: "/"=HomeMenu(예산관리 항목 + 하단 계정/로그아웃, 추후 스케
 ③ 고정비 관리  ← DONE (병합 0d10ea6). schema-fixed.sql(fixed_costs + transactions.fixed_cost_id, 사용자 실행 필요). FixedCostsSection(집·코스모스 화면, 이번달 등록/등록됨) + /household/fixed /business/fixed 편집.
    + UI 수정(fix/input-center, ebe3835): 입력창 중앙 모달, FAB 열 정렬, 이체 명칭(사업자금 받기/생활비로 사용).
    + 고정비 고도화 DONE (병합 157c70f): 홈에 별도 "고정비 관리" 메뉴(/fixed), 집/코스모스 토글, 월이동, 인원별(동욱/도영/공동) 합계, 항목 탭→편집(FixedCostSheet), 담당자 who 컬럼(schema-fixed-who.sql 실행 필요). 메인화면 FixedCostsSection 제거. 삭제버튼 시트 안으로 이동.
+   + 고정비 위치 이동 DONE (병합 f4a896f): 홈 메뉴에서 제거, 예산관리→집/코스모스 화면 안 "고정비 관리"(/household/fixed, /business/fixed) 스코프별. 토글 제거.
+   + budgets RLS 정책 사용자 실행 완료 → 예산 저장 정상. fixed_costs.who 실행 완료.
 ④ 캘린더 뷰  ← 다음
 ⑤ 저축 목표
 ⑥ 자산 현황(주식·코인·부동산 순자산 — 최초 원비전, 규모 큼, 마지막)
