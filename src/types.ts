@@ -32,3 +32,10 @@ export interface Transaction {
   created_at: string
   scope: Scope
 }
+
+export interface Budget {
+  id: string
+  category_id: string
+  month: string // YYYY-MM
+  amount: number
+}

@@ -6,6 +6,7 @@ import { computeSummary } from '@/lib/summary'
 import { formatKRW } from '@/lib/format'
 import TransactionSheet from '@/components/TransactionSheet'
 import TransactionRow from '@/components/TransactionRow'
+import BudgetProgress from '@/components/BudgetProgress'
 
 export default function HomeScreen() {
   const now = new Date()
@@ -42,6 +43,8 @@ export default function HomeScreen() {
           <p className="font-bold text-ink mt-1">{formatKRW(s.expense)}</p>
         </div>
       </div>
+
+      <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/household/budget" />
 
       <div>
         <div className="flex justify-between items-center mb-1">

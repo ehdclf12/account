@@ -7,6 +7,7 @@ import { formatKRW } from '@/lib/format'
 import { groupByDate } from '@/lib/grouping'
 import { formatDayHeader } from '@/lib/date'
 import TransactionRow from '@/components/TransactionRow'
+import BudgetProgress from '@/components/BudgetProgress'
 import BusinessSheet from '@/components/BusinessSheet'
 import TransferSheet from '@/components/TransferSheet'
 import type { Transaction } from '@/types'
@@ -60,6 +61,8 @@ export default function BusinessScreen() {
           <p className="font-bold text-ink mt-1">{formatKRW(s.expense)}</p>
         </div>
       </div>
+
+      <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/business/budget" />
 
       <div>
         <p className="font-bold text-ink mb-1">{month}월 사업 내역</p>
