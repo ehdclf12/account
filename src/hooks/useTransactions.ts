@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { monthKey } from '@/lib/date'
+import { monthKey, nextMonthFirst } from '@/lib/date'
 import type { Transaction } from '@/types'
 
 export type NewTx = Omit<Transaction, 'id' | 'created_at'>
@@ -16,7 +16,7 @@ export function useTransactions(year: number, month: number) {
         .select('*')
         .eq('scope', 'household')
         .gte('date', `${prefix}-01`)
-        .lte('date', `${prefix}-31`)
+        .lt('date', nextMonthFirst(year, month))
         .order('date', { ascending: false })
         .order('created_at', { ascending: false })
       if (error) throw error

@@ -7,7 +7,7 @@ export function useRealtime() {
   useEffect(() => {
     const ch = supabase.channel('db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' },
-        () => qc.invalidateQueries({ queryKey: ['transactions'] }))
+        () => { qc.invalidateQueries({ queryKey: ['transactions'] }); qc.invalidateQueries({ queryKey: ['fund-data'] }) })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' },
         () => qc.invalidateQueries({ queryKey: ['categories'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'payment_methods' },

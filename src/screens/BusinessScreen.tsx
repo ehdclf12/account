@@ -72,7 +72,7 @@ export default function BusinessScreen() {
       <button onClick={() => setOpen(true)}
         className="fixed bottom-24 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">+</button>
 
-      <BusinessSheet open={open} onClose={() => setOpen(false)} />
+      {open && <BusinessSheet open onClose={() => setOpen(false)} />}
       {transfer && <TransferSheet open onClose={() => setTransfer(null)} direction={transfer} />}
       {editing && (
         <>
