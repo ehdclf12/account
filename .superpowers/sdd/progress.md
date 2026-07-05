@@ -24,4 +24,12 @@ Task 13: complete (commit 473dda3, 실시간 동기화, 검토 clean)
 
 *** Phase 1 코드 전부 완성(Task 1-13). 남은 것: Task 14 배포 + 실제 계정 런타임 검증 → 자격증명(공유 이메일/비번) + schema.sql 실행 필요(블록됨). ***
 
---- Phase 2(사업 장부): 설계서 docs/.../2026-07-05-business-ledger-phase2-design.md 작성·커밋(49b59e4). 예시 카테고리 시드 + 양방향 이체 확정. 구현 착수 예정(코드/빌드 검증은 자격증명 없이 가능). ---
+--- Phase 2(사업 장부): 설계서(49b59e4) + 계획서·마이그레이션SQL(912d555). ---
+접속검증: 공유계정 로그인 OK, Phase1 스키마 반영 확인(app_settings/profiles/payment_methods). Phase2 마이그레이션(schema-phase2.sql)은 사용자가 아직 미실행.
+P2-1: complete (schema-phase2.sql, commit 912d555)
+P2-2: complete (commit 2fc5098, scope 타입+사업자금 계산 TDD; Phase1 리터럴 컴파일 보정 포함)
+P2-3: complete (commit 3edf413, 가계 scope 격리+사업 훅+이체)
+P2-4: complete (commit 8850556, 사업 화면+양방향 이체+사업 입력+사업 탭)
+P2-5: complete (commit d4eea61, 설정 사업 카테고리 관리)
+
+*** Phase 1 + Phase 2 코드 전부 완성. 빌드/테스트(12개) 통과. 남은 것: (1)사용자 schema-phase2.sql 실행, (2)Vercel 배포, (3)로고, (4)두 폰 실제 검증, (5)최종 whole-branch 리뷰. ***
