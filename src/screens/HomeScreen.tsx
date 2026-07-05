@@ -19,7 +19,10 @@ export default function HomeScreen() {
 
   return (
     <div className="p-5 space-y-6">
-      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
+      <div className="flex justify-between items-center">
+        <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
+        <button onClick={() => nav('/household/manage')} className="text-sub text-sm">관리</button>
+      </div>
       <div className="flex justify-between items-center">
         <span className="text-lg font-bold">집 · {year}년 {month}월</span>
       </div>
@@ -55,7 +58,7 @@ export default function HomeScreen() {
       </div>
 
       <button onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">
+        className="fixed bottom-6 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">
         +
       </button>
       {open && <TransactionSheet open onClose={() => setOpen(false)} />}

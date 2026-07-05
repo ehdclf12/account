@@ -6,12 +6,13 @@ import { userForEmail } from '@/lib/users'
 import type { Role } from '@/types'
 import { useRealtime } from '@/hooks/useRealtime'
 import Login from '@/screens/Login'
+import HomeMenuScreen from '@/screens/HomeMenuScreen'
 import HubScreen from '@/screens/HubScreen'
 import HomeScreen from '@/screens/HomeScreen'
+import HouseholdSettingsScreen from '@/screens/HouseholdSettingsScreen'
 import LedgerScreen from '@/screens/LedgerScreen'
 import BusinessScreen from '@/screens/BusinessScreen'
-import SettingsScreen from '@/screens/SettingsScreen'
-import BottomNav from '@/components/BottomNav'
+import BusinessSettingsScreen from '@/screens/BusinessSettingsScreen'
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -45,16 +46,17 @@ export default function App() {
   return (
     <IdentityCtx.Provider value={info.role}>
       <Shell>
-        <div className="max-w-md mx-auto min-h-full pb-20">
+        <div className="max-w-md mx-auto min-h-full pb-8">
           <Routes>
-            <Route path="/" element={<HubScreen />} />
+            <Route path="/" element={<HomeMenuScreen />} />
+            <Route path="/budget" element={<HubScreen />} />
             <Route path="/household" element={<HomeScreen />} />
+            <Route path="/household/manage" element={<HouseholdSettingsScreen />} />
             <Route path="/ledger" element={<LedgerScreen />} />
             <Route path="/business" element={<BusinessScreen />} />
-            <Route path="/settings" element={<SettingsScreen />} />
+            <Route path="/business/manage" element={<BusinessSettingsScreen />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
-          <BottomNav />
         </div>
       </Shell>
     </IdentityCtx.Provider>
