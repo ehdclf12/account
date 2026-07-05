@@ -49,6 +49,11 @@ export default function HomeScreen() {
 
       <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/household/budget" />
 
+      <button onClick={() => nav('/household/fixed')}
+        className="w-full bg-card rounded-2xl py-3 font-semibold text-ink flex justify-between items-center px-4">
+        <span>고정비 관리</span><span className="text-sub">›</span>
+      </button>
+
       <div>
         <div className="flex justify-between items-center mb-1">
           <span className="font-bold">최근 내역</span>

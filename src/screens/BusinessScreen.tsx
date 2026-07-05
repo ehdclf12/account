@@ -67,6 +67,11 @@ export default function BusinessScreen() {
 
       <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/business/budget" />
 
+      <button onClick={() => nav('/business/fixed')}
+        className="w-full bg-card rounded-2xl py-3 font-semibold text-ink flex justify-between items-center px-4">
+        <span>고정비 관리</span><span className="text-sub">›</span>
+      </button>
+
       <div>
         <p className="font-bold text-ink mb-1">{month}월 사업 내역</p>
         {groups.length === 0 && <p className="text-sub text-sm text-center py-8">사업 내역이 없어요</p>}
