@@ -54,8 +54,8 @@ IA: "/"=HomeMenu(예산관리 항목 + 하단 계정/로그아웃, 추후 스케
 === 가계부 고도화 로드맵(사용자 선택, 순서대로 구현) ===
 ① 예산 설정 + 예산 대비 지출  ← DONE (병합 592a7b6). 월별 budgets 테이블(schema-budgets.sql, 사용자 실행 필요). 집·코스모스 화면 BudgetProgress + /household/budget /business/budget 편집화면.
    + 코스모스 원가·마진 계산기 DONE (병합 cc0220d). /business/calculator, 부대비용·수량·총이익·판매가역산.
-② 통계·그래프  ← 다음
-③ 고정비 관리
+② 통계·그래프  ← DONE (병합 0c3fad5). /household/stats /business/stats. 카테고리 도넛(검증 팔레트)+월별 추이 막대+지난달 대비. 순수 SVG, DB 불필요.
+③ 고정비 관리  ← 다음
 ④ 캘린더 뷰
 ⑤ 저축 목표
 ⑥ 자산 현황(주식·코인·부동산 순자산 — 최초 원비전, 규모 큼, 마지막)
