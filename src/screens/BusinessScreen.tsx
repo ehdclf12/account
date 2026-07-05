@@ -51,6 +51,11 @@ export default function BusinessScreen() {
         <button onClick={() => setTransfer('to_household')} className="flex-1 bg-card rounded-2xl py-3 font-semibold text-ink">받기</button>
       </div>
 
+      <button onClick={() => nav('/business/calculator')}
+        className="w-full bg-card rounded-2xl py-3 font-semibold text-ink flex justify-between items-center px-4">
+        <span>원가·마진 계산</span><span className="text-sub">›</span>
+      </button>
+
       <div className="flex gap-3">
         <div className="flex-1 bg-card rounded-2xl p-4">
           <p className="text-sub text-xs">이번 달 수입</p>
