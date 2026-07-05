@@ -37,7 +37,10 @@ export default function BusinessScreen() {
     <div className="p-5 space-y-6">
       <div className="flex justify-between items-center">
         <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
-        <button onClick={() => nav('/business/manage')} className="text-sub text-sm">관리</button>
+        <div className="flex items-center gap-3">
+          <button onClick={() => nav('/business/stats')} className="text-sub text-sm">통계</button>
+          <button onClick={() => nav('/business/manage')} className="text-sub text-sm">관리</button>
+        </div>
       </div>
       <div>
         <h1 className="text-xl font-bold text-ink">코스모스</h1>

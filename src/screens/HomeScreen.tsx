@@ -22,7 +22,10 @@ export default function HomeScreen() {
     <div className="p-5 space-y-6">
       <div className="flex justify-between items-center">
         <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
-        <button onClick={() => nav('/household/manage')} className="text-sub text-sm">관리</button>
+        <div className="flex items-center gap-3">
+          <button onClick={() => nav('/household/stats')} className="text-sub text-sm">통계</button>
+          <button onClick={() => nav('/household/manage')} className="text-sub text-sm">관리</button>
+        </div>
       </div>
       <div className="flex justify-between items-center">
         <span className="text-lg font-bold">집 · {year}년 {month}월</span>
