@@ -113,7 +113,7 @@ export function useFundTransfer() {
         category_id: p.transferCategoryId,
         payment_method_id: null,
         date: p.date,
-        memo: p.memo || (p.direction === 'to_business' ? '사업자금 보내기' : '사업자금 받기'),
+        memo: p.memo || (p.direction === 'to_business' ? '사업자금 받기' : '생활비로 사용'),
         scope: 'household',
       })
       if (error) throw error
