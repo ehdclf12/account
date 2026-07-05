@@ -11,10 +11,9 @@ import { NAME_BY_ROLE } from '@/lib/users'
 import FixedCostSheet from '@/components/FixedCostSheet'
 import type { FixedCost } from '@/types'
 
-export default function FixedManageScreen() {
+export default function FixedManageScreen({ scope, backTo }: { scope: 'household' | 'business'; backTo: string }) {
   const nav = useNavigate()
   const who = useIdentity()
-  const [scope, setScope] = useState<'household' | 'business'>('household')
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
@@ -39,17 +38,8 @@ export default function FixedManageScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
+      <button onClick={() => nav(backTo)} className="text-sub text-sm">‹ {scope === 'household' ? '집' : '코스모스'}</button>
       <h1 className="text-xl font-bold text-ink">고정비 관리</h1>
-
-      <div className="flex bg-card rounded-2xl p-1">
-        {(['household', 'business'] as const).map((s) => (
-          <button key={s} onClick={() => setScope(s)}
-            className={`flex-1 py-2 rounded-xl text-sm font-bold ${scope === s ? 'bg-white shadow text-ink' : 'text-sub'}`}>
-            {s === 'household' ? '집' : '코스모스'}
-          </button>
-        ))}
-      </div>
 
       <div className="flex gap-2">
         <div className="flex-1 bg-card rounded-2xl p-3">
