@@ -1,0 +1,18 @@
+import { useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
+
+export function useRealtime() {
+  const qc = useQueryClient()
+  useEffect(() => {
+    const ch = supabase.channel('db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' },
+        () => qc.invalidateQueries({ queryKey: ['transactions'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' },
+        () => qc.invalidateQueries({ queryKey: ['categories'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payment_methods' },
+        () => qc.invalidateQueries({ queryKey: ['payment_methods'] }))
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [qc])
+}
