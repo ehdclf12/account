@@ -25,6 +25,18 @@ export function useAddFixedCost() {
   })
 }
 
+export function useUpdateFixedCost() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (f: Partial<FixedCost> & { id: string }) => {
+      const { id, ...rest } = f
+      const { error } = await supabase.from('fixed_costs').update(rest).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['fixed_costs'] }),
+  })
+}
+
 export function useDeleteFixedCost() {
   const qc = useQueryClient()
   return useMutation({

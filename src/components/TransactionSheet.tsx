@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useCategories } from '@/hooks/useCategories'
 import { usePaymentMethods } from '@/hooks/usePaymentMethods'
-import { useAddTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
+import { useAddTransaction, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useTransactions'
 import { useIdentity } from '@/App'
 import { formatKRW } from '@/lib/format'
 import type { Transaction, TxType } from '@/types'
@@ -19,6 +19,7 @@ export default function TransactionSheet(
   const { data: pms = [] } = usePaymentMethods()
   const add = useAddTransaction()
   const update = useUpdateTransaction()
+  const del = useDeleteTransaction()
 
   const [type, setType] = useState<TxType>(editing?.type ?? 'expense')
   const [amount, setAmount] = useState<string>(editing ? String(editing.amount) : '')
@@ -93,6 +94,10 @@ export default function TransactionSheet(
           className="w-full bg-brand disabled:bg-sub text-white rounded-2xl py-3 font-bold">
           저장하기
         </button>
+        {editing && (
+          <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
+            className="w-full text-[#F04452] text-sm py-1">삭제</button>
+        )}
       </div>
     </div>
   )

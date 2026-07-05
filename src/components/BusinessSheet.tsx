@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useBusinessCategories, useAddBusinessTx, useUpdateBusinessTx } from '@/hooks/useBusiness'
+import { useBusinessCategories, useAddBusinessTx, useUpdateBusinessTx, useDeleteBusinessTx } from '@/hooks/useBusiness'
 import { useIdentity } from '@/App'
 import { formatKRW } from '@/lib/format'
 import type { Transaction, TxType } from '@/types'
@@ -16,6 +16,7 @@ export default function BusinessSheet(
   const { data: cats = [] } = useBusinessCategories()
   const add = useAddBusinessTx()
   const update = useUpdateBusinessTx()
+  const del = useDeleteBusinessTx()
 
   const [type, setType] = useState<TxType>(editing?.type ?? 'expense')
   const [amount, setAmount] = useState<string>(editing ? String(editing.amount) : '')
@@ -75,6 +76,10 @@ export default function BusinessSheet(
         </div>
         <button onClick={save} disabled={amt <= 0 || !categoryId}
           className="w-full bg-brand disabled:bg-sub text-white rounded-2xl py-3 font-bold">저장하기</button>
+        {editing && (
+          <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
+            className="w-full text-[#F04452] text-sm py-1">삭제</button>
+        )}
       </div>
     </div>
   )

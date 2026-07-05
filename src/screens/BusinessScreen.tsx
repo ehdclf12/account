@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useBusinessTransactions, useBusinessCategories, useFundData, useDeleteBusinessTx } from '@/hooks/useBusiness'
+import { useBusinessTransactions, useBusinessCategories, useFundData } from '@/hooks/useBusiness'
 import { computeFundBalance } from '@/lib/businessFund'
 import { computeSummary } from '@/lib/summary'
 import { formatKRW } from '@/lib/format'
@@ -8,7 +8,6 @@ import { groupByDate } from '@/lib/grouping'
 import { formatDayHeader } from '@/lib/date'
 import TransactionRow from '@/components/TransactionRow'
 import BudgetProgress from '@/components/BudgetProgress'
-import FixedCostsSection from '@/components/FixedCostsSection'
 import BusinessSheet from '@/components/BusinessSheet'
 import TransferSheet from '@/components/TransferSheet'
 import type { Transaction } from '@/types'
@@ -19,7 +18,6 @@ export default function BusinessScreen() {
   const { data: txs = [] } = useBusinessTransactions(year, month)
   const { data: cats = [] } = useBusinessCategories()
   const { data: fund } = useFundData()
-  const del = useDeleteBusinessTx()
   const catMap = new Map(cats.map((c) => [c.id, c]))
   const balance = fund ? computeFundBalance(fund.transfers, fund.business) : 0
   const s = computeSummary(txs)
@@ -29,10 +27,6 @@ export default function BusinessScreen() {
   const [transfer, setTransfer] = useState<null | 'to_business' | 'to_household'>(null)
   const groups = groupByDate(txs)
   const nav = useNavigate()
-
-  async function remove(id: string) {
-    if (confirm('이 사업 내역을 삭제할까요?')) { await del.mutateAsync(id); setEditing(null) }
-  }
 
   return (
     <div className="p-5 space-y-6">
@@ -73,8 +67,6 @@ export default function BusinessScreen() {
 
       <BudgetProgress month={`${year}-${String(month).padStart(2, '0')}`} categories={cats} monthTxs={txs} editTo="/business/budget" />
 
-      <FixedCostsSection scope="business" year={year} month={month} monthTxs={txs} editTo="/business/fixed" />
-
       <div>
         <p className="font-bold text-ink mb-1">{month}월 사업 내역</p>
         {groups.length === 0 && <p className="text-sub text-sm text-center py-8">사업 내역이 없어요</p>}
@@ -95,13 +87,7 @@ export default function BusinessScreen() {
 
       {open && <BusinessSheet open onClose={() => setOpen(false)} />}
       {transfer && <TransferSheet open onClose={() => setTransfer(null)} direction={transfer} />}
-      {editing && (
-        <>
-          <BusinessSheet open onClose={() => setEditing(null)} editing={editing} />
-          <button onClick={() => remove(editing.id)}
-            className="fixed bottom-4 inset-x-5 max-w-md mx-auto z-[60] text-[#F04452] text-sm">이 내역 삭제</button>
-        </>
-      )}
+      {editing && <BusinessSheet open onClose={() => setEditing(null)} editing={editing} />}
     </div>
   )
 }

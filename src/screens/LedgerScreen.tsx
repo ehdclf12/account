@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions'
+import { useTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { groupByDate } from '@/lib/grouping'
 import { formatDayHeader } from '@/lib/date'
@@ -16,7 +16,6 @@ export default function LedgerScreen() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const { data: txs = [] } = useTransactions(year, month)
   const { data: cats = [] } = useCategories()
-  const del = useDeleteTransaction()
   const catMap = new Map(cats.map((c) => [c.id, c]))
   const [editing, setEditing] = useState<Transaction | null>(null)
   const nav = useNavigate()
@@ -28,10 +27,6 @@ export default function LedgerScreen() {
     let m = month + delta, y = year
     if (m < 1) { m = 12; y-- } else if (m > 12) { m = 1; y++ }
     setYear(y); setMonth(m)
-  }
-
-  async function remove(id: string) {
-    if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(id); setEditing(null) }
   }
 
   return (
@@ -60,15 +55,7 @@ export default function LedgerScreen() {
         </div>
       ))}
 
-      {editing && (
-        <>
-          <TransactionSheet open onClose={() => setEditing(null)} editing={editing} />
-          <button onClick={() => remove(editing.id)}
-            className="fixed bottom-4 inset-x-5 max-w-md mx-auto z-[60] text-red-500 text-sm">
-            이 내역 삭제
-          </button>
-        </>
-      )}
+      {editing && <TransactionSheet open onClose={() => setEditing(null)} editing={editing} />}
     </div>
   )
 }

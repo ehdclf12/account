@@ -16,7 +16,7 @@ import BusinessCalculatorScreen from '@/screens/BusinessCalculatorScreen'
 import BusinessSettingsScreen from '@/screens/BusinessSettingsScreen'
 import BudgetEditScreen from '@/screens/BudgetEditScreen'
 import StatsScreen from '@/screens/StatsScreen'
-import FixedCostsScreen from '@/screens/FixedCostsScreen'
+import FixedManageScreen from '@/screens/FixedManageScreen'
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -58,14 +58,13 @@ export default function App() {
             <Route path="/household/manage" element={<HouseholdSettingsScreen />} />
             <Route path="/household/budget" element={<BudgetEditScreen scope="household" backTo="/household" />} />
             <Route path="/household/stats" element={<StatsScreen scope="household" backTo="/household" />} />
-            <Route path="/household/fixed" element={<FixedCostsScreen scope="household" backTo="/household" />} />
+            <Route path="/fixed" element={<FixedManageScreen />} />
             <Route path="/ledger" element={<LedgerScreen />} />
             <Route path="/business" element={<BusinessScreen />} />
             <Route path="/business/calculator" element={<BusinessCalculatorScreen />} />
             <Route path="/business/manage" element={<BusinessSettingsScreen />} />
             <Route path="/business/budget" element={<BudgetEditScreen scope="business" backTo="/business" />} />
             <Route path="/business/stats" element={<StatsScreen scope="business" backTo="/business" />} />
-            <Route path="/business/fixed" element={<FixedCostsScreen scope="business" backTo="/business" />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
