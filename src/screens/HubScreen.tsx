@@ -15,7 +15,8 @@ export default function HubScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <h1 className="text-xl font-bold text-ink">우리집 가계부</h1>
+      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
+      <h1 className="text-xl font-bold text-ink">예산관리</h1>
 
       <button onClick={() => nav('/household')}
         className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70">

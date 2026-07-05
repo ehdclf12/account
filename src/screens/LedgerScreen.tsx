@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { groupByDate } from '@/lib/grouping'
@@ -18,6 +19,7 @@ export default function LedgerScreen() {
   const del = useDeleteTransaction()
   const catMap = new Map(cats.map((c) => [c.id, c]))
   const [editing, setEditing] = useState<Transaction | null>(null)
+  const nav = useNavigate()
 
   const s = computeSummary(txs)
   const groups = groupByDate(txs)
@@ -34,6 +36,7 @@ export default function LedgerScreen() {
 
   return (
     <div className="p-5">
+      <button onClick={() => nav('/household')} className="text-sub text-sm mb-2">‹ 집</button>
       <div className="flex items-center justify-center gap-6 mb-2">
         <button onClick={() => move(-1)} className="text-2xl text-sub">‹</button>
         <span className="font-bold">{year}년 {month}월</span>

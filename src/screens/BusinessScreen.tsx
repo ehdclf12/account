@@ -34,7 +34,10 @@ export default function BusinessScreen() {
 
   return (
     <div className="p-5 space-y-6">
-      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
+      <div className="flex justify-between items-center">
+        <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
+        <button onClick={() => nav('/business/manage')} className="text-sub text-sm">관리</button>
+      </div>
       <div>
         <h1 className="text-xl font-bold text-ink">코스모스</h1>
         <p className="text-sub text-sm mt-3">사업자금 잔액</p>
@@ -74,7 +77,7 @@ export default function BusinessScreen() {
       </div>
 
       <button onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">+</button>
+        className="fixed bottom-6 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">+</button>
 
       {open && <BusinessSheet open onClose={() => setOpen(false)} />}
       {transfer && <TransferSheet open onClose={() => setTransfer(null)} direction={transfer} />}
