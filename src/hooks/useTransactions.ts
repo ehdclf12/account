@@ -14,6 +14,7 @@ export function useTransactions(year: number, month: number) {
       const prefix = monthKey(year, month)
       const { data, error } = await supabase.from('transactions')
         .select('*')
+        .eq('scope', 'household')
         .gte('date', `${prefix}-01`)
         .lte('date', `${prefix}-31`)
         .order('date', { ascending: false })

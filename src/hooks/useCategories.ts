@@ -9,7 +9,8 @@ export function useCategories() {
     queryKey: KEY,
     queryFn: async (): Promise<Category[]> => {
       const { data, error } = await supabase.from('categories')
-        .select('*').order('type').order('sort_order')
+        .select('*').eq('scope', 'household').eq('is_fund_transfer', false)
+        .order('type').order('sort_order')
       if (error) throw error
       return data as Category[]
     },
