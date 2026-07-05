@@ -50,8 +50,8 @@ export default function BusinessScreen() {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={() => setTransfer('to_business')} className="flex-1 bg-card rounded-2xl py-3 font-semibold text-ink">사업자금 보내기</button>
-        <button onClick={() => setTransfer('to_household')} className="flex-1 bg-card rounded-2xl py-3 font-semibold text-ink">받기</button>
+        <button onClick={() => setTransfer('to_business')} className="flex-1 bg-card rounded-2xl py-3 font-semibold text-ink">사업자금 받기</button>
+        <button onClick={() => setTransfer('to_household')} className="flex-1 bg-card rounded-2xl py-3 font-semibold text-ink">생활비로 사용</button>
       </div>
 
       <button onClick={() => nav('/business/calculator')}
@@ -88,7 +88,7 @@ export default function BusinessScreen() {
       </div>
 
       <button onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">+</button>
+        className="fixed bottom-6 right-[max(1.25rem,calc(50%_-_13rem))] w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">+</button>
 
       {open && <BusinessSheet open onClose={() => setOpen(false)} />}
       {transfer && <TransferSheet open onClose={() => setTransfer(null)} direction={transfer} />}

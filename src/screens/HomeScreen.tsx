@@ -64,7 +64,7 @@ export default function HomeScreen() {
       </div>
 
       <button onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-5 max-w-md w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">
+        className="fixed bottom-6 right-[max(1.25rem,calc(50%_-_13rem))] w-14 h-14 rounded-full bg-brand text-white text-3xl shadow-lg flex items-center justify-center">
         +
       </button>
       {open && <TransactionSheet open onClose={() => setOpen(false)} />}
