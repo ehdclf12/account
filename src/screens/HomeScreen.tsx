@@ -20,7 +20,7 @@ export default function HomeScreen() {
     <div className="p-5 space-y-6">
       <div className="flex justify-between items-center">
         <span className="text-lg font-bold">{year}년 {month}월</span>
-        <span className="text-sub text-sm">우리집 👫</span>
+        <span className="text-sub text-sm">우리집</span>
       </div>
 
       <div>

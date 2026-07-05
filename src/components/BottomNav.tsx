@@ -1,20 +1,19 @@
 import { NavLink } from 'react-router-dom'
 
 const tabs = [
-  { to: '/', label: '홈', icon: '🏠' },
-  { to: '/ledger', label: '내역', icon: '📋' },
-  { to: '/settings', label: '설정', icon: '⚙️' },
+  { to: '/', label: '홈' },
+  { to: '/ledger', label: '내역' },
+  { to: '/settings', label: '설정' },
 ]
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 inset-x-0 max-w-md mx-auto bg-white border-t flex">
+    <nav className="fixed bottom-0 inset-x-0 max-w-md mx-auto bg-white border-t border-card flex">
       {tabs.map((t) => (
         <NavLink key={t.to} to={t.to} end
           className={({ isActive }) =>
-            `flex-1 py-3 text-center text-xs ${isActive ? 'text-brand font-bold' : 'text-sub'}`
+            `flex-1 py-4 text-center text-sm ${isActive ? 'text-ink font-bold' : 'text-sub font-medium'}`
           }>
-          <div className="text-xl">{t.icon}</div>
           {t.label}
         </NavLink>
       ))}

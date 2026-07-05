@@ -43,14 +43,14 @@ export default function TransactionSheet(
     <div className="fixed inset-0 z-50 flex items-end bg-black/30" onClick={onClose}>
       <div className="w-full max-w-md mx-auto bg-white rounded-t-3xl p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center">
-          <span className="font-bold">{editing ? '내역 수정' : '입력'}</span>
-          <button onClick={onClose} className="text-sub text-xl">✕</button>
+          <span className="font-bold text-ink">{editing ? '내역 수정' : '입력'}</span>
+          <button onClick={onClose} className="text-sub text-sm font-medium">닫기</button>
         </div>
 
-        <div className="text-center text-3xl font-bold py-2">{formatKRW(amt)}</div>
+        <div className="text-center text-3xl font-bold py-2 text-ink">{formatKRW(amt)}</div>
         <input value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
           inputMode="numeric" placeholder="금액 입력"
-          className="w-full text-center border-b py-2 outline-none" autoFocus />
+          className="w-full text-center border-b border-card py-2 outline-none" autoFocus />
 
         <div className="flex bg-card rounded-2xl p-1">
           {(['expense', 'income'] as TxType[]).map((t) => (
@@ -64,8 +64,8 @@ export default function TransactionSheet(
         <div className="flex flex-wrap gap-2">
           {visibleCats.map((c) => (
             <button key={c.id} onClick={() => setCategoryId(c.id)}
-              className={`px-3 py-2 rounded-full text-sm ${categoryId === c.id ? 'bg-brand text-white' : 'bg-card'}`}>
-              {c.icon} {c.name}
+              className={`px-3 py-2 rounded-full text-sm font-medium ${categoryId === c.id ? 'bg-brand text-white' : 'bg-card text-ink'}`}>
+              {c.name}
             </button>
           ))}
         </div>
@@ -73,19 +73,19 @@ export default function TransactionSheet(
         <div className="space-y-2 text-sm">
           <label className="flex justify-between items-center">
             <span className="text-sub">날짜</span>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="text-right outline-none" />
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="text-right outline-none text-ink" />
           </label>
           <label className="flex justify-between items-center">
             <span className="text-sub">결제수단</span>
-            <select value={pmId ?? ''} onChange={(e) => setPmId(e.target.value || null)} className="text-right outline-none">
+            <select value={pmId ?? ''} onChange={(e) => setPmId(e.target.value || null)} className="text-right outline-none text-ink">
               <option value="">선택 안함</option>
-              {pms.map((p) => <option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}
+              {pms.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </label>
           <label className="flex justify-between items-center">
             <span className="text-sub">메모</span>
             <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="메모"
-              className="text-right outline-none" />
+              className="text-right outline-none text-ink" />
           </label>
         </div>
 
