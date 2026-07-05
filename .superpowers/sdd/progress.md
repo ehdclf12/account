@@ -41,4 +41,7 @@ DB 검증: Phase1+Phase2 스키마 모두 반영 확인(사용자 schema-phase2 
 
 --- Phase 3(각자 로그인 전환): 사용자 요청으로 공유계정+PIN → 각자 이메일/비번 로그인으로 변경.
 매핑: ehdclf12@naver.com=동욱(husband), tmxlclt@naver.com=도영(wife). 라벨 남편/아내 → 이름 동욱/도영.
-두 계정 로그인·데이터접근 검증 OK. PinGate/IdentityPick/pin/identity 제거, Login 화면 추가, supabase.ts ensureSignedIn 제거, Settings PIN→로그아웃, WhoBadge 이름표시. VITE_SHARED_* 불필요해짐. 착수. ---
+두 계정 로그인·데이터접근 검증 OK. PinGate/IdentityPick/pin/identity 제거, Login 화면 추가, supabase.ts ensureSignedIn 제거, Settings PIN→로그아웃, WhoBadge 이름표시. VITE_SHARED_* 불필요해짐. ---
+Phase 3: complete (commit cbf87f1, main 병합 8c8b7f7). 각자 로그인 전환, 10개 테스트 통과.
+Vercel 필요 env: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY 만. (SHARED 2개는 미사용)
+남은 것: 사용자 Vercel 재배포 → 두 폰 로그인 테스트.
