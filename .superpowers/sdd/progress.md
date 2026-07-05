@@ -46,4 +46,7 @@ Phase 3: complete (commit cbf87f1, main 병합 8c8b7f7). 각자 로그인 전환
 Vercel 필요 env: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY 만. (SHARED 2개는 미사용)
 남은 것: 사용자 Vercel 재배포 → 두 폰 로그인 테스트.
 
---- 홈 허브 개편: complete (commit 2a5531b, main 병합 40638c3). 홈="/"=허브(집/코스모스 카드), 집→/household, 코스모스→/business. 하단탭 홈·설정 2개. 코스모스=사업 이름. 스케줄러는 사용자가 "우선 무시" 요청→미착수. ---
+--- 홈 허브 개편: complete (2a5531b, 병합 40638c3). ---
+--- 홈 상위 메뉴 개편: complete (commit 0ae80e4, 병합 07b0cd9).
+IA: "/"=HomeMenu(예산관리 항목 + 하단 계정/로그아웃, 추후 스케줄링 등 추가) / "/budget"=집·코스모스 카드 / "/household"=집(상단 관리) / "/household/manage"=집설정(가계 카테고리·결제수단) / "/ledger"=집 내역 / "/business"=코스모스(상단 관리) / "/business/manage"=코스모스설정(사업 카테고리).
+전역 SettingsScreen·BottomNav 제거. 로그아웃=홈 메뉴 하단. 설정=영역별 노출. ---
