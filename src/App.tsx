@@ -1,3 +1,40 @@
+import { createContext, useContext, useEffect, useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { ensureSignedIn } from '@/lib/supabase'
+import { getIdentity, isPinOk } from '@/lib/identity'
+import type { Role } from '@/types'
+import PinGate from '@/screens/PinGate'
+import IdentityPick from '@/screens/IdentityPick'
+import HomeScreen from '@/screens/HomeScreen'
+import LedgerScreen from '@/screens/LedgerScreen'
+import SettingsScreen from '@/screens/SettingsScreen'
+import BottomNav from '@/components/BottomNav'
+
+const IdentityCtx = createContext<Role>('husband')
+export const useIdentity = () => useContext(IdentityCtx)
+
 export default function App() {
-  return <div className="p-6 text-xl font-bold">우리집 가계부</div>
+  const [ready, setReady] = useState(false)
+  const [pinOk, setPinOkState] = useState(isPinOk())
+  const [who, setWho] = useState<Role | null>(getIdentity())
+
+  useEffect(() => { ensureSignedIn().then(() => setReady(true)).catch(() => setReady(true)) }, [])
+
+  if (!ready) return <div className="p-6 text-sub">시작하는 중…</div>
+  if (!pinOk) return <PinGate onOk={() => setPinOkState(true)} />
+  if (!who) return <IdentityPick onPick={setWho} />
+
+  return (
+    <IdentityCtx.Provider value={who}>
+      <div className="max-w-md mx-auto min-h-full pb-20">
+        <Routes>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/ledger" element={<LedgerScreen />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+        <BottomNav />
+      </div>
+    </IdentityCtx.Provider>
+  )
 }
