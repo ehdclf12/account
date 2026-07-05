@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { computeSummary } from '@/lib/summary'
@@ -15,12 +15,13 @@ export default function HomeScreen() {
   const catMap = new Map(cats.map((c) => [c.id, c]))
   const s = computeSummary(txs)
   const [open, setOpen] = useState(false)
+  const nav = useNavigate()
 
   return (
     <div className="p-5 space-y-6">
+      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
       <div className="flex justify-between items-center">
-        <span className="text-lg font-bold">{year}년 {month}월</span>
-        <span className="text-sub text-sm">우리집</span>
+        <span className="text-lg font-bold">집 · {year}년 {month}월</span>
       </div>
 
       <div>

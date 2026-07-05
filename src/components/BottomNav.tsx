@@ -2,8 +2,6 @@ import { NavLink } from 'react-router-dom'
 
 const tabs = [
   { to: '/', label: '홈' },
-  { to: '/ledger', label: '내역' },
-  { to: '/business', label: '사업' },
   { to: '/settings', label: '설정' },
 ]
 

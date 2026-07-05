@@ -6,6 +6,7 @@ import { userForEmail } from '@/lib/users'
 import type { Role } from '@/types'
 import { useRealtime } from '@/hooks/useRealtime'
 import Login from '@/screens/Login'
+import HubScreen from '@/screens/HubScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import LedgerScreen from '@/screens/LedgerScreen'
 import BusinessScreen from '@/screens/BusinessScreen'
@@ -46,7 +47,8 @@ export default function App() {
       <Shell>
         <div className="max-w-md mx-auto min-h-full pb-20">
           <Routes>
-            <Route path="/" element={<HomeScreen />} />
+            <Route path="/" element={<HubScreen />} />
+            <Route path="/household" element={<HomeScreen />} />
             <Route path="/ledger" element={<LedgerScreen />} />
             <Route path="/business" element={<BusinessScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
