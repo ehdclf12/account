@@ -5,7 +5,7 @@ import type { Transaction } from '@/types'
 const tx = (p: Partial<Transaction>): Transaction => ({
   id: '1', who: 'husband', type: 'expense', amount: 0,
   category_id: null, payment_method_id: null, date: '2026-07-01',
-  memo: '', created_at: '', ...p,
+  memo: '', created_at: '', scope: 'household', ...p,
 })
 
 describe('computeSummary', () => {

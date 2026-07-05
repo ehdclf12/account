@@ -1,5 +1,6 @@
 export type Role = 'husband' | 'wife'
 export type TxType = 'expense' | 'income'
+export type Scope = 'household' | 'business'
 
 export interface Category {
   id: string
@@ -8,6 +9,8 @@ export interface Category {
   type: TxType
   is_fixed: boolean
   sort_order: number
+  scope: Scope
+  is_fund_transfer: boolean
 }
 
 export interface PaymentMethod {
@@ -27,4 +30,5 @@ export interface Transaction {
   date: string // YYYY-MM-DD
   memo: string
   created_at: string
+  scope: Scope
 }

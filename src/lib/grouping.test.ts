@@ -5,6 +5,7 @@ import type { Transaction } from '@/types'
 const tx = (id: string, date: string): Transaction => ({
   id, who: 'husband', type: 'expense', amount: 100,
   category_id: null, payment_method_id: null, date, memo: '', created_at: '',
+  scope: 'household',
 })
 
 describe('groupByDate', () => {

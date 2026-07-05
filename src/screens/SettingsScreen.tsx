@@ -56,7 +56,7 @@ export default function SettingsScreen() {
             <option value="expense">지출</option><option value="income">수입</option>
           </select>
           <button className="bg-brand text-white rounded-xl px-3 font-semibold"
-            onClick={() => { if (catName) { addCat.mutate({ name: catName, icon: '', type: catType, is_fixed: false, sort_order: 99 }); setCatName('') } }}>
+            onClick={() => { if (catName) { addCat.mutate({ name: catName, icon: '', type: catType, is_fixed: false, sort_order: 99, scope: 'household', is_fund_transfer: false }); setCatName('') } }}>
             추가
           </button>
         </div>

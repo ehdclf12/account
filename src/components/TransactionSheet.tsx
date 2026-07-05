@@ -33,7 +33,7 @@ export default function TransactionSheet(
 
   async function save() {
     if (amt <= 0 || !categoryId) return
-    const payload = { who, type, amount: amt, category_id: categoryId, payment_method_id: pmId, date, memo }
+    const payload = { who, type, amount: amt, category_id: categoryId, payment_method_id: pmId, date, memo, scope: 'household' as const }
     if (editing) await update.mutateAsync({ id: editing.id, ...payload })
     else await add.mutateAsync(payload)
     onClose()
