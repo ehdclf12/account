@@ -60,6 +60,11 @@ export function useDeleteSavingsGoal() {
       const { error } = await supabase.from('savings_goals').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['savings_goals'] }),
+    onSuccess: () => {
+      // 삭제 시 연결된 거래의 savings_goal_id가 null이 되므로 진행 합계·거래도 갱신
+      qc.invalidateQueries({ queryKey: ['savings_goals'] })
+      qc.invalidateQueries({ queryKey: ['savings_progress'] })
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+    },
   })
 }
