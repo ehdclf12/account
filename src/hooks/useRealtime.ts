@@ -22,6 +22,8 @@ export function useRealtime() {
         () => qc.invalidateQueries({ queryKey: ['fixed_costs'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'savings_goals' },
         () => qc.invalidateQueries({ queryKey: ['savings_goals'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' },
+        () => qc.invalidateQueries({ queryKey: ['assets'] }))
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [qc])
