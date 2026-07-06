@@ -63,3 +63,11 @@ IA: "/"=HomeMenu(예산관리 항목 + 하단 계정/로그아웃, 추후 스케
 ④ 캘린더 뷰  ← 다음
 ⑤ 저축 목표
 ⑥ 자산 현황(주식·코인·부동산 순자산 — 최초 원비전, 규모 큼, 마지막)
+
+=== ⑤ 저축 목표 태스크 진행 (branch feat/savings, plan 2026-07-06-savings-goals.md) ===
+Task 1: complete (commit 84e9fdd, savings 계산 로직 TDD 9tests, 리뷰 clean; Minor: monthsUntil quarter 0 truthy — 도메인상 무해)
+Task 2: complete (commit 0ba1afe, schema-savings.sql + types SavingsGoal/is_savings/savings_goal_id, settings 화면 is_savings:false 컴파일 보정, tsc clean, 리뷰 clean)
+Task 3: complete (commit 7f6055b, useSavingsGoals 5훅 + useTransactions/useRealtime savings_progress 무효화·구독, build+30tests clean, 리뷰 clean)
+Task 4: complete (commit d57f51b, SavingsGoalSheet + SavingsManageScreen + /household/savings 라우트 + 집 화면 진입버튼, build+30tests clean, 리뷰 clean)
+Task 5: complete (commit 658897b, TransactionSheet 저축 카테고리→목표 연동, build+30tests clean, 리뷰 clean; Minor: 저축 카테고리 전환 시 목표 id 미리셋 — 무해)
+최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 2(quarter 0 truthy, 카테고리 전환시 목표 미리셋) 무해. delete 무효화 개선 적용(commit 849dee2).

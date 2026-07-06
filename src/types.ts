@@ -11,6 +11,7 @@ export interface Category {
   sort_order: number
   scope: Scope
   is_fund_transfer: boolean
+  is_savings: boolean
 }
 
 export interface PaymentMethod {
@@ -32,6 +33,7 @@ export interface Transaction {
   created_at: string
   scope: Scope
   fixed_cost_id?: string | null
+  savings_goal_id?: string | null
 }
 
 export interface FixedCost {
@@ -50,4 +52,14 @@ export interface Budget {
   category_id: string
   month: string // YYYY-MM
   amount: number
+}
+
+export interface SavingsGoal {
+  id: string
+  name: string
+  target_amount: number
+  target_year: number | null
+  target_quarter: number | null // 1..4, null=연도 목표
+  active: boolean
+  created_at: string
 }
