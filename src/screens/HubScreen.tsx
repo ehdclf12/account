@@ -7,6 +7,8 @@ import { formatKRW } from '@/lib/format'
 import { useAssets } from '@/hooks/useAssets'
 import { useSavingsProgress } from '@/hooks/useSavingsGoals'
 import { computeNetWorth } from '@/lib/networth'
+import { useQuotes } from '@/hooks/useQuotes'
+import { effectiveAmount } from '@/lib/quote'
 
 export default function HubScreen() {
   const now = new Date()
@@ -18,7 +20,12 @@ export default function HubScreen() {
   const { data: assets = [] } = useAssets()
   const { data: progress = {} } = useSavingsProgress()
   const savingsTotal = Object.values(progress).reduce((a, b) => a + b, 0)
-  const netWorth = computeNetWorth(assets, savingsTotal).total
+  const symbols = assets.map((a) => a.symbol).filter((s): s is string => !!s)
+  const { data: q } = useQuotes(symbols)
+  const quotes = q?.quotes ?? {}
+  const usdkrw = q?.usdkrw ?? null
+  const netRows = assets.map((a) => ({ type: a.type, amount: effectiveAmount(a, quotes[a.symbol ?? ''], usdkrw) }))
+  const netWorth = computeNetWorth(netRows, savingsTotal).total
 
   return (
     <div className="p-5 space-y-5">
