@@ -63,3 +63,17 @@ export interface SavingsGoal {
   active: boolean
   created_at: string
 }
+
+export type AssetType =
+  | 'stock_us' | 'stock_kr' | 'crypto' | 'real_estate' | 'cash' | 'etc' | 'liability'
+
+export interface Asset {
+  id: string
+  name: string
+  type: AssetType
+  amount: number
+  symbol: string | null
+  quantity: number | null
+  active: boolean
+  created_at: string
+}
