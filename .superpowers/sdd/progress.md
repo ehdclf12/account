@@ -63,7 +63,7 @@ IA: "/"=HomeMenu(예산관리 항목 + 하단 계정/로그아웃, 추후 스케
 ④ 캘린더 뷰  ← 진행 안 함(사용자 확정)
 ⑤ 저축 목표  ← DONE (병합 feat/savings). schema-savings.sql(savings_goals + transactions.savings_goal_id + categories.is_savings + '저축' 카테고리 시드, 사용자 실행 필요). 카테고리→목표 연동, 진행률·월 적립(연도/분기 기한), /household/savings 관리 화면(집 화면 진입버튼). 목표별 합계만(인원별 없음). ⑥ 연결용 useSavingsProgress 총합 준비.
 ⑥ 자산 현황  ← 1단계 DONE (병합 feat/assets). schema-assets.sql(assets 테이블, symbol/quantity는 6-2 예약, 사용자 실행 필요). 순자산 = 자산 − 부채 + 저축(⑤). 예산관리 자산현황 카드(맨 위, 자산현황/집/코스모스) + /assets 관리 화면(수동 평가액). 타입: 미국주식/한국주식/코인/부동산/현금/기타/부채. 인원 구분 없음. lib/networth(TDD).
-   + 6-2단계(다음): Yahoo Finance 프록시(Vercel 서버리스 /api/quotes) 1개로 세 시장+환율 → 보유수량×시세 자동평가. 별도 스펙 예정.
+   + 6-2단계 DONE (병합 feat/assets-live). api/quotes.js(Yahoo v8 chart 프록시, 키 불필요) + vercel.json /api 제외. useQuotes 훅(정렬키·staleTime 60s·자동+새로고침). AssetSheet 주식·코인 타입에 심볼(Yahoo 티커 직접입력)·수량. lib/quote effectiveAmount(USD는 USDKRW=X 환율 환산, 실패/부분실패/환율없음 시 수동 amount 폴백). AssetsScreen/HubScreen 시세 반영 + "시세" 배지. DB 변경 없음(6-1 컬럼 재사용). 로컬 dev는 /api 없어 수동값 폴백, 실검증은 Vercel 배포본.
 
 === ⑤ 저축 목표 태스크 진행 (branch feat/savings, plan 2026-07-06-savings-goals.md) ===
 Task 1: complete (commit 84e9fdd, savings 계산 로직 TDD 9tests, 리뷰 clean; Minor: monthsUntil quarter 0 truthy — 도메인상 무해)
