@@ -12,3 +12,4 @@ create table if not exists budgets (
 alter table budgets enable row level security;
 drop policy if exists auth_all on budgets;
 create policy auth_all on budgets for all to authenticated using (true) with check (true);
+
