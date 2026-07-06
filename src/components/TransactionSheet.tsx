@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCategories } from '@/hooks/useCategories'
 import { usePaymentMethods } from '@/hooks/usePaymentMethods'
 import { useAddTransaction, useUpdateTransaction, useDeleteTransaction } from '@/hooks/useTransactions'
+import { useSavingsGoals } from '@/hooks/useSavingsGoals'
 import { useIdentity } from '@/App'
 import { formatKRW } from '@/lib/format'
 import type { Transaction, TxType } from '@/types'
@@ -20,6 +21,7 @@ export default function TransactionSheet(
   const add = useAddTransaction()
   const update = useUpdateTransaction()
   const del = useDeleteTransaction()
+  const { data: goals = [] } = useSavingsGoals()
 
   const [type, setType] = useState<TxType>(editing?.type ?? 'expense')
   const [amount, setAmount] = useState<string>(editing ? String(editing.amount) : '')
@@ -27,14 +29,22 @@ export default function TransactionSheet(
   const [pmId, setPmId] = useState<string | null>(editing?.payment_method_id ?? null)
   const [date, setDate] = useState(editing?.date ?? today())
   const [memo, setMemo] = useState(editing?.memo ?? '')
+  const [savingsGoalId, setSavingsGoalId] = useState<string | null>(editing?.savings_goal_id ?? null)
 
   if (!open) return null
   const amt = Number(amount) || 0
   const visibleCats = cats.filter((c) => c.type === type)
+  const selectedCat = cats.find((c) => c.id === categoryId)
+  const isSavings = selectedCat?.is_savings ?? false
 
   async function save() {
     if (amt <= 0 || !categoryId) return
-    const payload = { who, type, amount: amt, category_id: categoryId, payment_method_id: pmId, date, memo, scope: 'household' as const }
+    if (isSavings && !savingsGoalId) return
+    const payload = {
+      who, type, amount: amt, category_id: categoryId, payment_method_id: pmId,
+      date, memo, scope: 'household' as const,
+      savings_goal_id: isSavings ? savingsGoalId : null,
+    }
     if (editing) await update.mutateAsync({ id: editing.id, ...payload })
     else await add.mutateAsync(payload)
     onClose()
@@ -71,6 +81,20 @@ export default function TransactionSheet(
           ))}
         </div>
 
+        {isSavings && (
+          goals.length === 0 ? (
+            <p className="text-sub text-sm">먼저 저축 목표를 추가하세요</p>
+          ) : (
+            <label className="flex justify-between items-center text-sm">
+              <span className="text-sub">목표</span>
+              <select value={savingsGoalId ?? ''} onChange={(e) => setSavingsGoalId(e.target.value || null)} className="text-right outline-none text-ink">
+                <option value="">선택</option>
+                {goals.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+              </select>
+            </label>
+          )
+        )}
+
         <div className="space-y-2 text-sm">
           <label className="flex justify-between items-center">
             <span className="text-sub">날짜</span>
@@ -90,7 +114,7 @@ export default function TransactionSheet(
           </label>
         </div>
 
-        <button onClick={save} disabled={amt <= 0 || !categoryId}
+        <button onClick={save} disabled={amt <= 0 || !categoryId || (isSavings && !savingsGoalId)}
           className="w-full bg-brand disabled:bg-sub text-white rounded-2xl py-3 font-bold">
           저장하기
         </button>
