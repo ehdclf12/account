@@ -60,9 +60,10 @@ IA: "/"=HomeMenu(예산관리 항목 + 하단 계정/로그아웃, 추후 스케
    + 고정비 고도화 DONE (병합 157c70f): 홈에 별도 "고정비 관리" 메뉴(/fixed), 집/코스모스 토글, 월이동, 인원별(동욱/도영/공동) 합계, 항목 탭→편집(FixedCostSheet), 담당자 who 컬럼(schema-fixed-who.sql 실행 필요). 메인화면 FixedCostsSection 제거. 삭제버튼 시트 안으로 이동.
    + 고정비 위치 이동 DONE (병합 f4a896f): 홈 메뉴에서 제거, 예산관리→집/코스모스 화면 안 "고정비 관리"(/household/fixed, /business/fixed) 스코프별. 토글 제거.
    + budgets RLS 정책 사용자 실행 완료 → 예산 저장 정상. fixed_costs.who 실행 완료.
-④ 캘린더 뷰  ← 보류(사용자가 ⑤ 먼저 선택)
+④ 캘린더 뷰  ← 진행 안 함(사용자 확정)
 ⑤ 저축 목표  ← DONE (병합 feat/savings). schema-savings.sql(savings_goals + transactions.savings_goal_id + categories.is_savings + '저축' 카테고리 시드, 사용자 실행 필요). 카테고리→목표 연동, 진행률·월 적립(연도/분기 기한), /household/savings 관리 화면(집 화면 진입버튼). 목표별 합계만(인원별 없음). ⑥ 연결용 useSavingsProgress 총합 준비.
-⑥ 자산 현황(주식·코인·부동산 순자산 — 최초 원비전, 규모 큼, 마지막)
+⑥ 자산 현황  ← 1단계 DONE (병합 feat/assets). schema-assets.sql(assets 테이블, symbol/quantity는 6-2 예약, 사용자 실행 필요). 순자산 = 자산 − 부채 + 저축(⑤). 예산관리 자산현황 카드(맨 위, 자산현황/집/코스모스) + /assets 관리 화면(수동 평가액). 타입: 미국주식/한국주식/코인/부동산/현금/기타/부채. 인원 구분 없음. lib/networth(TDD).
+   + 6-2단계(다음): Yahoo Finance 프록시(Vercel 서버리스 /api/quotes) 1개로 세 시장+환율 → 보유수량×시세 자동평가. 별도 스펙 예정.
 
 === ⑤ 저축 목표 태스크 진행 (branch feat/savings, plan 2026-07-06-savings-goals.md) ===
 Task 1: complete (commit 84e9fdd, savings 계산 로직 TDD 9tests, 리뷰 clean; Minor: monthsUntil quarter 0 truthy — 도메인상 무해)
