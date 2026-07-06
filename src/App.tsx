@@ -17,6 +17,7 @@ import BusinessSettingsScreen from '@/screens/BusinessSettingsScreen'
 import BudgetEditScreen from '@/screens/BudgetEditScreen'
 import StatsScreen from '@/screens/StatsScreen'
 import FixedManageScreen from '@/screens/FixedManageScreen'
+import SavingsManageScreen from '@/screens/SavingsManageScreen'
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/household/budget" element={<BudgetEditScreen scope="household" backTo="/household" />} />
             <Route path="/household/stats" element={<StatsScreen scope="household" backTo="/household" />} />
             <Route path="/household/fixed" element={<FixedManageScreen scope="household" backTo="/household" />} />
+            <Route path="/household/savings" element={<SavingsManageScreen />} />
             <Route path="/business/fixed" element={<FixedManageScreen scope="business" backTo="/business" />} />
             <Route path="/ledger" element={<LedgerScreen />} />
             <Route path="/business" element={<BusinessScreen />} />
