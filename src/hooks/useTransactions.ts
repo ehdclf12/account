@@ -32,7 +32,10 @@ export function useAddTransaction() {
       const { error } = await supabase.from('transactions').insert(t)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['savings_progress'] })
+    },
   })
 }
 
@@ -44,7 +47,10 @@ export function useUpdateTransaction() {
       const { error } = await supabase.from('transactions').update(rest).eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['savings_progress'] })
+    },
   })
 }
 
@@ -55,6 +61,9 @@ export function useDeleteTransaction() {
       const { error } = await supabase.from('transactions').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['savings_progress'] })
+    },
   })
 }
