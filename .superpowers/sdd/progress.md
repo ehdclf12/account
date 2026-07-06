@@ -71,3 +71,11 @@ Task 3: complete (commit 7f6055b, useSavingsGoals 5훅 + useTransactions/useReal
 Task 4: complete (commit d57f51b, SavingsGoalSheet + SavingsManageScreen + /household/savings 라우트 + 집 화면 진입버튼, build+30tests clean, 리뷰 clean)
 Task 5: complete (commit 658897b, TransactionSheet 저축 카테고리→목표 연동, build+30tests clean, 리뷰 clean; Minor: 저축 카테고리 전환 시 목표 id 미리셋 — 무해)
 최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 2(quarter 0 truthy, 카테고리 전환시 목표 미리셋) 무해. delete 무효화 개선 적용(commit 849dee2).
+
+=== ⑥ 자산 현황 1단계 태스크 진행 (branch feat/assets, plan 2026-07-06-assets-networth-phase1.md) ===
+Task 1: complete (commit e99148e, networth 계산 로직 TDD 6tests, 리뷰 clean)
+Task 2: complete (commit 34e172b, schema-assets.sql + types AssetType/Asset(symbol·quantity 예약), tsc clean, 리뷰 clean)
+Task 3: complete (commit 0c879e6, useAssets 4훅 + useRealtime assets 구독, build+36tests clean, 리뷰 clean)
+Task 4: complete (commit 27d86f0, AssetSheet + AssetsScreen + /assets 라우트, build+36tests clean, 리뷰 clean; Minor: 음수 순자산 formatKRW ₩- 표기(미관), name trim 없음, edit시 symbol/quantity null(6-2 대비 주의))
+Task 5: complete (commit 6d241a3, 예산관리 자산현황 카드 맨위, build+36tests clean, 리뷰 clean)
+최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 3(음수 formatKRW 표기·name trim·edit시 symbol/quantity null) 무해/의도. 두 화면 순자산 계산 동일, 저축 연동·실시간 무효화 정상 확인.
