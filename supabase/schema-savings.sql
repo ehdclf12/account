@@ -1,4 +1,4 @@
--- 저축 목표: 목표 테이블 + transactions.savings_goal_id 연결 + categories.is_savings.
+"-- 저축 목표: 목표 테이블 + transactions.savings_goal_id 연결 + categories.is_savings.
 -- Phase 1·2·예산·고정비 실행 후 SQL Editor에서 실행. 재실행해도 안전(idempotent).
 
 create table if not exists savings_goals (
@@ -24,3 +24,4 @@ where not exists (select 1 from categories where scope = 'household' and is_savi
 alter table savings_goals enable row level security;
 drop policy if exists auth_all on savings_goals;
 create policy auth_all on savings_goals for all to authenticated using (true) with check (true);
+"
