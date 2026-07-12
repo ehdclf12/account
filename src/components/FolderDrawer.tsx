@@ -4,7 +4,7 @@ import { useFolders, useReorderFolders } from '@/hooks/useArchive'
 import { buildFolderTree, moveItem } from '@/lib/archive'
 import type { ArchiveFolder } from '@/types'
 
-type DragState = { group: string; ids: string[]; activeId: string } | null
+type DragState = { group: string; ids: string[]; orig: string[]; activeId: string } | null
 const LONG_PRESS_MS = 300
 const MOVE_THRESHOLD = 6
 
@@ -45,7 +45,7 @@ export default function FolderDrawer(
       if (!pressRef.current) return
       pressRef.current.dragging = true
       try { el.setPointerCapture(pid) } catch { /* noop */ }
-      dragRef.current = { group, ids: siblingIds, activeId: id }
+      dragRef.current = { group, ids: siblingIds, orig: siblingIds, activeId: id }
       force()
     }, LONG_PRESS_MS)
     pressRef.current = { id, timer, dragging: false, sx, sy }
@@ -82,7 +82,7 @@ export default function FolderDrawer(
     clearTimeout(p.timer)
     if (p.dragging) {
       const d = dragRef.current
-      if (d) reorder.mutate(d.ids.map((id, i) => ({ id, sort_order: i })))
+      if (d && d.ids.join(',') !== d.orig.join(',')) reorder.mutate(d.ids.map((id, i) => ({ id, sort_order: i })))
       dragRef.current = null
       force()
     } else {
@@ -101,7 +101,7 @@ export default function FolderDrawer(
   const rowCls = (key: string) =>
     `flex-1 text-left rounded-xl px-3 py-2 text-sm font-medium ${selected === key ? 'bg-brand text-white' : 'text-ink active:bg-card'}`
 
-  function FolderButton({ f, group, siblingIds }: { f: ArchiveFolder; group: string; siblingIds: string[] }) {
+  function folderButton(f: ArchiveFolder, group: string, siblingIds: string[]) {
     const dragging = dragRef.current?.activeId === f.id
     return (
       <button
@@ -142,16 +142,16 @@ export default function FolderDrawer(
             <div key={top.id}>
               <div className="flex items-center gap-1">
                 {top.children.length > 0 ? (
-                  <button onClick={() => toggleExpand(top.id)} className="w-6 text-sub text-xs shrink-0">{isExpanded ? '▾' : '▸'}</button>
-                ) : <span className="w-6 shrink-0" />}
-                <FolderButton f={top} group="top" siblingIds={topIds} />
+                  <button onClick={() => toggleExpand(top.id)} className="w-7 h-8 flex items-center justify-center text-sub text-base shrink-0">{isExpanded ? '▾' : '▸'}</button>
+                ) : <span className="w-7 shrink-0" />}
+                {folderButton(top, 'top', topIds)}
               </div>
               {isExpanded && childOrder.map((cid) => {
                 const c = childById.get(cid)
                 if (!c) return null
                 return (
                   <div key={c.id} className="flex items-center gap-1 pl-6">
-                    <FolderButton f={c} group={top.id} siblingIds={childIds} />
+                    {folderButton(c, top.id, childIds)}
                   </div>
                 )
               })}
