@@ -80,3 +80,11 @@ export const ARCHIVE_COLORS: { key: ArchiveColor; hex: string }[] = [
   { key: 'blue', hex: '#3182F6' },
   { key: 'purple', hex: '#8B5CF6' },
 ]
+
+export function moveItem<T>(arr: T[], from: number, to: number): T[] {
+  const copy = [...arr]
+  if (from < 0 || from >= copy.length || to < 0 || to >= copy.length || from === to) return copy
+  const [x] = copy.splice(from, 1)
+  copy.splice(to, 0, x)
+  return copy
+}
