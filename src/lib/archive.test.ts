@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  checklistProgress, normalizeUrl, countByFolder,
+  checklistProgress, normalizeUrl,
   buildFolderTree, sortItems, dueStatus, storagePathFromPublicUrl,
 } from './archive'
 import type { ArchiveFolder, ArchiveItem } from '@/types'
@@ -28,13 +28,6 @@ describe('normalizeUrl', () => {
   it('공백/도트 없는 호스트는 null', () => {
     expect(normalizeUrl('   ')).toBeNull()
     expect(normalizeUrl('notaurl')).toBeNull()
-  })
-})
-
-describe('countByFolder', () => {
-  it('folder_id로 묶고 null은 none', () => {
-    const its = [item({ folder_id: 'f1' }), item({ folder_id: 'f1' }), item({ folder_id: null })]
-    expect(countByFolder(its)).toEqual({ f1: 2, none: 1 })
   })
 })
 

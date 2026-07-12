@@ -20,16 +20,6 @@ export function normalizeUrl(input: string): string | null {
   }
 }
 
-// Task 7에서 ArchiveScreen 교체와 함께 제거 예정(현재 소비처 유지용).
-export function countByFolder(items: ArchiveItem[]): Record<string, number> {
-  const out: Record<string, number> = {}
-  for (const it of items) {
-    const key = it.folder_id ?? 'none'
-    out[key] = (out[key] ?? 0) + 1
-  }
-  return out
-}
-
 export interface FolderNode extends ArchiveFolder {
   children: ArchiveFolder[]
 }
