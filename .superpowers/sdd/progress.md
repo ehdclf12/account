@@ -88,3 +88,14 @@ Task 3: complete (commit 7142db1, useQuotes 훅(정렬키·staleTime 60s·enable
 Task 4: complete (commit 0ceb3e6, AssetSheet 심볼·수량 입력(주식·코인, isMarket 게이트), build+46tests clean, 리뷰 clean)
 Task 5: complete (commit 63e6a86, AssetsScreen+HubScreen 시세 반영·새로고침·시세 배지, build+46tests clean, 리뷰 clean)
 최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. 통화 환산·두 화면 순자산 일치·폴백·vercel /api 라우팅 정상. Minor: quantity 마스크 다중 점 허용(→수동 다운그레이드, 무해) + 기존 로그 Minor.
+
+
+=== 아카이빙(독립 서비스) 태스크 진행 (branch feat/archive, plan 2026-07-12-archive.md) ===
+Task 1: complete (commit eed55c8, 타입+lib/archive TDD 6tests, 리뷰 clean; Minor: normalizeUrl "도트 포함" 검증 느슨 — 스펙대로, 무해)
+Task 2: complete (commit a7e5c9f, schema-archive.sql — 컨트롤러 직접 검증, 스펙 일치)
+Task 3: complete (commit b151b15, api/preview.js OG 프록시, node --check clean, 리뷰 clean; Minor: r.ok 미검사(404 페이지 title 반환 가능) + SSRF 미제한 — 2인 비공개 저위험, 최종검토 트리아지)
+Task 4: complete (commit a1c7a13, useArchive 훅 CRUD·토글·미리보기 fetch + 실시간 2구독, build clean, 리뷰 clean)
+Task 5: complete (commit 0f3abf2, ArchiveItemSheet+FolderSheet, build clean, 리뷰 clean; Minor: editing-파생 useState는 mount 시만 초기화 — Task6가 close→open으로 항상 리마운트하므로 무해, AssetSheet와 동일)
+Task 6: complete (commit faaf78e, ArchiveScreen+/archive 라우트+홈 아카이빙 카드, build+52tests clean, 리뷰 clean)
+최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 3: (1)체크 토글 시 updated_at bump→목록 최상단 점프 UX(수정예정) (2)빠른 연속 탭 stale-closure 경합(2인 저위험) (3)링크 URL 편집시 옛 preview 유지. 사전 로그 Minor 3(r.ok/SSRF/normalizeUrl) 모두 병합 무해 판정.
+리뷰수정: complete — useToggleCheck updated_at 제거(Minor#1), build+52tests clean.

@@ -24,6 +24,10 @@ export function useRealtime() {
         () => qc.invalidateQueries({ queryKey: ['savings_goals'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' },
         () => qc.invalidateQueries({ queryKey: ['assets'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'archive_folders' },
+        () => qc.invalidateQueries({ queryKey: ['folders'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'archive_items' },
+        () => qc.invalidateQueries({ queryKey: ['archive_items'] }))
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [qc])

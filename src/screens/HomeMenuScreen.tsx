@@ -18,6 +18,14 @@ export default function HomeMenuScreen() {
           </div>
           <span className="text-sub text-xl">›</span>
         </button>
+        <button onClick={() => nav('/archive')}
+          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
+          <div>
+            <span className="font-bold text-ink text-lg">아카이빙</span>
+            <p className="text-sub text-sm mt-1">메모 · 체크리스트 · 링크</p>
+          </div>
+          <span className="text-sub text-xl">›</span>
+        </button>
       </div>
       <div className="mt-auto pt-8 text-sm text-sub">
         {NAME_BY_ROLE[who]}님 · <button onClick={() => supabase.auth.signOut()} className="text-brand font-medium">로그아웃</button>

@@ -77,3 +77,37 @@ export interface Asset {
   active: boolean
   created_at: string
 }
+
+export type ArchiveKind = 'memo' | 'checklist' | 'link'
+
+export interface ChecklistEntry {
+  text: string
+  done: boolean
+}
+
+export interface LinkPreview {
+  title: string
+  description: string
+  image: string
+  site: string
+}
+
+export interface ArchiveFolder {
+  id: string
+  name: string
+  sort_order: number
+  created_at: string
+}
+
+export interface ArchiveItem {
+  id: string
+  folder_id: string | null
+  kind: ArchiveKind
+  title: string
+  body: string | null
+  url: string | null
+  preview: LinkPreview | null
+  checklist: ChecklistEntry[] | null
+  created_at: string
+  updated_at: string
+}
