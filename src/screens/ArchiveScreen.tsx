@@ -34,11 +34,13 @@ export default function ArchiveScreen() {
   const [manageFolders, setManageFolders] = useState(false)
 
   const today = todayISO()
-  const viewName = sel === 'all' ? '전체' : (folders.find((f) => f.id === sel)?.name ?? '전체')
+  // 선택한 폴더가 삭제되면 stale id로 남지 않도록 '전체'로 폴백(추가 시 FK 에러 방지)
+  const effSel = sel !== 'all' && !folders.some((f) => f.id === sel) ? 'all' : sel
+  const viewName = effSel === 'all' ? '전체' : (folders.find((f) => f.id === effSel)?.name ?? '전체')
 
   const filtered = items
     .filter((i) => i.archived === showArchived)
-    .filter((i) => sel === 'all' ? true : i.folder_id === sel)
+    .filter((i) => effSel === 'all' ? true : i.folder_id === effSel)
   const shown = sortItems(filtered, sort)
 
   function DueBadge({ due }: { due: string | null }) {
@@ -153,8 +155,8 @@ export default function ArchiveScreen() {
         </>
       )}
 
-      <FolderDrawer open={drawer} onClose={() => setDrawer(false)} selected={sel} onSelect={setSel} onManage={() => { setDrawer(false); setManageFolders(true) }} />
-      {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultFolderId={sel !== 'all' ? sel : null} />}
+      <FolderDrawer open={drawer} onClose={() => setDrawer(false)} selected={effSel} onSelect={setSel} onManage={() => { setDrawer(false); setManageFolders(true) }} />
+      {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultFolderId={effSel !== 'all' ? effSel : null} />}
       {editing && <ArchiveItemSheet open onClose={() => setEditing(null)} editing={editing} />}
       {manageFolders && <FolderSheet open onClose={() => setManageFolders(false)} />}
     </div>
