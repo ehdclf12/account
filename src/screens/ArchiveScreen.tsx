@@ -1,10 +1,23 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFolders, useArchiveItems, useToggleCheck } from '@/hooks/useArchive'
-import { checklistProgress, countByFolder } from '@/lib/archive'
+import { checklistProgress, sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
-import type { ArchiveItem } from '@/types'
+import FolderDrawer from '@/components/FolderDrawer'
+import type { ArchiveColor, ArchiveItem, SortMode } from '@/types'
+
+const SORT_LABEL: Record<SortMode, string> = {
+  updated: '최근수정', created: '생성순', name: '이름순', due: '기한순',
+}
+const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
+  ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
+) as Record<ArchiveColor, string>
+
+function todayISO(): string {
+  const n = new Date()
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`
+}
 
 export default function ArchiveScreen() {
   const nav = useNavigate()
@@ -12,88 +25,138 @@ export default function ArchiveScreen() {
   const { data: items = [] } = useArchiveItems()
   const toggle = useToggleCheck()
 
-  const [sel, setSel] = useState<string>('all') // 'all' | 'none' | folderId
+  const [sel, setSel] = useState<string>('all') // 'all' | folderId
+  const [sort, setSort] = useState<SortMode>('updated')
+  const [showArchived, setShowArchived] = useState(false)
+  const [drawer, setDrawer] = useState(false)
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<ArchiveItem | null>(null)
   const [manageFolders, setManageFolders] = useState(false)
 
-  const counts = countByFolder(items)
-  const shown = sel === 'all' ? items
-    : sel === 'none' ? items.filter((i) => !i.folder_id)
-    : items.filter((i) => i.folder_id === sel)
+  const today = todayISO()
+  // 선택한 폴더가 삭제되면 stale id로 남지 않도록 '전체'로 폴백(추가 시 FK 에러 방지)
+  const effSel = sel !== 'all' && !folders.some((f) => f.id === sel) ? 'all' : sel
+  const viewName = effSel === 'all' ? '전체' : (folders.find((f) => f.id === effSel)?.name ?? '전체')
 
-  const chip = (key: string, label: string, n: number) => (
-    <button key={key} onClick={() => setSel(key)}
-      className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium ${sel === key ? 'bg-brand text-white' : 'bg-card text-sub'}`}>
-      {label}{n > 0 ? ` ${n}` : ''}
-    </button>
-  )
+  const filtered = items
+    .filter((i) => i.archived === showArchived)
+    .filter((i) => effSel === 'all' ? true : i.folder_id === effSel)
+  const shown = sortItems(filtered, sort)
+
+  function DueBadge({ due }: { due: string | null }) {
+    const s = dueStatus(due, today)
+    if (!s) return null
+    const label = s.kind === 'overdue' ? '지남' : s.kind === 'today' ? '오늘' : `D-${s.days}`
+    const cls = s.kind === 'overdue' ? 'text-[#F04452]' : s.kind === 'today' ? 'text-brand' : 'text-sub'
+    return <span className={`text-[10px] font-medium ${cls}`}>{label}</span>
+  }
+  function Badges({ it }: { it: ArchiveItem }) {
+    return (
+      <span className="flex items-center gap-1.5 shrink-0">
+        <DueBadge due={it.due_date} />
+        {it.pinned && <span className="text-[10px] text-brand">고정</span>}
+      </span>
+    )
+  }
+  const stripStyle = (c: ArchiveColor | null) =>
+    c ? { borderLeft: `4px solid ${COLOR_HEX[c]}` } : undefined
 
   return (
-    <div className="p-5 space-y-5">
-      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
+    <div className="p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-ink">아카이빙</h1>
-        <button onClick={() => setManageFolders(true)} className="text-sub text-sm">폴더 관리</button>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setDrawer(true)} className="text-ink text-xl">☰</button>
+          <h1 className="text-xl font-bold text-ink">{viewName}</h1>
+        </div>
+        <button onClick={() => nav('/')} className="text-sub text-sm">홈</button>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto -mx-5 px-5">
-        {chip('all', '전체', items.length)}
-        {chip('none', '미분류', counts['none'] ?? 0)}
-        {folders.map((f) => chip(f.id, f.name, counts[f.id] ?? 0))}
+      <div className="flex items-center justify-between">
+        <select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="bg-card rounded-xl px-3 py-1.5 text-sm outline-none">
+          {(Object.keys(SORT_LABEL) as SortMode[]).map((k) => <option key={k} value={k}>{SORT_LABEL[k]}</option>)}
+        </select>
+        <button onClick={() => setShowArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${showArchived ? 'bg-ink text-white' : 'bg-card text-sub'}`}>
+          {showArchived ? '보관됨' : '보관함'}
+        </button>
       </div>
 
-      <div className="space-y-3">
-        {shown.length === 0 && <p className="text-sub text-sm text-center py-8">항목이 없어요</p>}
-        {shown.map((it) => {
-          if (it.kind === 'link') {
-            return (
-              <div key={it.id} className="bg-card rounded-2xl overflow-hidden">
-                <a href={it.url ?? '#'} target="_blank" rel="noreferrer" className="block active:opacity-70">
-                  {it.preview?.image && <img src={it.preview.image} alt="" className="w-full max-h-40 object-cover" />}
-                  <div className="p-4">
-                    <p className="text-ink font-medium truncate">{it.title || it.url}</p>
-                    {it.preview?.site && <p className="text-sub text-xs mt-1">{it.preview.site}</p>}
+      {folders.length === 0 ? (
+        <div className="text-center py-12 space-y-3">
+          <p className="text-sub text-sm">폴더를 먼저 만들어 주세요.</p>
+          <button onClick={() => setManageFolders(true)} className="bg-brand text-white rounded-2xl px-5 py-2.5 font-bold">폴더 만들기</button>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {shown.length === 0 && <p className="text-sub text-sm text-center py-8">항목이 없어요</p>}
+            {shown.map((it) => {
+              if (it.kind === 'link') {
+                return (
+                  <div key={it.id} className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
+                    <a href={it.url ?? '#'} target="_blank" rel="noreferrer" className="block active:opacity-70">
+                      {it.preview?.image && <img src={it.preview.image} alt="" className="w-full max-h-40 object-cover" />}
+                      <div className="p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-ink font-medium truncate">{it.title || it.url}</p>
+                          <Badges it={it} />
+                        </div>
+                        {it.preview?.site && <p className="text-sub text-xs mt-1">{it.preview.site}</p>}
+                      </div>
+                    </a>
+                    <button onClick={() => setEditing(it)} className="w-full text-right text-sub text-xs px-4 pb-3">편집</button>
                   </div>
-                </a>
-                <button onClick={() => setEditing(it)} className="w-full text-right text-sub text-xs px-4 pb-3">편집</button>
-              </div>
-            )
-          }
-          if (it.kind === 'checklist') {
-            const { done, total } = checklistProgress(it.checklist)
-            return (
-              <div key={it.id} className="bg-card rounded-2xl p-4">
-                <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
-                  <div className="flex justify-between items-center">
-                    <span className="text-ink font-medium">{it.title || '체크리스트'}</span>
-                    <span className="text-sub text-xs">{done}/{total}</span>
-                  </div>
-                </button>
-                <div className="mt-3 space-y-2">
-                  {(it.checklist ?? []).map((c, i) => (
-                    <button key={i} onClick={() => toggle.mutate({ item: it, index: i })}
-                      className="flex items-center gap-2 w-full text-left active:opacity-70">
-                      <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-white text-transparent border border-sub/30'}`}>✓</span>
-                      <span className={`text-sm ${c.done ? 'text-sub line-through' : 'text-ink'}`}>{c.text}</span>
+                )
+              }
+              if (it.kind === 'image') {
+                return (
+                  <button key={it.id} onClick={() => setEditing(it)} className="w-full text-left bg-card rounded-2xl overflow-hidden active:opacity-70" style={stripStyle(it.color)}>
+                    {it.url && <img src={it.url} alt="" className="w-full max-h-60 object-cover" />}
+                    <div className="p-3 flex items-center justify-between gap-2">
+                      <p className="text-ink font-medium truncate">{it.title || '사진'}</p>
+                      <Badges it={it} />
+                    </div>
+                  </button>
+                )
+              }
+              if (it.kind === 'checklist') {
+                const { done, total } = checklistProgress(it.checklist)
+                return (
+                  <div key={it.id} className="bg-card rounded-2xl p-4" style={stripStyle(it.color)}>
+                    <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="text-ink font-medium truncate">{it.title || '체크리스트'}</span>
+                        <span className="flex items-center gap-2 shrink-0"><Badges it={it} /><span className="text-sub text-xs">{done}/{total}</span></span>
+                      </div>
                     </button>
-                  ))}
-                </div>
-              </div>
-            )
-          }
-          return (
-            <button key={it.id} onClick={() => setEditing(it)} className="w-full text-left bg-card rounded-2xl p-4 active:opacity-70">
-              <p className="text-ink font-medium">{it.title || '메모'}</p>
-              {it.body && <p className="text-sub text-sm mt-1 whitespace-pre-wrap line-clamp-3">{it.body}</p>}
-            </button>
-          )
-        })}
-      </div>
+                    <div className="mt-3 space-y-2">
+                      {(it.checklist ?? []).map((c, i) => (
+                        <button key={i} onClick={() => toggle.mutate({ item: it, index: i })} className="flex items-center gap-2 w-full text-left active:opacity-70">
+                          <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-white text-transparent border border-sub/30'}`}>✓</span>
+                          <span className={`text-sm ${c.done ? 'text-sub line-through' : 'text-ink'}`}>{c.text}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+              return (
+                <button key={it.id} onClick={() => setEditing(it)} className="w-full text-left bg-card rounded-2xl p-4 active:opacity-70" style={stripStyle(it.color)}>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-ink font-medium truncate">{it.title || '메모'}</p>
+                    <Badges it={it} />
+                  </div>
+                  {it.body && <p className="text-sub text-sm mt-1 whitespace-pre-wrap line-clamp-3">{it.body}</p>}
+                </button>
+              )
+            })}
+          </div>
 
-      <button onClick={() => setAdding(true)} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">항목 추가</button>
+          <button onClick={() => setAdding(true)} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">항목 추가</button>
+        </>
+      )}
 
-      {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultFolderId={sel !== 'all' && sel !== 'none' ? sel : null} />}
+      <FolderDrawer open={drawer} onClose={() => setDrawer(false)} selected={effSel} onSelect={setSel} onManage={() => { setDrawer(false); setManageFolders(true) }} />
+      {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultFolderId={effSel !== 'all' ? effSel : null} />}
       {editing && <ArchiveItemSheet open onClose={() => setEditing(null)} editing={editing} />}
       {manageFolders && <FolderSheet open onClose={() => setManageFolders(false)} />}
     </div>

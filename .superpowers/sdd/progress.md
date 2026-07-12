@@ -100,3 +100,14 @@ Task 6: complete (commit faaf78e, ArchiveScreen+/archive 라우트+홈 아카이
 최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 3: (1)체크 토글 시 updated_at bump→목록 최상단 점프 UX(수정예정) (2)빠른 연속 탭 stale-closure 경합(2인 저위험) (3)링크 URL 편집시 옛 preview 유지. 사전 로그 Minor 3(r.ok/SSRF/normalizeUrl) 모두 병합 무해 판정.
 리뷰수정: complete — useToggleCheck updated_at 제거(Minor#1), build+52tests clean.
 main 병합(456e5e6)+푸시 완료 → Vercel 자동배포. 사용자 schema-archive.sql 실행 완료. 두 계정 런타임 검증(카드3종·미리보기·실시간·폴더) 모두 확인 완료. *** 아카이빙 기능 전부 완성·배포·검증 완료. ***
+
+
+=== 아카이빙 고도화(2단계) 태스크 진행 (branch feat/archive-v2, plan 2026-07-12-archive-phase2.md) ===
+Task 1: complete (commit 808e9f5, schema-archive-2.sql — 컨트롤러 직접 검증, 스펙 일치)
+Task 2: complete (commit 5ddecfb, 타입+lib 확장 TDD 16tests, 리뷰 clean)
+Task 3: complete (commit d049487, useArchive parent_id·업로드·이미지삭제 + 옛시트 임시패치, build clean, 리뷰 clean)
+Task 4: complete (commit f19371a, FolderSheet 서브폴더+비었을때만삭제, build clean, 리뷰 clean)
+Task 5: complete (commit 124f9a8, FolderDrawer 좌측 드로어 — 컨트롤러 직접 검증 스펙 일치, build clean)
+Task 6: complete (commit 9f617a2, ArchiveItemSheet 사진·필수폴더·핀·기한·색상·보관, build clean, 리뷰 clean)
+Task 7: complete (commit bd1c464, ArchiveScreen 재구성+countByFolder 제거, build+61tests clean, 리뷰 clean)
+최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 5. #4(삭제된 폴더 선택 stale→추가시 FK에러) 수정(commit: effSel 폴백, build+61tests clean). 남은 Minor(이미지 교체/취소시 스토리지 고아파일·folder_id FK still set null·legacy null카드·이름순 무제목) 스펙 범위내 무해로 이월.

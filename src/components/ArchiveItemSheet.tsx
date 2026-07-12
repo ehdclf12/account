@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { useFolders, useAddItem, useUpdateItem, useDeleteItem, fetchLinkPreview } from '@/hooks/useArchive'
-import { normalizeUrl } from '@/lib/archive'
-import type { ArchiveItem, ArchiveKind, ChecklistEntry, LinkPreview } from '@/types'
+import { useFolders, useAddItem, useUpdateItem, useDeleteItem, fetchLinkPreview, uploadArchiveImage } from '@/hooks/useArchive'
+import { normalizeUrl, buildFolderTree, ARCHIVE_COLORS } from '@/lib/archive'
+import type { ArchiveColor, ArchiveItem, ArchiveKind, ChecklistEntry, LinkPreview } from '@/types'
 
 const KIND_OPTIONS: { value: ArchiveKind; label: string }[] = [
   { value: 'memo', label: '메모' },
   { value: 'checklist', label: '체크리스트' },
   { value: 'link', label: '링크' },
+  { value: 'image', label: '사진' },
 ]
 
 export default function ArchiveItemSheet(
@@ -23,59 +24,73 @@ export default function ArchiveItemSheet(
   const [url, setUrl] = useState(editing?.url ?? '')
   const [preview, setPreview] = useState<LinkPreview | null>(editing?.preview ?? null)
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(editing?.checklist ?? [{ text: '', done: false }])
+  const [imageUrl, setImageUrl] = useState<string>(editing?.kind === 'image' ? (editing.url ?? '') : '')
   const [loadingPrev, setLoadingPrev] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  // 공통 메타
+  const [pinned, setPinned] = useState(editing?.pinned ?? false)
+  const [dueDate, setDueDate] = useState(editing?.due_date ?? '')
+  const [color, setColor] = useState<ArchiveColor | null>(editing?.color ?? null)
+  const [archived, setArchived] = useState(editing?.archived ?? false)
 
   if (!open) return null
+
+  // 폴더 옵션(계층 라벨): 최상위 → 서브 순서
+  const orderedFolders = buildFolderTree(folders).flatMap((t) => [
+    { id: t.id, label: t.name },
+    ...t.children.map((c) => ({ id: c.id, label: `${t.name} / ${c.name}` })),
+  ])
 
   async function loadPreview() {
     const norm = normalizeUrl(url)
     if (!norm) return
-    setUrl(norm)
-    setLoadingPrev(true)
+    setUrl(norm); setLoadingPrev(true)
     const p = await fetchLinkPreview(norm)
     setLoadingPrev(false)
     if (p) { setPreview(p); if (!title) setTitle(p.title) }
   }
 
-  function setCheckText(i: number, text: string) {
-    setChecklist((cs) => cs.map((c, idx) => idx === i ? { ...c, text } : c))
+  async function onPickImage(file: File | undefined) {
+    if (!file) return
+    setUploading(true)
+    try { setImageUrl(await uploadArchiveImage(file)) }
+    catch { alert('사진 업로드에 실패했어요.') }
+    finally { setUploading(false) }
   }
+
+  function setCheckText(i: number, text: string) { setChecklist((cs) => cs.map((c, idx) => idx === i ? { ...c, text } : c)) }
   function addCheckRow() { setChecklist((cs) => [...cs, { text: '', done: false }]) }
   function removeCheckRow(i: number) { setChecklist((cs) => cs.filter((_, idx) => idx !== i)) }
 
+  const meta = { pinned, due_date: dueDate || null, color, archived }
+
   async function save() {
+    if (!folderId) { alert('폴더를 선택해 주세요.'); return }
+    let payload: Omit<ArchiveItem, 'id' | 'created_at' | 'updated_at'>
     if (kind === 'link') {
-      const norm = normalizeUrl(url)
-      if (!norm) return
-      const payload = {
-        folder_id: folderId, kind, title: title.trim() || preview?.title || norm,
-        body: null, url: norm, preview, checklist: null,
-      }
-      if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
-      else await add.mutateAsync(payload)
+      const norm = normalizeUrl(url); if (!norm) return
+      payload = { folder_id: folderId, kind, title: title.trim() || preview?.title || norm, body: null, url: norm, preview, checklist: null, ...meta }
+    } else if (kind === 'image') {
+      if (!imageUrl) { alert('사진을 선택해 주세요.'); return }
+      payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: imageUrl, preview: null, checklist: null, ...meta }
     } else if (kind === 'checklist') {
       const cleaned = checklist.filter((c) => c.text.trim()).map((c) => ({ text: c.text.trim(), done: c.done }))
       if (!title.trim() && cleaned.length === 0) return
-      const payload = {
-        folder_id: folderId, kind, title: title.trim(),
-        body: null, url: null, preview: null, checklist: cleaned,
-      }
-      if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
-      else await add.mutateAsync(payload)
+      payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: null, preview: null, checklist: cleaned, ...meta }
     } else {
       if (!title.trim() && !body.trim()) return
-      const payload = {
-        folder_id: folderId, kind, title: title.trim(),
-        body: body.trim() || null, url: null, preview: null, checklist: null,
-      }
-      if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
-      else await add.mutateAsync(payload)
+      payload = { folder_id: folderId, kind, title: title.trim(), body: body.trim() || null, url: null, preview: null, checklist: null, ...meta }
     }
+    if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
+    else await add.mutateAsync(payload)
     onClose()
   }
 
   async function remove() {
-    if (editing && confirm('이 항목을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() }
+    if (editing && confirm('이 항목을 삭제할까요?')) {
+      await del.mutateAsync({ id: editing.id, kind: editing.kind, url: editing.url })
+      onClose()
+    }
   }
 
   return (
@@ -87,10 +102,10 @@ export default function ArchiveItemSheet(
         </div>
 
         {!editing && (
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {KIND_OPTIONS.map((o) => (
               <button key={o.value} onClick={() => setKind(o.value)}
-                className={`flex-1 rounded-xl py-2 text-sm font-medium ${kind === o.value ? 'bg-brand text-white' : 'bg-card text-sub'}`}>
+                className={`rounded-xl py-2 text-sm font-medium ${kind === o.value ? 'bg-brand text-white' : 'bg-card text-sub'}`}>
                 {o.label}
               </button>
             ))}
@@ -98,17 +113,15 @@ export default function ArchiveItemSheet(
         )}
 
         <select value={folderId ?? ''} onChange={(e) => setFolderId(e.target.value || null)} className="w-full bg-card rounded-xl px-3 py-2 outline-none">
-          <option value="">미분류</option>
-          {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+          <option value="" disabled>폴더 선택</option>
+          {orderedFolders.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
         </select>
 
         {kind === 'link' ? (
           <>
             <div className="flex gap-2">
               <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." className="flex-1 bg-card rounded-xl px-3 py-2 outline-none" />
-              <button onClick={loadPreview} disabled={loadingPrev} className="bg-brand text-white rounded-xl px-3 text-sm font-bold">
-                {loadingPrev ? '…' : '미리보기'}
-              </button>
+              <button onClick={loadPreview} disabled={loadingPrev} className="bg-brand text-white rounded-xl px-3 text-sm font-bold">{loadingPrev ? '…' : '미리보기'}</button>
             </div>
             {preview && (preview.image || preview.title) && (
               <div className="bg-card rounded-xl overflow-hidden">
@@ -120,6 +133,15 @@ export default function ArchiveItemSheet(
               </div>
             )}
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (비우면 자동)" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
+          </>
+        ) : kind === 'image' ? (
+          <>
+            {imageUrl && <img src={imageUrl} alt="" className="w-full max-h-60 object-cover rounded-xl" />}
+            <label className="block w-full bg-card rounded-xl px-3 py-2 text-sub text-sm text-center active:opacity-70">
+              {uploading ? '업로드 중…' : (imageUrl ? '사진 변경' : '앨범에서 사진 선택')}
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickImage(e.target.files?.[0])} />
+            </label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (선택)" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
           </>
         ) : kind === 'checklist' ? (
           <>
@@ -140,6 +162,28 @@ export default function ArchiveItemSheet(
             <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="내용" rows={5} className="w-full bg-card rounded-xl px-3 py-2 outline-none resize-none" />
           </>
         )}
+
+        {/* 공통 메타: 핀 / 기한 / 색상 / 보관 */}
+        <div className="border-t border-card pt-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sub text-sm">기한</span>
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="bg-card rounded-xl px-3 py-2 outline-none text-sm" />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sub text-sm">색상</span>
+            <div className="flex gap-2 items-center">
+              <button onClick={() => setColor(null)} className={`w-6 h-6 rounded-full border ${color === null ? 'border-ink' : 'border-card'} text-sub text-xs`}>×</button>
+              {ARCHIVE_COLORS.map((c) => (
+                <button key={c.key} onClick={() => setColor(c.key)} style={{ backgroundColor: c.hex }}
+                  className={`w-6 h-6 rounded-full ${color === c.key ? 'ring-2 ring-offset-1 ring-ink' : ''}`} />
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <button onClick={() => setPinned((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${pinned ? 'bg-brand text-white' : 'bg-card text-sub'}`}>{pinned ? '고정됨' : '고정'}</button>
+            <button onClick={() => setArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${archived ? 'bg-ink text-white' : 'bg-card text-sub'}`}>{archived ? '보관됨' : '보관'}</button>
+          </div>
+        </div>
 
         <button onClick={save} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">저장하기</button>
         {editing && <button onClick={remove} className="w-full text-[#F04452] text-sm py-1">삭제</button>}
