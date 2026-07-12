@@ -111,3 +111,4 @@ Task 5: complete (commit 124f9a8, FolderDrawer 좌측 드로어 — 컨트롤러
 Task 6: complete (commit 9f617a2, ArchiveItemSheet 사진·필수폴더·핀·기한·색상·보관, build clean, 리뷰 clean)
 Task 7: complete (commit bd1c464, ArchiveScreen 재구성+countByFolder 제거, build+61tests clean, 리뷰 clean)
 최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 5. #4(삭제된 폴더 선택 stale→추가시 FK에러) 수정(commit: effSel 폴백, build+61tests clean). 남은 Minor(이미지 교체/취소시 스토리지 고아파일·folder_id FK still set null·legacy null카드·이름순 무제목) 스펙 범위내 무해로 이월.
+main 병합(64dcc22 push) → Vercel 배포 완료. 사용자 schema-archive-2.sql 실행 + Storage archive 버킷 확인 완료. 배포본 사진 업로드 정상 동작 확인. *** 아카이빙 고도화(2단계) 전부 완성·배포·검증 완료. ***
