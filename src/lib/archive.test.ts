@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   checklistProgress, normalizeUrl,
-  buildFolderTree, sortItems, dueStatus, storagePathFromPublicUrl,
+  buildFolderTree, sortItems, dueStatus, storagePathFromPublicUrl, moveItem,
 } from './archive'
 import type { ArchiveFolder, ArchiveItem } from '@/types'
 
@@ -90,5 +90,26 @@ describe('storagePathFromPublicUrl', () => {
   })
   it('해당 마커 없으면 null', () => {
     expect(storagePathFromPublicUrl('https://x/other/abc.jpg')).toBeNull()
+  })
+})
+
+describe('moveItem', () => {
+  it('중간 원소를 앞으로 이동', () => {
+    expect(moveItem(['a', 'b', 'c', 'd'], 2, 0)).toEqual(['c', 'a', 'b', 'd'])
+  })
+  it('앞 원소를 뒤로 이동', () => {
+    expect(moveItem(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a'])
+  })
+  it('같은 인덱스는 그대로', () => {
+    expect(moveItem(['a', 'b', 'c'], 1, 1)).toEqual(['a', 'b', 'c'])
+  })
+  it('범위 밖은 원본 복사본', () => {
+    expect(moveItem(['a', 'b'], 5, 0)).toEqual(['a', 'b'])
+    expect(moveItem(['a', 'b'], 0, -1)).toEqual(['a', 'b'])
+  })
+  it('원본을 변형하지 않는다', () => {
+    const src = ['a', 'b', 'c']
+    moveItem(src, 0, 2)
+    expect(src).toEqual(['a', 'b', 'c'])
   })
 })
