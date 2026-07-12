@@ -103,8 +103,10 @@ export function useToggleCheck() {
     mutationFn: async ({ item, index }: { item: ArchiveItem; index: number }) => {
       const list = (item.checklist ?? []).map((c, i) =>
         i === index ? { ...c, done: !c.done } : c)
+      // 체크 토글은 updated_at을 갱신하지 않는다: 목록이 updated_at desc 정렬이라
+      // 체크할 때마다 카드가 최상단으로 튀는 것을 막기 위함(실제 편집은 계속 최신순 반영).
       const { error } = await supabase.from('archive_items')
-        .update({ checklist: list, updated_at: new Date().toISOString() }).eq('id', item.id)
+        .update({ checklist: list }).eq('id', item.id)
       if (error) throw error
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['archive_items'] }),
