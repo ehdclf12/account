@@ -99,3 +99,4 @@ Task 5: complete (commit 0f3abf2, ArchiveItemSheet+FolderSheet, build clean, 리
 Task 6: complete (commit faaf78e, ArchiveScreen+/archive 라우트+홈 아카이빙 카드, build+52tests clean, 리뷰 clean)
 최종 whole-branch 리뷰(opus): READY TO MERGE, 치명/중요 0. Minor 3: (1)체크 토글 시 updated_at bump→목록 최상단 점프 UX(수정예정) (2)빠른 연속 탭 stale-closure 경합(2인 저위험) (3)링크 URL 편집시 옛 preview 유지. 사전 로그 Minor 3(r.ok/SSRF/normalizeUrl) 모두 병합 무해 판정.
 리뷰수정: complete — useToggleCheck updated_at 제거(Minor#1), build+52tests clean.
+main 병합(456e5e6)+푸시 완료 → Vercel 자동배포. 사용자 schema-archive.sql 실행 완료. 두 계정 런타임 검증(카드3종·미리보기·실시간·폴더) 모두 확인 완료. *** 아카이빙 기능 전부 완성·배포·검증 완료. ***
