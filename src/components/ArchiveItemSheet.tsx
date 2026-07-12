@@ -50,6 +50,7 @@ export default function ArchiveItemSheet(
       const payload = {
         folder_id: folderId, kind, title: title.trim() || preview?.title || norm,
         body: null, url: norm, preview, checklist: null,
+        pinned: false, due_date: null, color: null, archived: false,
       }
       if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
       else await add.mutateAsync(payload)
@@ -59,6 +60,7 @@ export default function ArchiveItemSheet(
       const payload = {
         folder_id: folderId, kind, title: title.trim(),
         body: null, url: null, preview: null, checklist: cleaned,
+        pinned: false, due_date: null, color: null, archived: false,
       }
       if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
       else await add.mutateAsync(payload)
@@ -67,6 +69,7 @@ export default function ArchiveItemSheet(
       const payload = {
         folder_id: folderId, kind, title: title.trim(),
         body: body.trim() || null, url: null, preview: null, checklist: null,
+        pinned: false, due_date: null, color: null, archived: false,
       }
       if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
       else await add.mutateAsync(payload)
@@ -75,7 +78,7 @@ export default function ArchiveItemSheet(
   }
 
   async function remove() {
-    if (editing && confirm('이 항목을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() }
+    if (editing && confirm('이 항목을 삭제할까요?')) { await del.mutateAsync({ id: editing.id, kind: editing.kind, url: editing.url }); onClose() }
   }
 
   return (

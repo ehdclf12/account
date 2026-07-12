@@ -11,7 +11,7 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
   async function create() {
     const n = name.trim()
     if (!n) return
-    await add.mutateAsync({ name: n, sort_order: folders.length })
+    await add.mutateAsync({ name: n, sort_order: folders.length, parent_id: null })
     setName('')
   }
 

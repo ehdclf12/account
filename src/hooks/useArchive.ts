@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import type { ArchiveFolder, ArchiveItem, LinkPreview } from '@/types'
+import { storagePathFromPublicUrl } from '@/lib/archive'
 
 export function useFolders() {
   return useQuery({
@@ -29,7 +30,7 @@ export function useArchiveItems() {
 export function useAddFolder() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (f: { name: string; sort_order: number }) => {
+    mutationFn: async (f: { name: string; sort_order: number; parent_id: string | null }) => {
       const { error } = await supabase.from('archive_folders').insert(f)
       if (error) throw error
     },
@@ -89,9 +90,13 @@ export function useUpdateItem() {
 export function useDeleteItem() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('archive_items').delete().eq('id', id)
+    mutationFn: async (item: Pick<ArchiveItem, 'id' | 'kind' | 'url'>) => {
+      const { error } = await supabase.from('archive_items').delete().eq('id', item.id)
       if (error) throw error
+      if (item.kind === 'image' && item.url) {
+        const path = storagePathFromPublicUrl(item.url)
+        if (path) await supabase.storage.from('archive').remove([path])
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['archive_items'] }),
   })
@@ -111,6 +116,15 @@ export function useToggleCheck() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['archive_items'] }),
   })
+}
+
+export async function uploadArchiveImage(file: File): Promise<string> {
+  const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg'
+  const path = `${crypto.randomUUID()}.${ext}`
+  const { error } = await supabase.storage.from('archive').upload(path, file, { upsert: false })
+  if (error) throw error
+  const { data } = supabase.storage.from('archive').getPublicUrl(path)
+  return data.publicUrl
 }
 
 export async function fetchLinkPreview(url: string): Promise<LinkPreview | null> {
