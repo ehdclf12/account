@@ -78,7 +78,9 @@ export interface Asset {
   created_at: string
 }
 
-export type ArchiveKind = 'memo' | 'checklist' | 'link'
+export type ArchiveKind = 'memo' | 'checklist' | 'link' | 'image'
+export type ArchiveColor = 'red' | 'orange' | 'green' | 'blue' | 'purple'
+export type SortMode = 'updated' | 'created' | 'name' | 'due'
 
 export interface ChecklistEntry {
   text: string
@@ -96,6 +98,7 @@ export interface ArchiveFolder {
   id: string
   name: string
   sort_order: number
+  parent_id: string | null
   created_at: string
 }
 
@@ -108,6 +111,10 @@ export interface ArchiveItem {
   url: string | null
   preview: LinkPreview | null
   checklist: ChecklistEntry[] | null
+  pinned: boolean
+  due_date: string | null   // YYYY-MM-DD
+  color: ArchiveColor | null
+  archived: boolean
   created_at: string
   updated_at: string
 }
