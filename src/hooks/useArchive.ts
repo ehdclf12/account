@@ -63,6 +63,18 @@ export function useDeleteFolder() {
   })
 }
 
+export function useReorderFolders() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      await Promise.all(updates.map(({ id, sort_order }) =>
+        supabase.from('archive_folders').update({ sort_order }).eq('id', id)
+          .then(({ error }) => { if (error) throw error })))
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['folders'] }),
+  })
+}
+
 export function useAddItem() {
   const qc = useQueryClient()
   return useMutation({
