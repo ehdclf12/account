@@ -28,7 +28,7 @@ export default function BudgetProgress(
               <span className="text-sub">사용 {formatKRW(totalSpent)}</span>
               <span className="text-sub">예산 {formatKRW(totalBudget)}</span>
             </div>
-            <div className="h-2 bg-white rounded-full mt-2 overflow-hidden">
+            <div className="h-2 bg-surface rounded-full mt-2 overflow-hidden">
               <div className={`h-full rounded-full ${totalSpent > totalBudget ? 'bg-danger' : 'bg-brand'}`}
                 style={{ width: `${Math.min(100, Math.round((totalSpent / totalBudget) * 100))}%` }} />
             </div>

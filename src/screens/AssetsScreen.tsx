@@ -65,9 +65,9 @@ export default function AssetsScreen() {
             <button key={a.id} onClick={() => setEditing(a)}
               className="w-full flex items-center justify-between text-sm bg-card rounded-2xl px-4 py-3 active:opacity-70">
               <span className="flex items-center gap-2 min-w-0">
-                <span className="text-[10px] text-sub bg-white rounded px-1.5 py-0.5 shrink-0">{TYPE_LABEL[a.type]}</span>
+                <span className="text-[10px] text-sub bg-surface rounded px-1.5 py-0.5 shrink-0">{TYPE_LABEL[a.type]}</span>
                 <span className="text-ink truncate">{a.name}</span>
-                {live && <span className="text-[10px] text-brand bg-white rounded px-1.5 py-0.5 shrink-0">시세</span>}
+                {live && <span className="text-[10px] text-brand bg-surface rounded px-1.5 py-0.5 shrink-0">시세</span>}
               </span>
               <span className={liability ? 'text-danger shrink-0' : 'text-ink shrink-0'}>
                 {liability ? '−' : ''}{formatKRW(eff)}

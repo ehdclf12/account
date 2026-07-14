@@ -11,7 +11,7 @@ import type { ArchiveColor, ArchiveItem } from '@/types'
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
-const NO_COLOR = '#C4CBD3'
+const NO_COLOR = 'rgb(var(--sub))'
 const bar = (c: ArchiveColor | null) => (c ? COLOR_HEX[c] : NO_COLOR)
 
 const WEEK = ['월', '화', '수', '목', '금', '토', '일']
@@ -120,7 +120,7 @@ export default function CalendarScreen() {
         })}
       </div>
 
-      <div className="border-t border-card pt-4 space-y-2">
+      <div className="border-t border-line pt-4 space-y-2">
         <h2 className="font-bold text-ink">
           {selected.slice(0, 4)}년 {formatDayHeader(selected)}
         </h2>

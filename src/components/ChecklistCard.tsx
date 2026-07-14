@@ -26,7 +26,7 @@ export default function ChecklistCard(
       <div className="mt-3 space-y-2">
         {(item.checklist ?? []).map((c, i) => (
           <button key={i} onClick={() => toggle.mutate({ item, index: i })} className="flex items-center gap-2 w-full text-left active:opacity-70">
-            <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-white text-transparent border border-sub/30'}`}>✓</span>
+            <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-surface text-transparent border border-sub/30'}`}>✓</span>
             <span className={`text-sm ${c.done ? 'text-sub line-through' : 'text-ink'}`}>{c.text}</span>
           </button>
         ))}

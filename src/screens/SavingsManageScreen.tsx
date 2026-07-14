@@ -39,7 +39,7 @@ export default function SavingsManageScreen() {
                 <span className="font-bold text-ink">{g.name}</span>
                 <span className="text-sub text-sm">{pct}%</span>
               </div>
-              <div className="h-2 bg-white rounded-full mt-2 overflow-hidden">
+              <div className="h-2 bg-surface rounded-full mt-2 overflow-hidden">
                 <div className="h-full bg-brand rounded-full" style={{ width: `${pct}%` }} />
               </div>
               <div className="flex justify-between text-sm mt-2">

@@ -52,7 +52,7 @@ export default function BusinessCalculatorScreen() {
       <div className="flex bg-card rounded-2xl p-1">
         {(['margin', 'price'] as Mode[]).map((mm) => (
           <button key={mm} onClick={() => setMode(mm)}
-            className={`flex-1 py-2 rounded-xl text-sm font-bold ${mode === mm ? 'bg-white shadow text-ink' : 'text-sub'}`}>
+            className={`flex-1 py-2 rounded-xl text-sm font-bold ${mode === mm ? 'bg-surface shadow text-ink' : 'text-sub'}`}>
             {mm === 'margin' ? '마진 계산' : '판매가 역산'}
           </button>
         ))}
