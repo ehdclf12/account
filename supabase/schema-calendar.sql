@@ -14,7 +14,7 @@ update archive_items set due_date = null where kind <> 'checklist';
 
 -- 4. 기한 없는 기존 체크리스트를 오늘로 채운다.
 --    안 하면 제약 때문에 이후 체크 토글(update)이 조용히 실패한다.
-update archive_items set due_date = current_date where kind = 'checklist' and due_date is null;
+update archive_items set due_date = (now() at time zone 'Asia/Seoul')::date where kind = 'checklist' and due_date is null;
 
 -- 5. 체크리스트는 기한 필수.
 alter table archive_items drop constraint if exists archive_items_due_required;

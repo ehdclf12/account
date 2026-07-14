@@ -37,7 +37,10 @@ export default function CalendarScreen() {
   // 좌우 스와이프로 월 이동. 가로 이동량이 세로보다 클 때만 처리해 세로 스크롤과 안 부딪히게 한다.
   const start = useRef<{ x: number; y: number } | null>(null)
   const swiped = useRef(false)
-  function onDown(e: React.PointerEvent) { start.current = { x: e.clientX, y: e.clientY } }
+  function onDown(e: React.PointerEvent) {
+    swiped.current = false
+    start.current = { x: e.clientX, y: e.clientY }
+  }
   function onUp(e: React.PointerEvent) {
     const s = start.current
     start.current = null
