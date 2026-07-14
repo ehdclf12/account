@@ -60,7 +60,7 @@ export default function ArchiveItemSheet(
   function addCheckRow() { setChecklist((cs) => [...cs, { text: '', done: false }]) }
   function removeCheckRow(i: number) { setChecklist((cs) => cs.filter((_, idx) => idx !== i)) }
 
-  const meta = { pinned, due_date: dueDate || null, color, archived }
+  const meta = { pinned, due_date: kind === 'checklist' ? (dueDate || null) : null, color, archived }
 
   async function save() {
     if (!folderId) { alert('폴더를 선택해 주세요.'); return }
