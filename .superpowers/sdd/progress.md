@@ -154,3 +154,5 @@ DM Task 5: complete (commit 7a0e346, NavButton 알약 + 9개 화면 교체 + 죽
   중요: border-white 구분선 2곳(계산기) / theme-color 정적meta+manifest가 브랜드파랑이라 콜드로드시 파랑→테마색 점프 / color-scheme 미선언(다크에서 date·select·스크롤바가 라이트로) / NavButton 5곳 누락(계획이 9곳으로 오산, 실제 14곳 — 9알약+5회색링크로 더 비일관)
   사소: Donut 트랙 stroke #F2F4F6(다크에서 흰 반점) / centerLabel fill / ring-offset 흰 후광.
 리뷰수정: complete (commit 69ebae9, 7건 전부). 재검증(opus): VERIFIED — READY TO MERGE. 하드코딩 색 잔여 = CAT_COLORS·ARCHIVE_COLORS(의도적 제외) + theme.ts 상태바 상수뿐.
+main 병합 + 푸시 완료 → Vercel 자동배포. *** 다크모드 + NavButton 통일 전부 완성·병합·배포. ***
+남은 것: 배포본 두 계정 런타임 확인(라이트 회귀 없는지, 다크 전 화면).
