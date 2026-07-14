@@ -61,9 +61,21 @@ export default function CalendarScreen() {
   return (
     <div className="p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-ink">{cursor.month}</span>
-          <span className="text-sub text-sm">{cursor.year}</span>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setCursor((c) => shiftMonth(c.year, c.month, -1))}
+            aria-label="이전 달"
+            className="text-sub text-2xl w-9 h-9 flex items-center justify-center rounded-full active:bg-card">
+            ‹
+          </button>
+          <div className="flex items-baseline gap-2 px-1">
+            <span className="text-3xl font-bold text-ink">{cursor.month}</span>
+            <span className="text-sub text-sm">{cursor.year}</span>
+          </div>
+          <button onClick={() => setCursor((c) => shiftMonth(c.year, c.month, 1))}
+            aria-label="다음 달"
+            className="text-sub text-2xl w-9 h-9 flex items-center justify-center rounded-full active:bg-card">
+            ›
+          </button>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={goToday} className="rounded-full border border-sub/30 text-sub text-xs font-medium px-3 py-1 active:opacity-70">
