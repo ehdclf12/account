@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { monthKey, inMonth, formatDayHeader, nextMonthFirst } from './date'
+import { monthKey, inMonth, formatDayHeader, nextMonthFirst, todayISO } from './date'
 
 describe('date utils', () => {
   it('monthKey는 2자리 월', () => {
@@ -16,5 +16,11 @@ describe('date utils', () => {
   it('nextMonthFirst', () => {
     expect(nextMonthFirst(2026, 2)).toBe('2026-03-01')
     expect(nextMonthFirst(2026, 12)).toBe('2027-01-01')
+  })
+})
+
+describe('todayISO', () => {
+  it('YYYY-MM-DD 형식이다', () => {
+    expect(todayISO()).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })
 })

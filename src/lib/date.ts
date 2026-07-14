@@ -18,3 +18,8 @@ export function formatDayHeader(date: string): string {
   const w = WEEK[new Date(y, m - 1, d).getDay()]
   return `${m}월 ${d}일 (${w})`
 }
+
+export function todayISO(): string {
+  const n = new Date()
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`
+}
