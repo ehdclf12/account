@@ -36,6 +36,7 @@ export default function CalendarScreen() {
 
   // 좌우 스와이프로 월 이동. 가로 이동량이 세로보다 클 때만 처리해 세로 스크롤과 안 부딪히게 한다.
   const start = useRef<{ x: number; y: number } | null>(null)
+  const swiped = useRef(false)
   function onDown(e: React.PointerEvent) { start.current = { x: e.clientX, y: e.clientY } }
   function onUp(e: React.PointerEvent) {
     const s = start.current
@@ -44,6 +45,7 @@ export default function CalendarScreen() {
     const dx = e.clientX - s.x
     const dy = e.clientY - s.y
     if (Math.abs(dx) < 50 || Math.abs(dx) <= Math.abs(dy)) return
+    swiped.current = true
     setCursor((c) => shiftMonth(c.year, c.month, dx < 0 ? 1 : -1))
   }
 
@@ -77,7 +79,10 @@ export default function CalendarScreen() {
           const isToday = c.iso === today
           const isSel = c.iso === selected
           return (
-            <button key={c.iso} onClick={() => setSelected(c.iso)}
+            <button key={c.iso} onClick={() => {
+                if (swiped.current) { swiped.current = false; return }
+                setSelected(c.iso)
+              }}
               className={`min-h-[76px] rounded-lg p-1 text-left align-top active:opacity-70
                 ${isSel ? 'bg-brand/10 ring-1 ring-brand' : isToday ? 'bg-card' : ''}`}>
               <div className={`text-xs text-center font-medium ${c.inMonth ? 'text-ink' : 'text-sub/50'}`}>{c.day}</div>

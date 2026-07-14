@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFolders, useArchiveItems } from '@/hooks/useArchive'
 import { sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
+import { todayISO } from '@/lib/date'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
 import FolderDrawer from '@/components/FolderDrawer'
@@ -14,11 +15,6 @@ const SORT_LABEL: Record<SortMode, string> = {
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
-
-function todayISO(): string {
-  const n = new Date()
-  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`
-}
 
 export default function ArchiveScreen() {
   const nav = useNavigate()
