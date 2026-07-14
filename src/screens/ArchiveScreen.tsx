@@ -79,7 +79,7 @@ export default function ArchiveScreen() {
         <select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="bg-card rounded-xl px-3 py-1.5 text-sm outline-none">
           {(Object.keys(SORT_LABEL) as SortMode[]).map((k) => <option key={k} value={k}>{SORT_LABEL[k]}</option>)}
         </select>
-        <button onClick={() => setShowArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${showArchived ? 'bg-ink text-white' : 'bg-card text-sub'}`}>
+        <button onClick={() => setShowArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${showArchived ? 'bg-ink text-bg' : 'bg-card text-sub'}`}>
           {showArchived ? '보관됨' : '보관함'}
         </button>
       </div>

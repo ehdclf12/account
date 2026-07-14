@@ -169,13 +169,13 @@ export default function ArchiveItemSheet(
               <button onClick={() => setColor(null)} className={`w-6 h-6 rounded-full border ${color === null ? 'border-ink' : 'border-line'} text-sub text-xs`}>×</button>
               {ARCHIVE_COLORS.map((c) => (
                 <button key={c.key} onClick={() => setColor(c.key)} style={{ backgroundColor: c.hex }}
-                  className={`w-6 h-6 rounded-full ${color === c.key ? 'ring-2 ring-offset-1 ring-ink' : ''}`} />
+                  className={`w-6 h-6 rounded-full ${color === c.key ? 'ring-2 ring-ink' : ''}`} />
               ))}
             </div>
           </div>
           <div className="flex items-center justify-between">
             <button onClick={() => setPinned((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${pinned ? 'bg-brand text-white' : 'bg-card text-sub'}`}>{pinned ? '고정됨' : '고정'}</button>
-            <button onClick={() => setArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${archived ? 'bg-ink text-white' : 'bg-card text-sub'}`}>{archived ? '보관됨' : '보관'}</button>
+            <button onClick={() => setArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${archived ? 'bg-ink text-bg' : 'bg-card text-sub'}`}>{archived ? '보관됨' : '보관'}</button>
           </div>
         </div>
 

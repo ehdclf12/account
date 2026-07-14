@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAddCategory, useDeleteCategory } from '@/hooks/useCategories'
 import { useBusinessCategories } from '@/hooks/useBusiness'
+import NavButton from '@/components/NavButton'
 import type { TxType } from '@/types'
 
 export default function BusinessSettingsScreen() {
-  const nav = useNavigate()
   const { data: bizCats = [] } = useBusinessCategories()
   const addCat = useAddCategory(); const delCat = useDeleteCategory()
   const [bizCatName, setBizCatName] = useState('')
@@ -13,7 +12,7 @@ export default function BusinessSettingsScreen() {
 
   return (
     <div className="p-5 space-y-8">
-      <button onClick={() => nav('/business')} className="text-sub text-sm">‹ 코스모스</button>
+      <NavButton to="/business" label="코스모스" />
       <h1 className="text-xl font-bold text-ink">코스모스 설정</h1>
 
       <section>

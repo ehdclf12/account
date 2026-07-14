@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { calcMargin, recommendPrice } from '@/lib/margin'
 import { formatKRW } from '@/lib/format'
+import NavButton from '@/components/NavButton'
 
 type Mode = 'margin' | 'price'
 const pct = (r: number) => `${(r * 100).toFixed(1)}%`
 
 export default function BusinessCalculatorScreen() {
-  const nav = useNavigate()
   const [mode, setMode] = useState<Mode>('margin')
 
   // 공통 입력
@@ -46,7 +45,7 @@ export default function BusinessCalculatorScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav('/business')} className="text-sub text-sm">‹ 코스모스</button>
+      <NavButton to="/business" label="코스모스" />
       <h1 className="text-xl font-bold text-ink">원가·마진 계산</h1>
 
       <div className="flex bg-card rounded-2xl p-1">
@@ -71,7 +70,7 @@ export default function BusinessCalculatorScreen() {
             <Row k="개당 이익" val={formatKRW(m.unitProfit)} warn={m.unitProfit < 0} />
             <Row k="마진율" val={pct(m.marginRate)} warn={m.marginRate < 0} />
             <Row k="원가율" val={pct(m.costRate)} />
-            <div className="border-t border-white my-2" />
+            <div className="border-t border-line my-2" />
             <Row k="총매출" val={formatKRW(m.totalRevenue)} />
             <Row k="총이익" val={formatKRW(m.totalProfit)} warn={m.totalProfit < 0} />
           </div>
@@ -87,7 +86,7 @@ export default function BusinessCalculatorScreen() {
           <div className="bg-card rounded-2xl p-4">
             <Row k="권장 판매가" val={recommended > 0 ? formatKRW(recommended) : '마진율 확인'} warn={recommended === 0} />
             <Row k="개당 이익" val={formatKRW(recResult.unitProfit)} />
-            <div className="border-t border-white my-2" />
+            <div className="border-t border-line my-2" />
             <Row k="총매출" val={formatKRW(recResult.totalRevenue)} />
             <Row k="총이익" val={formatKRW(recResult.totalProfit)} />
           </div>
