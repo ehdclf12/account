@@ -46,9 +46,18 @@ export default function ArchiveScreen() {
   function DueBadge({ due }: { due: string | null }) {
     const s = dueStatus(due, today)
     if (!s) return null
-    const label = s.kind === 'overdue' ? '지남' : s.kind === 'today' ? '오늘' : `D-${s.days}`
-    const cls = s.kind === 'overdue' ? 'text-[#F04452]' : s.kind === 'today' ? 'text-brand' : 'text-sub'
-    return <span className={`text-[10px] font-medium ${cls}`}>{label}</span>
+    const label =
+      s.kind === 'overdue' ? `${-s.days}일 지남` : s.kind === 'today' ? '오늘 마감' : `D-${s.days}`
+    // 지남·오늘은 채운 빨강, 남은 기한은 연빨강 — 급할수록 진하게
+    const cls =
+      s.kind === 'upcoming'
+        ? 'bg-[#FDECEE] text-[#F04452]'
+        : 'bg-[#F04452] text-white'
+    return (
+      <span className={`text-[11px] font-bold rounded-full px-2 py-0.5 leading-tight ${cls}`}>
+        {label}
+      </span>
+    )
   }
   function Badges({ it }: { it: ArchiveItem }) {
     return (
