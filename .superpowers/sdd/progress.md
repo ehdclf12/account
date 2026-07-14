@@ -141,3 +141,16 @@ Task 4: complete (commit fe75a0a, CalendarScreen + /calendar 라우트 + 홈 Cal
 남은 Minor(이월): COLOR_HEX 중복(plan-mandated) / 비체크리스트 due_date 대칭제약 없음 / 하단목록 제목 지난기한 빨강 미적용 / useMemo 없음 / 멀티터치 pointerId / ChecklistCard·시트의 bg-white(다크모드 스펙에서 처리).
 사용자 schema-calendar.sql 실행 완료. main 병합(cf7beb6) + 푸시 완료 → Vercel 자동배포.
 *** 캘린더 뷰 전부 완성·병합·배포. 남은 것: 배포본 런타임 검증(두 계정), 그리고 다음 스펙 = 앱 전체 다크모드. ***
+
+=== 다크모드 태스크 진행 (branch feat/dark-mode, plan 2026-07-14-dark-mode.md, base 53bb265) ===
+DM Task 1: complete (commit ff23ee8, CSS변수 RGB채널 토큰 9종 + tailwind 매핑 + theme.ts TDD 5tests + 깜빡임방지 + main 부팅적용, build+86tests clean, 리뷰 clean)
+  리뷰 Important(plan-mandated): theme-color 메타가 브랜드파랑 → 라이트 흰색/다크 진회색으로 바뀜(라이트도 기존과 달라짐). → 사용자 판단: "테마 따라 바꾸기(계획대로)" 확정.
+DM Task 2: complete (commit c839910, ThemeToggle + 홈메뉴 하단 배치, build+86tests clean, 리뷰 clean)
+DM Task 3: complete (commit e00d863, #F04452 25곳→danger / #0ca30c 2곳→positive / 뱃지틴트 통일(bg-brand10, bg-danger10) / StatsScreen 인라인style→className, build+86tests clean, 리뷰 clean)
+DM Task 4: complete (commit 52f0bfd, bg-white 18→surface / bg-black9→dim / border-card 6→line / NO_COLOR→rgb(var(--sub)), build+86tests clean, 리뷰 clean) *** 다크모드 색 교체 완료 ***
+DM Task 5: complete (commit 7a0e346, NavButton 알약 + 9개 화면 교체 + 죽은 nav/useNavigate 6곳 정리, build+86tests clean, 리뷰 clean; 9개 목적지 전부 동일 확인, FixedManage 조건부 라벨 유지)
+최종 whole-branch 리뷰(opus): 치명 1 + 중요 4 + 사소 발견.
+  치명: bg-ink text-white 2곳(보관함/보관 토글) — 다크에서 ink가 near-white라 흰글씨 안보임 → text-bg로.
+  중요: border-white 구분선 2곳(계산기) / theme-color 정적meta+manifest가 브랜드파랑이라 콜드로드시 파랑→테마색 점프 / color-scheme 미선언(다크에서 date·select·스크롤바가 라이트로) / NavButton 5곳 누락(계획이 9곳으로 오산, 실제 14곳 — 9알약+5회색링크로 더 비일관)
+  사소: Donut 트랙 stroke #F2F4F6(다크에서 흰 반점) / centerLabel fill / ring-offset 흰 후광.
+리뷰수정: complete (commit 69ebae9, 7건 전부). 재검증(opus): VERIFIED — READY TO MERGE. 하드코딩 색 잔여 = CAT_COLORS·ARCHIVE_COLORS(의도적 제외) + theme.ts 상태바 상수뿐.

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useIdentity } from '@/App'
 import { NAME_BY_ROLE } from '@/lib/users'
 import { supabase } from '@/lib/supabase'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function HomeMenuScreen() {
   const nav = useNavigate()
@@ -35,8 +36,11 @@ export default function HomeMenuScreen() {
           <span className="text-sub text-xl">›</span>
         </button>
       </div>
-      <div className="mt-auto pt-8 text-sm text-sub">
-        {NAME_BY_ROLE[who]}님 · <button onClick={() => supabase.auth.signOut()} className="text-brand font-medium">로그아웃</button>
+      <div className="mt-auto pt-8 flex items-center justify-between">
+        <span className="text-sm text-sub">
+          {NAME_BY_ROLE[who]}님 · <button onClick={() => supabase.auth.signOut()} className="text-brand font-medium">로그아웃</button>
+        </span>
+        <ThemeToggle />
       </div>
     </div>
   )

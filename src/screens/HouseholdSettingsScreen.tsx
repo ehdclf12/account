@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useCategories, useAddCategory, useDeleteCategory } from '@/hooks/useCategories'
 import { usePaymentMethods, useAddPaymentMethod, useDeletePaymentMethod } from '@/hooks/usePaymentMethods'
+import NavButton from '@/components/NavButton'
 import type { TxType } from '@/types'
 
 export default function HouseholdSettingsScreen() {
-  const nav = useNavigate()
   const { data: cats = [] } = useCategories()
   const { data: pms = [] } = usePaymentMethods()
   const addCat = useAddCategory(); const delCat = useDeleteCategory()
@@ -16,7 +15,7 @@ export default function HouseholdSettingsScreen() {
 
   return (
     <div className="p-5 space-y-8">
-      <button onClick={() => nav('/household')} className="text-sub text-sm">‹ 집</button>
+      <NavButton to="/household" label="집" />
       <h1 className="text-xl font-bold text-ink">집 설정</h1>
 
       <section>

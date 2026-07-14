@@ -41,8 +41,8 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
   )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30" onClick={onClose}>
-      <div className="w-full max-w-md bg-white rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dim" onClick={onClose}>
+      <div className="w-full max-w-md bg-surface rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center">
           <span className="font-bold text-ink">폴더 관리</span>
           <button onClick={onClose} className="text-sub text-sm font-medium">닫기</button>
@@ -59,7 +59,7 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
               <div className="flex items-center gap-2">
                 {nameInput(top.id, top.name)}
                 <button onClick={() => setSubFor(subFor === top.id ? null : top.id)} className="text-brand text-xs px-1">+하위</button>
-                <button onClick={() => tryDelete(top.id, top.name)} className="text-[#F04452] text-sm px-1">삭제</button>
+                <button onClick={() => tryDelete(top.id, top.name)} className="text-danger text-sm px-1">삭제</button>
               </div>
               {subFor === top.id && (
                 <div className="flex gap-2 pl-4">
@@ -71,7 +71,7 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
                 <div key={c.id} className="flex items-center gap-2 pl-4">
                   <span className="text-sub text-xs">└</span>
                   {nameInput(c.id, c.name)}
-                  <button onClick={() => tryDelete(c.id, c.name)} className="text-[#F04452] text-sm px-1">삭제</button>
+                  <button onClick={() => tryDelete(c.id, c.name)} className="text-danger text-sm px-1">삭제</button>
                 </div>
               ))}
             </div>

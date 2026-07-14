@@ -1,23 +1,22 @@
 import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useArchiveItems } from '@/hooks/useArchive'
 import { calendarItems, groupByDue, isAllDone, monthGrid, shiftMonth } from '@/lib/calendar'
 import { formatDayHeader, todayISO } from '@/lib/date'
 import { ARCHIVE_COLORS } from '@/lib/archive'
 import ChecklistCard from '@/components/ChecklistCard'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
+import NavButton from '@/components/NavButton'
 import type { ArchiveColor, ArchiveItem } from '@/types'
 
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
-const NO_COLOR = '#C4CBD3'
+const NO_COLOR = 'rgb(var(--sub))'
 const bar = (c: ArchiveColor | null) => (c ? COLOR_HEX[c] : NO_COLOR)
 
 const WEEK = ['월', '화', '수', '목', '금', '토', '일']
 
 export default function CalendarScreen() {
-  const nav = useNavigate()
   const { data: items = [] } = useArchiveItems()
   const today = todayISO()
 
@@ -81,7 +80,7 @@ export default function CalendarScreen() {
           <button onClick={goToday} className="rounded-full border border-sub/30 text-sub text-xs font-medium px-3 py-1 active:opacity-70">
             TODAY
           </button>
-          <button onClick={() => nav('/')} className="text-sub text-sm">홈</button>
+          <NavButton to="/" label="홈" />
         </div>
       </div>
 
@@ -107,7 +106,7 @@ export default function CalendarScreen() {
                     <span className="w-[3px] h-3 rounded-sm shrink-0" style={{ backgroundColor: bar(it.color) }} />
                     <span className={`text-[10px] truncate ${
                       isAllDone(it) ? 'text-sub line-through'
-                        : c.iso < today ? 'text-[#F04452]'
+                        : c.iso < today ? 'text-danger'
                         : 'text-ink'}`}>
                       {it.title || '체크리스트'}
                     </span>
@@ -120,7 +119,7 @@ export default function CalendarScreen() {
         })}
       </div>
 
-      <div className="border-t border-card pt-4 space-y-2">
+      <div className="border-t border-line pt-4 space-y-2">
         <h2 className="font-bold text-ink">
           {selected.slice(0, 4)}년 {formatDayHeader(selected)}
         </h2>

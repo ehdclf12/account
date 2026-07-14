@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAssets } from '@/hooks/useAssets'
 import { useSavingsProgress } from '@/hooks/useSavingsGoals'
 import { useQuotes } from '@/hooks/useQuotes'
@@ -7,6 +6,7 @@ import { computeNetWorth } from '@/lib/networth'
 import { effectiveAmount, isLivePriced } from '@/lib/quote'
 import { formatKRW } from '@/lib/format'
 import AssetSheet from '@/components/AssetSheet'
+import NavButton from '@/components/NavButton'
 import type { Asset, AssetType } from '@/types'
 
 const TYPE_LABEL: Record<AssetType, string> = {
@@ -15,7 +15,6 @@ const TYPE_LABEL: Record<AssetType, string> = {
 }
 
 export default function AssetsScreen() {
-  const nav = useNavigate()
   const { data: assets = [] } = useAssets()
   const { data: progress = {} } = useSavingsProgress()
   const savingsTotal = Object.values(progress).reduce((a, b) => a + b, 0)
@@ -33,7 +32,7 @@ export default function AssetsScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
+      <NavButton to="/budget" label="예산관리" />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-ink">자산 현황</h1>
         <button onClick={() => quotesQuery.refetch()} disabled={quotesQuery.isFetching} className="text-sub text-sm">
@@ -43,7 +42,7 @@ export default function AssetsScreen() {
 
       <div>
         <p className="text-sub text-sm">순자산</p>
-        <p className={`text-4xl font-bold mt-1 ${total < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(total)}</p>
+        <p className={`text-4xl font-bold mt-1 ${total < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(total)}</p>
       </div>
 
       <div className="space-y-2">
@@ -65,11 +64,11 @@ export default function AssetsScreen() {
             <button key={a.id} onClick={() => setEditing(a)}
               className="w-full flex items-center justify-between text-sm bg-card rounded-2xl px-4 py-3 active:opacity-70">
               <span className="flex items-center gap-2 min-w-0">
-                <span className="text-[10px] text-sub bg-white rounded px-1.5 py-0.5 shrink-0">{TYPE_LABEL[a.type]}</span>
+                <span className="text-[10px] text-sub bg-surface rounded px-1.5 py-0.5 shrink-0">{TYPE_LABEL[a.type]}</span>
                 <span className="text-ink truncate">{a.name}</span>
-                {live && <span className="text-[10px] text-brand bg-white rounded px-1.5 py-0.5 shrink-0">시세</span>}
+                {live && <span className="text-[10px] text-brand bg-surface rounded px-1.5 py-0.5 shrink-0">시세</span>}
               </span>
-              <span className={liability ? 'text-[#F04452] shrink-0' : 'text-ink shrink-0'}>
+              <span className={liability ? 'text-danger shrink-0' : 'text-ink shrink-0'}>
                 {liability ? '−' : ''}{formatKRW(eff)}
               </span>
             </button>

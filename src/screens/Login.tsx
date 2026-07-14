@@ -23,7 +23,7 @@ export default function Login() {
       <input value={password} onChange={(e) => setPassword(e.target.value)} type="password"
         placeholder="비밀번호" onKeyDown={(e) => e.key === 'Enter' && submit()}
         className="bg-card rounded-xl px-4 py-3 outline-none" />
-      {err && <p className="text-[#F04452] text-sm">{err}</p>}
+      {err && <p className="text-danger text-sm">{err}</p>}
       <button onClick={submit} disabled={loading || !email || !password}
         className="bg-brand disabled:bg-sub text-white rounded-2xl py-3 font-bold mt-2">
         {loading ? '로그인 중…' : '로그인'}

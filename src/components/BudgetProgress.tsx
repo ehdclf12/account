@@ -28,8 +28,8 @@ export default function BudgetProgress(
               <span className="text-sub">사용 {formatKRW(totalSpent)}</span>
               <span className="text-sub">예산 {formatKRW(totalBudget)}</span>
             </div>
-            <div className="h-2 bg-white rounded-full mt-2 overflow-hidden">
-              <div className={`h-full rounded-full ${totalSpent > totalBudget ? 'bg-[#F04452]' : 'bg-brand'}`}
+            <div className="h-2 bg-surface rounded-full mt-2 overflow-hidden">
+              <div className={`h-full rounded-full ${totalSpent > totalBudget ? 'bg-danger' : 'bg-brand'}`}
                 style={{ width: `${Math.min(100, Math.round((totalSpent / totalBudget) * 100))}%` }} />
             </div>
           </div>
@@ -38,13 +38,13 @@ export default function BudgetProgress(
               <div key={l.category_id}>
                 <div className="flex justify-between text-sm">
                   <span className="text-ink">{name.get(l.category_id) ?? '기타'}</span>
-                  <span className={l.over ? 'text-[#F04452]' : 'text-sub'}>
+                  <span className={l.over ? 'text-danger' : 'text-sub'}>
                     {formatKRW(l.spent)} / {formatKRW(l.budget)}
                     {l.over ? ` · ${formatKRW(-l.remaining)} 초과` : ''}
                   </span>
                 </div>
                 <div className="h-1.5 bg-card rounded-full mt-1 overflow-hidden">
-                  <div className={`h-full rounded-full ${l.over ? 'bg-[#F04452]' : 'bg-brand'}`}
+                  <div className={`h-full rounded-full ${l.over ? 'bg-danger' : 'bg-brand'}`}
                     style={{ width: `${Math.min(100, Math.round((l.spent / l.budget) * 100))}%` }} />
                 </div>
               </div>

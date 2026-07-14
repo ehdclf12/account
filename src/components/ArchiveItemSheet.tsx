@@ -91,8 +91,8 @@ export default function ArchiveItemSheet(
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30" onClick={onClose}>
-      <div className="w-full max-w-md bg-white rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dim" onClick={onClose}>
+      <div className="w-full max-w-md bg-surface rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center">
           <span className="font-bold text-ink">{editing ? '항목 수정' : '항목 추가'}</span>
           <button onClick={onClose} className="text-sub text-sm font-medium">닫기</button>
@@ -156,7 +156,7 @@ export default function ArchiveItemSheet(
         )}
 
         {/* 공통 메타: 핀 / 기한(체크리스트 전용) / 색상 / 보관 */}
-        <div className="border-t border-card pt-3 space-y-3">
+        <div className="border-t border-line pt-3 space-y-3">
           {kind === 'checklist' && (
             <div className="flex items-center justify-between">
               <span className="text-sub text-sm">기한</span>
@@ -166,21 +166,21 @@ export default function ArchiveItemSheet(
           <div className="flex items-center justify-between">
             <span className="text-sub text-sm">색상</span>
             <div className="flex gap-2 items-center">
-              <button onClick={() => setColor(null)} className={`w-6 h-6 rounded-full border ${color === null ? 'border-ink' : 'border-card'} text-sub text-xs`}>×</button>
+              <button onClick={() => setColor(null)} className={`w-6 h-6 rounded-full border ${color === null ? 'border-ink' : 'border-line'} text-sub text-xs`}>×</button>
               {ARCHIVE_COLORS.map((c) => (
                 <button key={c.key} onClick={() => setColor(c.key)} style={{ backgroundColor: c.hex }}
-                  className={`w-6 h-6 rounded-full ${color === c.key ? 'ring-2 ring-offset-1 ring-ink' : ''}`} />
+                  className={`w-6 h-6 rounded-full ${color === c.key ? 'ring-2 ring-ink' : ''}`} />
               ))}
             </div>
           </div>
           <div className="flex items-center justify-between">
             <button onClick={() => setPinned((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${pinned ? 'bg-brand text-white' : 'bg-card text-sub'}`}>{pinned ? '고정됨' : '고정'}</button>
-            <button onClick={() => setArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${archived ? 'bg-ink text-white' : 'bg-card text-sub'}`}>{archived ? '보관됨' : '보관'}</button>
+            <button onClick={() => setArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${archived ? 'bg-ink text-bg' : 'bg-card text-sub'}`}>{archived ? '보관됨' : '보관'}</button>
           </div>
         </div>
 
         <button onClick={save} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">저장하기</button>
-        {editing && <button onClick={remove} className="w-full text-[#F04452] text-sm py-1">삭제</button>}
+        {editing && <button onClick={remove} className="w-full text-danger text-sm py-1">삭제</button>}
       </div>
     </div>
   )

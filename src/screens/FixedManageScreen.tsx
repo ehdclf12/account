@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useFixedCosts, useRegisterFixedCost } from '@/hooks/useFixedCosts'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useBusinessTransactions } from '@/hooks/useBusiness'
@@ -9,10 +8,10 @@ import { fixedByPerson } from '@/lib/fixedPerson'
 import { formatKRW } from '@/lib/format'
 import { NAME_BY_ROLE } from '@/lib/users'
 import FixedCostSheet from '@/components/FixedCostSheet'
+import NavButton from '@/components/NavButton'
 import type { FixedCost } from '@/types'
 
 export default function FixedManageScreen({ scope, backTo }: { scope: 'household' | 'business'; backTo: string }) {
-  const nav = useNavigate()
   const who = useIdentity()
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
@@ -38,7 +37,7 @@ export default function FixedManageScreen({ scope, backTo }: { scope: 'household
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav(backTo)} className="text-sub text-sm">‹ {scope === 'household' ? '집' : '코스모스'}</button>
+      <NavButton to={backTo} label={scope === 'household' ? '집' : '코스모스'} />
       <h1 className="text-xl font-bold text-ink">고정비 관리</h1>
 
       <div className="flex gap-2">
@@ -75,7 +74,7 @@ export default function FixedManageScreen({ scope, backTo }: { scope: 'household
               </button>
               <span className="text-ink shrink-0">{formatKRW(f.amount)}</span>
               {done ? (
-                <span className="text-[#0ca30c] text-xs font-semibold w-12 text-center shrink-0">등록됨</span>
+                <span className="text-positive text-xs font-semibold w-12 text-center shrink-0">등록됨</span>
               ) : (
                 <button onClick={() => register.mutate({
                   who: f.who ?? who, scope, type: 'expense', amount: f.amount, category_id: f.category_id,

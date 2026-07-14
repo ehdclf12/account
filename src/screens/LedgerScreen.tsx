@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { groupByDate } from '@/lib/grouping'
@@ -8,6 +7,7 @@ import { computeSummary } from '@/lib/summary'
 import { formatKRW } from '@/lib/format'
 import TransactionRow from '@/components/TransactionRow'
 import TransactionSheet from '@/components/TransactionSheet'
+import NavButton from '@/components/NavButton'
 import type { Transaction } from '@/types'
 
 export default function LedgerScreen() {
@@ -18,7 +18,6 @@ export default function LedgerScreen() {
   const { data: cats = [] } = useCategories()
   const catMap = new Map(cats.map((c) => [c.id, c]))
   const [editing, setEditing] = useState<Transaction | null>(null)
-  const nav = useNavigate()
 
   const s = computeSummary(txs)
   const groups = groupByDate(txs)
@@ -31,7 +30,7 @@ export default function LedgerScreen() {
 
   return (
     <div className="p-5">
-      <button onClick={() => nav('/household')} className="text-sub text-sm mb-2">‹ 집</button>
+      <div className="mb-2"><NavButton to="/household" label="집" /></div>
       <div className="flex items-center justify-center gap-6 mb-2">
         <button onClick={() => move(-1)} className="text-2xl text-sub">‹</button>
         <span className="font-bold">{year}년 {month}월</span>

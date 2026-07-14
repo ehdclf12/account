@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useFolders, useArchiveItems } from '@/hooks/useArchive'
 import { sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
 import { todayISO } from '@/lib/date'
@@ -7,6 +6,7 @@ import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
 import FolderDrawer from '@/components/FolderDrawer'
 import ChecklistCard from '@/components/ChecklistCard'
+import NavButton from '@/components/NavButton'
 import type { ArchiveColor, ArchiveItem, SortMode } from '@/types'
 
 const SORT_LABEL: Record<SortMode, string> = {
@@ -17,7 +17,6 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
 ) as Record<ArchiveColor, string>
 
 export default function ArchiveScreen() {
-  const nav = useNavigate()
   const { data: folders = [] } = useFolders()
   const { data: items = [] } = useArchiveItems()
 
@@ -47,8 +46,8 @@ export default function ArchiveScreen() {
     // 지남·오늘은 채운 빨강, 남은 기한은 연빨강 — 급할수록 진하게
     const cls =
       s.kind === 'upcoming'
-        ? 'bg-[#FDECEE] text-[#F04452]'
-        : 'bg-[#F04452] text-white'
+        ? 'bg-danger/10 text-danger'
+        : 'bg-danger text-white'
     return (
       <span className={`text-[11px] font-bold rounded-full px-2 py-0.5 leading-tight ${cls}`}>
         {label}
@@ -73,14 +72,14 @@ export default function ArchiveScreen() {
           <button onClick={() => setDrawer(true)} className="text-ink text-xl">☰</button>
           <h1 className="text-xl font-bold text-ink">{viewName}</h1>
         </div>
-        <button onClick={() => nav('/')} className="text-sub text-sm">홈</button>
+        <NavButton to="/" label="홈" />
       </div>
 
       <div className="flex items-center justify-between">
         <select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="bg-card rounded-xl px-3 py-1.5 text-sm outline-none">
           {(Object.keys(SORT_LABEL) as SortMode[]).map((k) => <option key={k} value={k}>{SORT_LABEL[k]}</option>)}
         </select>
-        <button onClick={() => setShowArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${showArchived ? 'bg-ink text-white' : 'bg-card text-sub'}`}>
+        <button onClick={() => setShowArchived((v) => !v)} className={`rounded-xl px-3 py-1.5 text-sm font-medium ${showArchived ? 'bg-ink text-bg' : 'bg-card text-sub'}`}>
           {showArchived ? '보관됨' : '보관함'}
         </button>
       </div>

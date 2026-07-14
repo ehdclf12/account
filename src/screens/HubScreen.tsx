@@ -9,6 +9,7 @@ import { useSavingsProgress } from '@/hooks/useSavingsGoals'
 import { computeNetWorth } from '@/lib/networth'
 import { useQuotes } from '@/hooks/useQuotes'
 import { effectiveAmount } from '@/lib/quote'
+import NavButton from '@/components/NavButton'
 
 export default function HubScreen() {
   const now = new Date()
@@ -29,7 +30,7 @@ export default function HubScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav('/')} className="text-sub text-sm">‹ 홈</button>
+      <NavButton to="/" label="홈" />
       <h1 className="text-xl font-bold text-ink">예산관리</h1>
 
       <button onClick={() => nav('/assets')}
@@ -39,7 +40,7 @@ export default function HubScreen() {
           <span className="text-sub text-xl">›</span>
         </div>
         <p className="text-sub text-sm mt-3">순자산</p>
-        <p className={`text-3xl font-bold mt-1 ${netWorth < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(netWorth)}</p>
+        <p className={`text-3xl font-bold mt-1 ${netWorth < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(netWorth)}</p>
       </button>
 
       <button onClick={() => nav('/household')}
@@ -59,7 +60,7 @@ export default function HubScreen() {
           <span className="text-sub text-xl">›</span>
         </div>
         <p className="text-sub text-sm mt-3">사업자금 잔액</p>
-        <p className={`text-3xl font-bold mt-1 ${balance < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(balance)}</p>
+        <p className={`text-3xl font-bold mt-1 ${balance < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(balance)}</p>
       </button>
     </div>
   )

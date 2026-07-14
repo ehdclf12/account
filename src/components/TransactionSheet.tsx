@@ -51,8 +51,8 @@ export default function TransactionSheet(
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30" onClick={onClose}>
-      <div className="w-full max-w-md bg-white rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dim" onClick={onClose}>
+      <div className="w-full max-w-md bg-surface rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center">
           <span className="font-bold text-ink">{editing ? '내역 수정' : '입력'}</span>
           <button onClick={onClose} className="text-sub text-sm font-medium">닫기</button>
@@ -61,12 +61,12 @@ export default function TransactionSheet(
         <div className="text-center text-3xl font-bold py-2 text-ink">{formatKRW(amt)}</div>
         <input value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
           inputMode="numeric" placeholder="금액 입력"
-          className="w-full text-center border-b border-card py-2 outline-none" autoFocus />
+          className="w-full text-center border-b border-line py-2 outline-none" autoFocus />
 
         <div className="flex bg-card rounded-2xl p-1">
           {(['expense', 'income'] as TxType[]).map((t) => (
             <button key={t} onClick={() => { setType(t); setCategoryId(null) }}
-              className={`flex-1 py-2 rounded-xl text-sm font-bold ${type === t ? 'bg-white shadow text-ink' : 'text-sub'}`}>
+              className={`flex-1 py-2 rounded-xl text-sm font-bold ${type === t ? 'bg-surface shadow text-ink' : 'text-sub'}`}>
               {t === 'expense' ? '지출' : '수입'}
             </button>
           ))}
@@ -120,7 +120,7 @@ export default function TransactionSheet(
         </button>
         {editing && (
           <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
-            className="w-full text-[#F04452] text-sm py-1">삭제</button>
+            className="w-full text-danger text-sm py-1">삭제</button>
         )}
       </div>
     </div>

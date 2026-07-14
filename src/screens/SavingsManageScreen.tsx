@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useSavingsGoals, useSavingsProgress } from '@/hooks/useSavingsGoals'
 import { goalProgress, monthlyNeeded } from '@/lib/savings'
 import { formatKRW } from '@/lib/format'
 import SavingsGoalSheet from '@/components/SavingsGoalSheet'
+import NavButton from '@/components/NavButton'
 import type { SavingsGoal } from '@/types'
 
 export default function SavingsManageScreen() {
-  const nav = useNavigate()
   const { data: goals = [] } = useSavingsGoals()
   const { data: progress = {} } = useSavingsProgress()
   const [editing, setEditing] = useState<SavingsGoal | null>(null)
@@ -23,7 +22,7 @@ export default function SavingsManageScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav('/household')} className="text-sub text-sm">‹ 집</button>
+      <NavButton to="/household" label="집" />
       <h1 className="text-xl font-bold text-ink">저축 목표</h1>
 
       <div className="space-y-3">
@@ -39,7 +38,7 @@ export default function SavingsManageScreen() {
                 <span className="font-bold text-ink">{g.name}</span>
                 <span className="text-sub text-sm">{pct}%</span>
               </div>
-              <div className="h-2 bg-white rounded-full mt-2 overflow-hidden">
+              <div className="h-2 bg-surface rounded-full mt-2 overflow-hidden">
                 <div className="h-full bg-brand rounded-full" style={{ width: `${pct}%` }} />
               </div>
               <div className="flex justify-between text-sm mt-2">

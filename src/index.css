@@ -2,10 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 색은 RGB 채널로 정의한다. hex로 넣으면 bg-brand/10 같은 투명도 조합이 깨진다. */
+:root {
+  --bg: 255 255 255;
+  --card: 242 244 246;
+  --surface: 255 255 255;
+  --ink: 25 31 40;
+  --sub: 139 149 161;
+  --brand: 49 130 246;
+  --danger: 240 68 82;
+  --positive: 12 163 12;
+  --line: 229 232 235;
+  --dim: 0 0 0 / 0.30;
+  color-scheme: light;
+}
+
+/* 순수 검정을 쓰지 않는다. 바닥(bg) → card → surface 순으로 밝아지며 높이 위계를 만든다. */
+[data-theme='dark'] {
+  --bg: 23 23 28;
+  --card: 35 36 41;
+  --surface: 43 45 51;
+  --ink: 234 236 239;
+  --sub: 155 163 174;
+  --brand: 76 147 248;
+  --danger: 255 107 117;
+  --positive: 53 199 89;
+  --line: 51 54 60;
+  --dim: 0 0 0 / 0.60;
+  color-scheme: dark;
+}
+
 html, body, #root { height: 100%; }
 body {
-  background: #fff;
-  color: #191F28;
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
   font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }

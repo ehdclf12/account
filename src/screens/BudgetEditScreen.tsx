@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useCategories } from '@/hooks/useCategories'
 import { useBusinessCategories } from '@/hooks/useBusiness'
 import { useBudgets, useSetBudget } from '@/hooks/useBudgets'
 import { monthKey } from '@/lib/date'
+import NavButton from '@/components/NavButton'
 import type { Category } from '@/types'
 
 export default function BudgetEditScreen({ scope, backTo }: { scope: 'household' | 'business'; backTo: string }) {
-  const nav = useNavigate()
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
@@ -30,7 +29,7 @@ export default function BudgetEditScreen({ scope, backTo }: { scope: 'household'
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav(backTo)} className="text-sub text-sm">‹ 뒤로</button>
+      <NavButton to={backTo} label="뒤로" />
       <h1 className="text-xl font-bold text-ink">예산 편집</h1>
       <div className="flex items-center justify-center gap-6">
         <button onClick={() => move(-1)} className="text-2xl text-sub">‹</button>

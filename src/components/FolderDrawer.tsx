@@ -122,8 +122,8 @@ export default function FolderDrawer(
   const topOrder = orderedIds('top', topIds)
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/30" onClick={onClose}>
-      <div className="absolute left-0 top-0 h-full w-4/5 max-w-xs bg-white p-4 space-y-1 overflow-y-auto select-none" style={{ WebkitTouchCallout: 'none' }} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-dim" onClick={onClose}>
+      <div className="absolute left-0 top-0 h-full w-4/5 max-w-xs bg-surface p-4 space-y-1 overflow-y-auto select-none" style={{ WebkitTouchCallout: 'none' }} onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-2">
           <span className="font-bold text-ink">폴더</span>
           <button onClick={onManage} className="text-sub text-sm">관리</button>
