@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { userForEmail } from '@/lib/users'
 import type { Role } from '@/types'
@@ -20,6 +20,7 @@ import FixedManageScreen from '@/screens/FixedManageScreen'
 import SavingsManageScreen from '@/screens/SavingsManageScreen'
 import AssetsScreen from '@/screens/AssetsScreen'
 import ArchiveScreen from '@/screens/ArchiveScreen'
+import CalendarScreen from '@/screens/CalendarScreen'
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -39,6 +40,8 @@ export default function App() {
     return () => sub.subscription.unsubscribe()
   }, [])
 
+  const { pathname } = useLocation()
+
   if (!ready) return <div className="p-6 text-sub">시작하는 중…</div>
   if (!email) return <Login />
 
@@ -50,12 +53,15 @@ export default function App() {
     </div>
   )
 
+  const wide = pathname === '/calendar'
+
   return (
     <IdentityCtx.Provider value={info.role}>
       <Shell>
-        <div className="max-w-md mx-auto min-h-full pb-8">
+        <div className={`${wide ? 'max-w-2xl' : 'max-w-md'} mx-auto min-h-full pb-8`}>
           <Routes>
             <Route path="/" element={<HomeMenuScreen />} />
+            <Route path="/calendar" element={<CalendarScreen />} />
             <Route path="/budget" element={<HubScreen />} />
             <Route path="/assets" element={<AssetsScreen />} />
             <Route path="/archive" element={<ArchiveScreen />} />

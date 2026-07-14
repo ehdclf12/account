@@ -10,6 +10,14 @@ export default function HomeMenuScreen() {
     <div className="p-5 min-h-[85vh] flex flex-col">
       <h1 className="text-xl font-bold text-ink mb-5">우리집</h1>
       <div className="space-y-3">
+        <button onClick={() => nav('/calendar')}
+          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
+          <div>
+            <span className="font-bold text-ink text-lg">Calendar</span>
+            <p className="text-sub text-sm mt-1">체크리스트 기한 한눈에</p>
+          </div>
+          <span className="text-sub text-xl">›</span>
+        </button>
         <button onClick={() => nav('/budget')}
           className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
           <div>
