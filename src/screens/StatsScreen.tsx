@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import { useCategories } from '@/hooks/useCategories'
 import { useBusinessCategories } from '@/hooks/useBusiness'
 import { useRangeTransactions } from '@/hooks/useStatsData'
@@ -6,10 +5,10 @@ import { recentMonths, monthlyExpense, categoryBreakdown } from '@/lib/stats'
 import { nextMonthFirst } from '@/lib/date'
 import { formatKRW } from '@/lib/format'
 import Donut, { CAT_COLORS, ETC_COLOR } from '@/components/Donut'
+import NavButton from '@/components/NavButton'
 import type { Category } from '@/types'
 
 export default function StatsScreen({ scope, backTo }: { scope: 'household' | 'business'; backTo: string }) {
-  const nav = useNavigate()
   const now = new Date()
   const year = now.getFullYear(), month = now.getMonth() + 1
   const months = recentMonths(year, month, 6)
@@ -40,7 +39,7 @@ export default function StatsScreen({ scope, backTo }: { scope: 'household' | 'b
 
   return (
     <div className="p-5 space-y-6">
-      <button onClick={() => nav(backTo)} className="text-sub text-sm">‹ 뒤로</button>
+      <NavButton to={backTo} label="뒤로" />
       <h1 className="text-xl font-bold text-ink">통계</h1>
 
       {/* 지난달 대비 */}

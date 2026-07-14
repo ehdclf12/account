@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useFolders, useArchiveItems } from '@/hooks/useArchive'
 import { sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
 import { todayISO } from '@/lib/date'
@@ -7,6 +6,7 @@ import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
 import FolderDrawer from '@/components/FolderDrawer'
 import ChecklistCard from '@/components/ChecklistCard'
+import NavButton from '@/components/NavButton'
 import type { ArchiveColor, ArchiveItem, SortMode } from '@/types'
 
 const SORT_LABEL: Record<SortMode, string> = {
@@ -17,7 +17,6 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
 ) as Record<ArchiveColor, string>
 
 export default function ArchiveScreen() {
-  const nav = useNavigate()
   const { data: folders = [] } = useFolders()
   const { data: items = [] } = useArchiveItems()
 
@@ -73,7 +72,7 @@ export default function ArchiveScreen() {
           <button onClick={() => setDrawer(true)} className="text-ink text-xl">☰</button>
           <h1 className="text-xl font-bold text-ink">{viewName}</h1>
         </div>
-        <button onClick={() => nav('/')} className="text-sub text-sm">홈</button>
+        <NavButton to="/" label="홈" />
       </div>
 
       <div className="flex items-center justify-between">

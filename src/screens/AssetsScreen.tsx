@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAssets } from '@/hooks/useAssets'
 import { useSavingsProgress } from '@/hooks/useSavingsGoals'
 import { useQuotes } from '@/hooks/useQuotes'
@@ -7,6 +6,7 @@ import { computeNetWorth } from '@/lib/networth'
 import { effectiveAmount, isLivePriced } from '@/lib/quote'
 import { formatKRW } from '@/lib/format'
 import AssetSheet from '@/components/AssetSheet'
+import NavButton from '@/components/NavButton'
 import type { Asset, AssetType } from '@/types'
 
 const TYPE_LABEL: Record<AssetType, string> = {
@@ -15,7 +15,6 @@ const TYPE_LABEL: Record<AssetType, string> = {
 }
 
 export default function AssetsScreen() {
-  const nav = useNavigate()
   const { data: assets = [] } = useAssets()
   const { data: progress = {} } = useSavingsProgress()
   const savingsTotal = Object.values(progress).reduce((a, b) => a + b, 0)
@@ -33,7 +32,7 @@ export default function AssetsScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
+      <NavButton to="/budget" label="예산관리" />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-ink">자산 현황</h1>
         <button onClick={() => quotesQuery.refetch()} disabled={quotesQuery.isFetching} className="text-sub text-sm">

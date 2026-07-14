@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useArchiveItems } from '@/hooks/useArchive'
 import { calendarItems, groupByDue, isAllDone, monthGrid, shiftMonth } from '@/lib/calendar'
 import { formatDayHeader, todayISO } from '@/lib/date'
 import { ARCHIVE_COLORS } from '@/lib/archive'
 import ChecklistCard from '@/components/ChecklistCard'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
+import NavButton from '@/components/NavButton'
 import type { ArchiveColor, ArchiveItem } from '@/types'
 
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
@@ -17,7 +17,6 @@ const bar = (c: ArchiveColor | null) => (c ? COLOR_HEX[c] : NO_COLOR)
 const WEEK = ['월', '화', '수', '목', '금', '토', '일']
 
 export default function CalendarScreen() {
-  const nav = useNavigate()
   const { data: items = [] } = useArchiveItems()
   const today = todayISO()
 
@@ -81,7 +80,7 @@ export default function CalendarScreen() {
           <button onClick={goToday} className="rounded-full border border-sub/30 text-sub text-xs font-medium px-3 py-1 active:opacity-70">
             TODAY
           </button>
-          <button onClick={() => nav('/')} className="text-sub text-sm">홈</button>
+          <NavButton to="/" label="홈" />
         </div>
       </div>
 

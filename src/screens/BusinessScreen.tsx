@@ -10,6 +10,7 @@ import TransactionRow from '@/components/TransactionRow'
 import BudgetProgress from '@/components/BudgetProgress'
 import BusinessSheet from '@/components/BusinessSheet'
 import TransferSheet from '@/components/TransferSheet'
+import NavButton from '@/components/NavButton'
 import type { Transaction } from '@/types'
 
 export default function BusinessScreen() {
@@ -31,7 +32,7 @@ export default function BusinessScreen() {
   return (
     <div className="p-5 space-y-6">
       <div className="flex justify-between items-center">
-        <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
+        <NavButton to="/budget" label="예산관리" />
         <div className="flex items-center gap-3">
           <button onClick={() => nav('/business/stats')} className="text-sub text-sm">통계</button>
           <button onClick={() => nav('/business/manage')} className="text-sub text-sm">관리</button>

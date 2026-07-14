@@ -7,6 +7,7 @@ import { formatKRW } from '@/lib/format'
 import TransactionSheet from '@/components/TransactionSheet'
 import TransactionRow from '@/components/TransactionRow'
 import BudgetProgress from '@/components/BudgetProgress'
+import NavButton from '@/components/NavButton'
 
 export default function HomeScreen() {
   const now = new Date()
@@ -21,7 +22,7 @@ export default function HomeScreen() {
   return (
     <div className="p-5 space-y-6">
       <div className="flex justify-between items-center">
-        <button onClick={() => nav('/budget')} className="text-sub text-sm">‹ 예산관리</button>
+        <NavButton to="/budget" label="예산관리" />
         <div className="flex items-center gap-3">
           <button onClick={() => nav('/household/stats')} className="text-sub text-sm">통계</button>
           <button onClick={() => nav('/household/manage')} className="text-sub text-sm">관리</button>
