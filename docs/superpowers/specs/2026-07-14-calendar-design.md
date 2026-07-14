@@ -67,11 +67,16 @@ alter table archive_items add constraint archive_items_due_required
 
 | 함수 | 하는 일 |
 |---|---|
-| `monthGrid(year, month)` | 42칸(6주 × 7일) 배열. 각 칸 `{ iso, day, inMonth }`. 월요일 시작, 앞뒤 달로 채움 |
-| `shiftMonth(year, month, delta)` | 연도 넘김 처리한 월 이동 |
+| `monthGrid(year, month)` | 항상 42칸(6주 × 7일) 배열. 각 칸 `{ iso, day, inMonth }`. 월요일 시작, 앞뒤 달로 채움 |
+| `shiftMonth(year, month, delta)` | 연도 넘김 처리한 월 이동 → `{ year, month }` |
 | `calendarItems(items)` | 위 조건으로 필터 |
 | `groupByDue(items)` | `Record<iso, ArchiveItem[]>` |
-| `checklistProgress(item)` | `{ done, total, allDone }`. **빈 체크리스트는 `allDone: false`** |
+| `isAllDone(item)` | 체크리스트가 **비어 있지 않고** 전부 `done`일 때만 `true` |
+
+진행률(`2/5`)은 이미 `src/lib/archive.ts`에 있는 `checklistProgress(checklist)`를 그대로 쓴다.
+같은 이름을 새로 만들지 않는다. 캘린더는 "전부 완료인가"만 추가로 필요하므로 `isAllDone`만 더한다.
+
+칸 수를 항상 42로 고정하는 이유: 월마다 행 수가 5~6줄로 바뀌면 그리드 높이가 출렁인다.
 
 의존성 없이 날짜 계산만 한다. 테스트는 여기에만 붙인다.
 
@@ -179,12 +184,12 @@ ArchiveItemSheet 저장 → useAddItem / useUpdateItem
 
 기존 프로젝트 패턴대로 `src/lib/` 순수 함수에만 테스트를 붙인다. 화면은 테스트하지 않는다.
 
-- `monthGrid` — 42칸이 나오는지, 월요일 시작이 맞는지, 앞뒤 달 채움(`inMonth: false`)이 맞는지.
-  경계: **1일이 월요일인 달**(앞이 안 채워짐), **말일이 일요일인 달**(뒤가 안 채워짐).
+- `monthGrid` — 항상 42칸인지, 월요일 시작이 맞는지, 앞뒤 달 채움(`inMonth: false`)이 맞는지.
+  경계: **1일이 월요일인 달**(앞이 안 채워짐), **월말이 다음 달로 넘어가는 달**.
 - `shiftMonth` — 12월 → 1월 연도 넘김, 1월 → 12월 역방향.
 - `calendarItems` — 링크·사진·보관함(`archived`)·기한없음이 걸러지는지.
 - `groupByDue` — 같은 날짜 여러 건이 한 배열에 묶이는지.
-- `checklistProgress` — 빈 체크리스트가 `0/0`, `allDone: false`인지.
+- `isAllDone` — 빈 체크리스트가 `false`인지.
   (`true`면 항목 없는 카드가 전부 취소선으로 그어진다.)
 
 ## 예외 처리
