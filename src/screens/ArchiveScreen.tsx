@@ -127,35 +127,25 @@ export default function ArchiveScreen() {
                   </button>
                 )
               }
-              if (it.kind === 'checklist') {
-                const { done, total } = checklistProgress(it.checklist)
-                return (
-                  <div key={it.id} className="bg-card rounded-2xl p-4" style={stripStyle(it.color)}>
-                    <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="text-ink font-medium truncate">{it.title || '체크리스트'}</span>
-                        <span className="flex items-center gap-2 shrink-0"><Badges it={it} /><span className="text-sub text-xs">{done}/{total}</span></span>
-                      </div>
-                    </button>
-                    <div className="mt-3 space-y-2">
-                      {(it.checklist ?? []).map((c, i) => (
-                        <button key={i} onClick={() => toggle.mutate({ item: it, index: i })} className="flex items-center gap-2 w-full text-left active:opacity-70">
-                          <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-white text-transparent border border-sub/30'}`}>✓</span>
-                          <span className={`text-sm ${c.done ? 'text-sub line-through' : 'text-ink'}`}>{c.text}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              }
+              // 남은 종류는 checklist 뿐이다
+              const { done, total } = checklistProgress(it.checklist)
               return (
-                <button key={it.id} onClick={() => setEditing(it)} className="w-full text-left bg-card rounded-2xl p-4 active:opacity-70" style={stripStyle(it.color)}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-ink font-medium truncate">{it.title || '메모'}</p>
-                    <Badges it={it} />
+                <div key={it.id} className="bg-card rounded-2xl p-4" style={stripStyle(it.color)}>
+                  <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-ink font-medium truncate">{it.title || '체크리스트'}</span>
+                      <span className="flex items-center gap-2 shrink-0"><Badges it={it} /><span className="text-sub text-xs">{done}/{total}</span></span>
+                    </div>
+                  </button>
+                  <div className="mt-3 space-y-2">
+                    {(it.checklist ?? []).map((c, i) => (
+                      <button key={i} onClick={() => toggle.mutate({ item: it, index: i })} className="flex items-center gap-2 w-full text-left active:opacity-70">
+                        <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-white text-transparent border border-sub/30'}`}>✓</span>
+                        <span className={`text-sm ${c.done ? 'text-sub line-through' : 'text-ink'}`}>{c.text}</span>
+                      </button>
+                    ))}
                   </div>
-                  {it.body && <p className="text-sub text-sm mt-1 whitespace-pre-wrap line-clamp-3">{it.body}</p>}
-                </button>
+                </div>
               )
             })}
           </div>
