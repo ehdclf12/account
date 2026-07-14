@@ -78,7 +78,7 @@ export interface Asset {
   created_at: string
 }
 
-export type ArchiveKind = 'memo' | 'checklist' | 'link' | 'image'
+export type ArchiveKind = 'checklist' | 'link' | 'image'
 export type ArchiveColor = 'red' | 'orange' | 'green' | 'blue' | 'purple'
 export type SortMode = 'updated' | 'created' | 'name' | 'due'
 

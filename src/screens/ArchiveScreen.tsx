@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useFolders, useArchiveItems, useToggleCheck } from '@/hooks/useArchive'
-import { checklistProgress, sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
+import { useFolders, useArchiveItems } from '@/hooks/useArchive'
+import { sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
+import { todayISO } from '@/lib/date'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
 import FolderDrawer from '@/components/FolderDrawer'
+import ChecklistCard from '@/components/ChecklistCard'
 import type { ArchiveColor, ArchiveItem, SortMode } from '@/types'
 
 const SORT_LABEL: Record<SortMode, string> = {
@@ -14,16 +16,10 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
 
-function todayISO(): string {
-  const n = new Date()
-  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`
-}
-
 export default function ArchiveScreen() {
   const nav = useNavigate()
   const { data: folders = [] } = useFolders()
   const { data: items = [] } = useArchiveItems()
-  const toggle = useToggleCheck()
 
   const [sel, setSel] = useState<string>('all') // 'all' | folderId
   const [sort, setSort] = useState<SortMode>('updated')
@@ -127,36 +123,8 @@ export default function ArchiveScreen() {
                   </button>
                 )
               }
-              if (it.kind === 'checklist') {
-                const { done, total } = checklistProgress(it.checklist)
-                return (
-                  <div key={it.id} className="bg-card rounded-2xl p-4" style={stripStyle(it.color)}>
-                    <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="text-ink font-medium truncate">{it.title || '체크리스트'}</span>
-                        <span className="flex items-center gap-2 shrink-0"><Badges it={it} /><span className="text-sub text-xs">{done}/{total}</span></span>
-                      </div>
-                    </button>
-                    <div className="mt-3 space-y-2">
-                      {(it.checklist ?? []).map((c, i) => (
-                        <button key={i} onClick={() => toggle.mutate({ item: it, index: i })} className="flex items-center gap-2 w-full text-left active:opacity-70">
-                          <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${c.done ? 'bg-brand text-white' : 'bg-white text-transparent border border-sub/30'}`}>✓</span>
-                          <span className={`text-sm ${c.done ? 'text-sub line-through' : 'text-ink'}`}>{c.text}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              }
-              return (
-                <button key={it.id} onClick={() => setEditing(it)} className="w-full text-left bg-card rounded-2xl p-4 active:opacity-70" style={stripStyle(it.color)}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-ink font-medium truncate">{it.title || '메모'}</p>
-                    <Badges it={it} />
-                  </div>
-                  {it.body && <p className="text-sub text-sm mt-1 whitespace-pre-wrap line-clamp-3">{it.body}</p>}
-                </button>
-              )
+              // 남은 종류는 checklist 뿐이다
+              return <ChecklistCard key={it.id} item={it} onEdit={() => setEditing(it)} badges={<Badges it={it} />} />
             })}
           </div>
 

@@ -8,7 +8,7 @@ import type { ArchiveFolder, ArchiveItem } from '@/types'
 const folder = (over: Partial<ArchiveFolder>): ArchiveFolder =>
   ({ id: '', name: '', sort_order: 0, parent_id: null, created_at: '', ...over })
 const item = (over: Partial<ArchiveItem>): ArchiveItem =>
-  ({ id: '', folder_id: null, kind: 'memo', title: '', body: null, url: null,
+  ({ id: '', folder_id: null, kind: 'checklist', title: '', body: null, url: null,
      preview: null, checklist: null, pinned: false, due_date: null, color: null,
      archived: false, created_at: '', updated_at: '', ...over })
 

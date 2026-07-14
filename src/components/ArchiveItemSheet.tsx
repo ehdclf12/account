@@ -4,23 +4,21 @@ import { normalizeUrl, buildFolderTree, ARCHIVE_COLORS } from '@/lib/archive'
 import type { ArchiveColor, ArchiveItem, ArchiveKind, ChecklistEntry, LinkPreview } from '@/types'
 
 const KIND_OPTIONS: { value: ArchiveKind; label: string }[] = [
-  { value: 'memo', label: '메모' },
   { value: 'checklist', label: '체크리스트' },
   { value: 'link', label: '링크' },
   { value: 'image', label: '사진' },
 ]
 
 export default function ArchiveItemSheet(
-  { open, onClose, editing, defaultFolderId }:
-  { open: boolean; onClose: () => void; editing?: ArchiveItem; defaultFolderId?: string | null },
+  { open, onClose, editing, defaultFolderId, defaultDueDate }:
+  { open: boolean; onClose: () => void; editing?: ArchiveItem; defaultFolderId?: string | null; defaultDueDate?: string },
 ) {
   const { data: folders = [] } = useFolders()
   const add = useAddItem(); const upd = useUpdateItem(); const del = useDeleteItem()
 
-  const [kind, setKind] = useState<ArchiveKind>(editing?.kind ?? 'memo')
+  const [kind, setKind] = useState<ArchiveKind>(editing?.kind ?? 'checklist')
   const [folderId, setFolderId] = useState<string | null>(editing?.folder_id ?? defaultFolderId ?? null)
   const [title, setTitle] = useState(editing?.title ?? '')
-  const [body, setBody] = useState(editing?.body ?? '')
   const [url, setUrl] = useState(editing?.url ?? '')
   const [preview, setPreview] = useState<LinkPreview | null>(editing?.preview ?? null)
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(editing?.checklist ?? [{ text: '', done: false }])
@@ -29,7 +27,7 @@ export default function ArchiveItemSheet(
   const [uploading, setUploading] = useState(false)
   // 공통 메타
   const [pinned, setPinned] = useState(editing?.pinned ?? false)
-  const [dueDate, setDueDate] = useState(editing?.due_date ?? '')
+  const [dueDate, setDueDate] = useState(editing?.due_date ?? defaultDueDate ?? '')
   const [color, setColor] = useState<ArchiveColor | null>(editing?.color ?? null)
   const [archived, setArchived] = useState(editing?.archived ?? false)
 
@@ -62,7 +60,7 @@ export default function ArchiveItemSheet(
   function addCheckRow() { setChecklist((cs) => [...cs, { text: '', done: false }]) }
   function removeCheckRow(i: number) { setChecklist((cs) => cs.filter((_, idx) => idx !== i)) }
 
-  const meta = { pinned, due_date: dueDate || null, color, archived }
+  const meta = { pinned, due_date: kind === 'checklist' ? (dueDate || null) : null, color, archived }
 
   async function save() {
     if (!folderId) { alert('폴더를 선택해 주세요.'); return }
@@ -73,13 +71,12 @@ export default function ArchiveItemSheet(
     } else if (kind === 'image') {
       if (!imageUrl) { alert('사진을 선택해 주세요.'); return }
       payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: imageUrl, preview: null, checklist: null, ...meta }
-    } else if (kind === 'checklist') {
+    } else {
+      // 체크리스트: 기한 필수 (캘린더에 뜨는 유일한 종류라서다)
+      if (!dueDate) { alert('기한을 선택해 주세요.'); return }
       const cleaned = checklist.filter((c) => c.text.trim()).map((c) => ({ text: c.text.trim(), done: c.done }))
       if (!title.trim() && cleaned.length === 0) return
       payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: null, preview: null, checklist: cleaned, ...meta }
-    } else {
-      if (!title.trim() && !body.trim()) return
-      payload = { folder_id: folderId, kind, title: title.trim(), body: body.trim() || null, url: null, preview: null, checklist: null, ...meta }
     }
     if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
     else await add.mutateAsync(payload)
@@ -102,7 +99,7 @@ export default function ArchiveItemSheet(
         </div>
 
         {!editing && (
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {KIND_OPTIONS.map((o) => (
               <button key={o.value} onClick={() => setKind(o.value)}
                 className={`rounded-xl py-2 text-sm font-medium ${kind === o.value ? 'bg-brand text-white' : 'bg-card text-sub'}`}>
@@ -143,7 +140,7 @@ export default function ArchiveItemSheet(
             </label>
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (선택)" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
           </>
-        ) : kind === 'checklist' ? (
+        ) : (
           <>
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
             <div className="space-y-2">
@@ -156,19 +153,16 @@ export default function ArchiveItemSheet(
               <button onClick={addCheckRow} className="text-brand text-sm font-medium">+ 할일 추가</button>
             </div>
           </>
-        ) : (
-          <>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
-            <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="내용" rows={5} className="w-full bg-card rounded-xl px-3 py-2 outline-none resize-none" />
-          </>
         )}
 
-        {/* 공통 메타: 핀 / 기한 / 색상 / 보관 */}
+        {/* 공통 메타: 핀 / 기한(체크리스트 전용) / 색상 / 보관 */}
         <div className="border-t border-card pt-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sub text-sm">기한</span>
-            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="bg-card rounded-xl px-3 py-2 outline-none text-sm" />
-          </div>
+          {kind === 'checklist' && (
+            <div className="flex items-center justify-between">
+              <span className="text-sub text-sm">기한</span>
+              <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="bg-card rounded-xl px-3 py-2 outline-none text-sm" />
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <span className="text-sub text-sm">색상</span>
             <div className="flex gap-2 items-center">
