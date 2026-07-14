@@ -139,3 +139,5 @@ Task 4: complete (commit fe75a0a, CalendarScreen + /calendar 라우트 + 홈 Cal
   ※ 4d959e5의 스와이프 가드는 불완전했음(셀 경계 넘는 스와이프는 click이 그리드에 떨어져 플래그가 안 지워짐 → 다음 탭 삼킴). 4614d56에서 onDown 초기화로 해결.
 재검증(opus): VERIFIED — READY TO MERGE. 7가지 제스처 시퀀스 전부 정상. 마이그레이션 순서·멱등성 정상.
 남은 Minor(이월): COLOR_HEX 중복(plan-mandated) / 비체크리스트 due_date 대칭제약 없음 / 하단목록 제목 지난기한 빨강 미적용 / useMemo 없음 / 멀티터치 pointerId / ChecklistCard·시트의 bg-white(다크모드 스펙에서 처리).
+사용자 schema-calendar.sql 실행 완료. main 병합(cf7beb6) + 푸시 완료 → Vercel 자동배포.
+*** 캘린더 뷰 전부 완성·병합·배포. 남은 것: 배포본 런타임 검증(두 계정), 그리고 다음 스펙 = 앱 전체 다크모드. ***
