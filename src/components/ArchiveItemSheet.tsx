@@ -180,7 +180,7 @@ export default function ArchiveItemSheet(
         </div>
 
         <button onClick={save} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">저장하기</button>
-        {editing && <button onClick={remove} className="w-full text-[#F04452] text-sm py-1">삭제</button>}
+        {editing && <button onClick={remove} className="w-full text-danger text-sm py-1">삭제</button>}
       </div>
     </div>
   )

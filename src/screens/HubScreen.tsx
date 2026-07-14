@@ -39,7 +39,7 @@ export default function HubScreen() {
           <span className="text-sub text-xl">›</span>
         </div>
         <p className="text-sub text-sm mt-3">순자산</p>
-        <p className={`text-3xl font-bold mt-1 ${netWorth < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(netWorth)}</p>
+        <p className={`text-3xl font-bold mt-1 ${netWorth < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(netWorth)}</p>
       </button>
 
       <button onClick={() => nav('/household')}
@@ -59,7 +59,7 @@ export default function HubScreen() {
           <span className="text-sub text-xl">›</span>
         </div>
         <p className="text-sub text-sm mt-3">사업자금 잔액</p>
-        <p className={`text-3xl font-bold mt-1 ${balance < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(balance)}</p>
+        <p className={`text-3xl font-bold mt-1 ${balance < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(balance)}</p>
       </button>
     </div>
   )

@@ -2,8 +2,8 @@ import type { Role } from '@/types'
 import { NAME_BY_ROLE } from '@/lib/users'
 
 const STYLE = {
-  husband: 'bg-[#E8F3FF] text-[#3182F6]',
-  wife: 'bg-[#FBEEF0] text-[#F04452]',
+  husband: 'bg-brand/10 text-brand',
+  wife: 'bg-danger/10 text-danger',
 } as const
 
 export default function WhoBadge({ who }: { who: Role }) {

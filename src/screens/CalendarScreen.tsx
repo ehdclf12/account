@@ -107,7 +107,7 @@ export default function CalendarScreen() {
                     <span className="w-[3px] h-3 rounded-sm shrink-0" style={{ backgroundColor: bar(it.color) }} />
                     <span className={`text-[10px] truncate ${
                       isAllDone(it) ? 'text-sub line-through'
-                        : c.iso < today ? 'text-[#F04452]'
+                        : c.iso < today ? 'text-danger'
                         : 'text-ink'}`}>
                       {it.title || '체크리스트'}
                     </span>

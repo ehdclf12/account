@@ -75,7 +75,7 @@ export default function FixedManageScreen({ scope, backTo }: { scope: 'household
               </button>
               <span className="text-ink shrink-0">{formatKRW(f.amount)}</span>
               {done ? (
-                <span className="text-[#0ca30c] text-xs font-semibold w-12 text-center shrink-0">등록됨</span>
+                <span className="text-positive text-xs font-semibold w-12 text-center shrink-0">등록됨</span>
               ) : (
                 <button onClick={() => register.mutate({
                   who: f.who ?? who, scope, type: 'expense', amount: f.amount, category_id: f.category_id,

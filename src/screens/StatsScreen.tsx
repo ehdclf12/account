@@ -48,7 +48,7 @@ export default function StatsScreen({ scope, backTo }: { scope: 'household' | 'b
         <p className="text-sub text-sm">이번 달 지출</p>
         <p className="text-3xl font-bold text-ink mt-1">{formatKRW(cur)}</p>
         {prev > 0 && (
-          <p className="text-sm mt-1" style={{ color: delta > 0 ? '#F04452' : '#0ca30c' }}>
+          <p className={`text-sm mt-1 ${delta > 0 ? 'text-danger' : 'text-positive'}`}>
             지난달 대비 {delta > 0 ? '↑' : '↓'} {Math.abs(Math.round(delta * 100))}%
           </p>
         )}

@@ -59,7 +59,7 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
               <div className="flex items-center gap-2">
                 {nameInput(top.id, top.name)}
                 <button onClick={() => setSubFor(subFor === top.id ? null : top.id)} className="text-brand text-xs px-1">+하위</button>
-                <button onClick={() => tryDelete(top.id, top.name)} className="text-[#F04452] text-sm px-1">삭제</button>
+                <button onClick={() => tryDelete(top.id, top.name)} className="text-danger text-sm px-1">삭제</button>
               </div>
               {subFor === top.id && (
                 <div className="flex gap-2 pl-4">
@@ -71,7 +71,7 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
                 <div key={c.id} className="flex items-center gap-2 pl-4">
                   <span className="text-sub text-xs">└</span>
                   {nameInput(c.id, c.name)}
-                  <button onClick={() => tryDelete(c.id, c.name)} className="text-[#F04452] text-sm px-1">삭제</button>
+                  <button onClick={() => tryDelete(c.id, c.name)} className="text-danger text-sm px-1">삭제</button>
                 </div>
               ))}
             </div>

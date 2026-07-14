@@ -120,7 +120,7 @@ export default function TransactionSheet(
         </button>
         {editing && (
           <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
-            className="w-full text-[#F04452] text-sm py-1">삭제</button>
+            className="w-full text-danger text-sm py-1">삭제</button>
         )}
       </div>
     </div>

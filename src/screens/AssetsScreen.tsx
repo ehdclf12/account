@@ -43,7 +43,7 @@ export default function AssetsScreen() {
 
       <div>
         <p className="text-sub text-sm">순자산</p>
-        <p className={`text-4xl font-bold mt-1 ${total < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(total)}</p>
+        <p className={`text-4xl font-bold mt-1 ${total < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(total)}</p>
       </div>
 
       <div className="space-y-2">
@@ -69,7 +69,7 @@ export default function AssetsScreen() {
                 <span className="text-ink truncate">{a.name}</span>
                 {live && <span className="text-[10px] text-brand bg-white rounded px-1.5 py-0.5 shrink-0">시세</span>}
               </span>
-              <span className={liability ? 'text-[#F04452] shrink-0' : 'text-ink shrink-0'}>
+              <span className={liability ? 'text-danger shrink-0' : 'text-ink shrink-0'}>
                 {liability ? '−' : ''}{formatKRW(eff)}
               </span>
             </button>

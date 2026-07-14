@@ -47,8 +47,8 @@ export default function ArchiveScreen() {
     // 지남·오늘은 채운 빨강, 남은 기한은 연빨강 — 급할수록 진하게
     const cls =
       s.kind === 'upcoming'
-        ? 'bg-[#FDECEE] text-[#F04452]'
-        : 'bg-[#F04452] text-white'
+        ? 'bg-danger/10 text-danger'
+        : 'bg-danger text-white'
     return (
       <span className={`text-[11px] font-bold rounded-full px-2 py-0.5 leading-tight ${cls}`}>
         {label}

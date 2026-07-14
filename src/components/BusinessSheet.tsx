@@ -78,7 +78,7 @@ export default function BusinessSheet(
           className="w-full bg-brand disabled:bg-sub text-white rounded-2xl py-3 font-bold">저장하기</button>
         {editing && (
           <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
-            className="w-full text-[#F04452] text-sm py-1">삭제</button>
+            className="w-full text-danger text-sm py-1">삭제</button>
         )}
       </div>
     </div>

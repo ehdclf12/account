@@ -40,7 +40,7 @@ export default function BusinessCalculatorScreen() {
   const Row = ({ k, val, warn }: { k: string; val: string; warn?: boolean }) => (
     <div className="flex justify-between text-sm py-1">
       <span className="text-sub">{k}</span>
-      <span className={warn ? 'text-[#F04452] font-bold' : 'text-ink font-bold'}>{val}</span>
+      <span className={warn ? 'text-danger font-bold' : 'text-ink font-bold'}>{val}</span>
     </div>
   )
 

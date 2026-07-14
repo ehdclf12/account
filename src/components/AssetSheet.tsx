@@ -67,7 +67,7 @@ export default function AssetSheet(
         )}
         <input value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={isMarket ? '수동 평가액 (시세 못 받을 때, 선택)' : '평가액'} className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
         <button onClick={save} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">저장하기</button>
-        {editing && <button onClick={remove} className="w-full text-[#F04452] text-sm py-1">삭제</button>}
+        {editing && <button onClick={remove} className="w-full text-danger text-sm py-1">삭제</button>}
       </div>
     </div>
   )

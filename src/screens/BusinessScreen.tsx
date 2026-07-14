@@ -40,8 +40,8 @@ export default function BusinessScreen() {
       <div>
         <h1 className="text-xl font-bold text-ink">코스모스</h1>
         <p className="text-sub text-sm mt-3">사업자금 잔액</p>
-        <p className={`text-4xl font-bold mt-1 ${balance < 0 ? 'text-[#F04452]' : 'text-ink'}`}>{formatKRW(balance)}</p>
-        {balance < 0 && <p className="text-[#F04452] text-xs mt-1">사업자금이 부족해요</p>}
+        <p className={`text-4xl font-bold mt-1 ${balance < 0 ? 'text-danger' : 'text-ink'}`}>{formatKRW(balance)}</p>
+        {balance < 0 && <p className="text-danger text-xs mt-1">사업자금이 부족해요</p>}
       </div>
 
       <div className="flex gap-3">
