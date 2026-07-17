@@ -5,7 +5,7 @@ import type { ArchiveItem } from '@/types'
 const item = (over: Partial<ArchiveItem>): ArchiveItem =>
   ({ id: '', folder_id: null, kind: 'checklist', title: '', body: null, url: null,
      preview: null, checklist: null, pinned: false, due_date: null, color: null,
-     archived: false, created_at: '', updated_at: '', ...over })
+     archived: false, done: false, created_at: '', updated_at: '', ...over })
 
 describe('monthGrid', () => {
   it('항상 42칸(6주)을 낸다', () => {

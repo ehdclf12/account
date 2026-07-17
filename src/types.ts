@@ -115,6 +115,7 @@ export interface ArchiveItem {
   due_date: string | null   // YYYY-MM-DD
   color: ArchiveColor | null
   archived: boolean
+  done: boolean   // 체크리스트 카드 전체 완료 여부(하위 항목 유무와 무관)
   created_at: string
   updated_at: string
 }

@@ -10,7 +10,7 @@ const folder = (over: Partial<ArchiveFolder>): ArchiveFolder =>
 const item = (over: Partial<ArchiveItem>): ArchiveItem =>
   ({ id: '', folder_id: null, kind: 'checklist', title: '', body: null, url: null,
      preview: null, checklist: null, pinned: false, due_date: null, color: null,
-     archived: false, created_at: '', updated_at: '', ...over })
+     archived: false, done: false, created_at: '', updated_at: '', ...over })
 
 describe('checklistProgress', () => {
   it('완료/전체 개수를 센다', () => {

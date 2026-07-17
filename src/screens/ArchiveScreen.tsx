@@ -158,8 +158,17 @@ export default function ArchiveScreen() {
       const { done, total } = checklistProgress(it.checklist)
       thumb = (
         <div className="w-full h-full flex flex-col items-center justify-center gap-0.5">
-          <span className="text-ink text-lg font-bold">{done}/{total}</span>
-          <span className="text-sub text-xs">할 일</span>
+          {it.done ? (
+            <>
+              <span className="text-brand text-2xl font-bold leading-none">✓</span>
+              <span className="text-sub text-xs">완료</span>
+            </>
+          ) : (
+            <>
+              <span className="text-ink text-lg font-bold">{total > 0 ? `${done}/${total}` : '할 일'}</span>
+              {total > 0 && <span className="text-sub text-xs">할 일</span>}
+            </>
+          )}
         </div>
       )
     } else {
@@ -179,7 +188,7 @@ export default function ArchiveScreen() {
           <span className="absolute top-1.5 right-1.5"><Badges it={it} /></span>
         </div>
         <div className="flex-1 px-3 py-2">
-          <p className="text-ink text-sm font-medium truncate">{titleText}</p>
+          <p className={`text-sm font-medium truncate ${it.done ? 'text-sub line-through' : 'text-ink'}`}>{titleText}</p>
           {subtitle && <p className="text-sub text-xs truncate mt-0.5">{subtitle}</p>}
         </div>
       </button>

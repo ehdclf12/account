@@ -130,6 +130,18 @@ export function useToggleCheck() {
   })
 }
 
+export function useToggleDone() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, done }: { id: string; done: boolean }) => {
+      // 체크 토글과 동일하게 updated_at을 건드리지 않는다(완료했다고 카드가 최상단으로 튀지 않도록)
+      const { error } = await supabase.from('archive_items').update({ done }).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['archive_items'] }),
+  })
+}
+
 export async function uploadArchiveImage(file: File): Promise<string> {
   const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg'
   const path = `${crypto.randomUUID()}.${ext}`
