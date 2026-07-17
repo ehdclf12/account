@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useFolders, useArchiveItems } from '@/hooks/useArchive'
-import { sortItems, dueStatus, ARCHIVE_COLORS } from '@/lib/archive'
+import { sortItems, dueStatus, buildFolderTree, ARCHIVE_COLORS } from '@/lib/archive'
 import { todayISO } from '@/lib/date'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
@@ -15,6 +15,12 @@ const SORT_LABEL: Record<SortMode, string> = {
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
+
+// 보기: 1=세로형(리스트), 2/3=바둑판(다단)
+function readCols(): number {
+  const v = Number(localStorage.getItem('archive_cols'))
+  return v === 2 || v === 3 ? v : 1
+}
 
 // 메모: 기본 2줄까지만(길면 ...로 잘림), 탭하면 전체 펼침·다시 탭하면 접힘
 function MemoBlock({ text }: { text: string }) {
@@ -33,6 +39,7 @@ export default function ArchiveScreen() {
   const [sel, setSel] = useState<string>('all') // 'all' | folderId
   const [sort, setSort] = useState<SortMode>('updated')
   const [showArchived, setShowArchived] = useState(false)
+  const [cols, setCols] = useState<number>(readCols)
   const [drawer, setDrawer] = useState(false)
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<ArchiveItem | null>(null)
@@ -47,6 +54,25 @@ export default function ArchiveScreen() {
     .filter((i) => i.archived === showArchived)
     .filter((i) => effSel === 'all' ? true : i.folder_id === effSel)
   const shown = sortItems(filtered, sort)
+
+  function changeCols(n: number) {
+    setCols(n)
+    localStorage.setItem('archive_cols', String(n))
+  }
+
+  // 전체 뷰: 폴더 순서(드로어와 동일, 상위→서브)대로 그룹핑. 항목 없는 폴더는 숨김.
+  const orderedFolders = buildFolderTree(folders).flatMap((t) => [
+    { id: t.id, label: t.name },
+    ...t.children.map((c) => ({ id: c.id, label: `${t.name} / ${c.name}` })),
+  ])
+  const knownIds = new Set(orderedFolders.map((f) => f.id))
+  const orphans = shown.filter((i) => !i.folder_id || !knownIds.has(i.folder_id))
+  const groups = [
+    ...orderedFolders
+      .map((f) => ({ id: f.id, label: f.label, items: shown.filter((i) => i.folder_id === f.id) }))
+      .filter((g) => g.items.length > 0),
+    ...(orphans.length ? [{ id: '__none__', label: '폴더 없음', items: orphans }] : []),
+  ]
 
   function DueBadge({ due }: { due: string | null }) {
     const s = dueStatus(due, today)
@@ -74,6 +100,57 @@ export default function ArchiveScreen() {
   }
   const stripStyle = (c: ArchiveColor | null) =>
     c ? { borderLeft: `4px solid ${COLOR_HEX[c]}` } : undefined
+
+  // 카드 1장(래퍼/키는 renderBoard가 담당). 컴포넌트가 아닌 함수로 호출 → MemoBlock 상태 보존
+  function renderCard(it: ArchiveItem) {
+    if (it.kind === 'link') {
+      return (
+        <div className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
+          <a href={it.url ?? '#'} target="_blank" rel="noreferrer" className="block active:opacity-70">
+            {it.preview?.image && <img src={it.preview.image} alt="" className="w-full max-h-40 object-cover" />}
+            <div className="p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-ink font-medium truncate">{it.title || it.url}</p>
+                <Badges it={it} />
+              </div>
+              {it.preview?.site && <p className="text-sub text-xs mt-1">{it.preview.site}</p>}
+            </div>
+          </a>
+          {it.body && <MemoBlock text={it.body} />}
+          <button onClick={() => setEditing(it)} className="w-full text-right text-sub text-xs px-4 pb-3">편집</button>
+        </div>
+      )
+    }
+    if (it.kind === 'image') {
+      return (
+        <div className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
+          <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
+            {it.url && <img src={it.url} alt="" className="w-full max-h-60 object-cover" />}
+            <div className="p-3 flex items-center justify-between gap-2">
+              <p className="text-ink font-medium truncate">{it.title || '사진'}</p>
+              <Badges it={it} />
+            </div>
+          </button>
+          {it.body && <MemoBlock text={it.body} />}
+        </div>
+      )
+    }
+    // 남은 종류는 checklist 뿐이다
+    return <ChecklistCard item={it} onEdit={() => setEditing(it)} badges={<Badges it={it} />} />
+  }
+
+  // cols=1: 세로 스택 / cols>=2: CSS 다단(카드 안 잘림)
+  const boardCls = cols === 1 ? 'space-y-3' : cols === 2 ? 'columns-2 gap-3' : 'columns-3 gap-3'
+  const wrapCls = cols === 1 ? '' : 'mb-3 break-inside-avoid'
+  function renderBoard(list: ArchiveItem[]) {
+    return (
+      <div className={boardCls}>
+        {list.map((it) => (
+          <div key={it.id} className={wrapCls}>{renderCard(it)}</div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="p-5 space-y-4">
@@ -103,49 +180,24 @@ export default function ArchiveScreen() {
         <>
           <button onClick={() => setAdding(true)} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">항목 추가</button>
 
-          <div className="space-y-3">
-            {shown.length === 0 && <p className="text-sub text-sm text-center py-8">항목이 없어요</p>}
-            {shown.map((it) => {
-              if (it.kind === 'link') {
-                return (
-                  <div key={it.id} className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
-                    <a href={it.url ?? '#'} target="_blank" rel="noreferrer" className="block active:opacity-70">
-                      {it.preview?.image && <img src={it.preview.image} alt="" className="w-full max-h-40 object-cover" />}
-                      <div className="p-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-ink font-medium truncate">{it.title || it.url}</p>
-                          <Badges it={it} />
-                        </div>
-                        {it.preview?.site && <p className="text-sub text-xs mt-1">{it.preview.site}</p>}
-                      </div>
-                    </a>
-                    {it.body && <MemoBlock text={it.body} />}
-                    <button onClick={() => setEditing(it)} className="w-full text-right text-sub text-xs px-4 pb-3">편집</button>
-                  </div>
-                )
-              }
-              if (it.kind === 'image') {
-                return (
-                  <div key={it.id} className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
-                    <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
-                      {it.url && <img src={it.url} alt="" className="w-full max-h-60 object-cover" />}
-                      <div className="p-3 flex items-center justify-between gap-2">
-                        <p className="text-ink font-medium truncate">{it.title || '사진'}</p>
-                        <Badges it={it} />
-                      </div>
-                    </button>
-                    {it.body && <MemoBlock text={it.body} />}
-                  </div>
-                )
-              }
-              // 남은 종류는 checklist 뿐이다
-              return <ChecklistCard key={it.id} item={it} onEdit={() => setEditing(it)} badges={<Badges it={it} />} />
-            })}
-          </div>
+          {shown.length === 0 ? (
+            <p className="text-sub text-sm text-center py-8">항목이 없어요</p>
+          ) : effSel === 'all' ? (
+            <div className="space-y-5">
+              {groups.map((g) => (
+                <div key={g.id}>
+                  <h2 className="text-sub text-sm font-bold mb-2 px-1">{g.label}</h2>
+                  {renderBoard(g.items)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            renderBoard(shown)
+          )}
         </>
       )}
 
-      <FolderDrawer open={drawer} onClose={() => setDrawer(false)} selected={effSel} onSelect={setSel} onManage={() => { setDrawer(false); setManageFolders(true) }} />
+      <FolderDrawer open={drawer} onClose={() => setDrawer(false)} selected={effSel} onSelect={setSel} onManage={() => { setDrawer(false); setManageFolders(true) }} cols={cols} onCols={changeCols} />
       {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultFolderId={effSel !== 'all' ? effSel : null} />}
       {editing && <ArchiveItemSheet open onClose={() => setEditing(null)} editing={editing} />}
       {manageFolders && <FolderSheet open onClose={() => setManageFolders(false)} />}

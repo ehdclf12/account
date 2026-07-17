@@ -9,8 +9,8 @@ const LONG_PRESS_MS = 300
 const MOVE_THRESHOLD = 6
 
 export default function FolderDrawer(
-  { open, onClose, selected, onSelect, onManage }:
-  { open: boolean; onClose: () => void; selected: string; onSelect: (key: string) => void; onManage: () => void },
+  { open, onClose, selected, onSelect, onManage, cols, onCols }:
+  { open: boolean; onClose: () => void; selected: string; onSelect: (key: string) => void; onManage: () => void; cols: number; onCols: (n: number) => void },
 ) {
   const { data: folders = [] } = useFolders()
   const reorder = useReorderFolders()
@@ -123,7 +123,8 @@ export default function FolderDrawer(
 
   return (
     <div className="fixed inset-0 z-50 bg-dim" onClick={onClose}>
-      <div className="absolute left-0 top-0 h-full w-4/5 max-w-xs bg-surface p-4 space-y-1 overflow-y-auto select-none" style={{ WebkitTouchCallout: 'none' }} onClick={(e) => e.stopPropagation()}>
+      <div className="absolute left-0 top-0 h-full w-4/5 max-w-xs bg-surface flex flex-col select-none" style={{ WebkitTouchCallout: 'none' }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex-1 overflow-y-auto p-4 space-y-1">
         <div className="flex justify-between items-center mb-2">
           <span className="font-bold text-ink">폴더</span>
           <button onClick={onManage} className="text-sub text-sm">관리</button>
@@ -161,6 +162,19 @@ export default function FolderDrawer(
         })}
 
         {folders.length === 0 && <p className="text-sub text-sm py-4">폴더가 없어요. '관리'에서 만들어 주세요.</p>}
+        </div>
+
+        <div className="border-t border-line p-4 space-y-2">
+          <span className="text-sub text-xs font-bold">보기</span>
+          <div className="grid grid-cols-3 gap-2">
+            {[{ n: 1, label: '세로형' }, { n: 2, label: '2열' }, { n: 3, label: '3열' }].map((o) => (
+              <button key={o.n} onClick={() => onCols(o.n)}
+                className={`rounded-xl py-2 text-sm font-medium ${cols === o.n ? 'bg-brand text-white' : 'bg-card text-sub'}`}>
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
