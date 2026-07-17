@@ -23,6 +23,7 @@ export default function ArchiveItemSheet(
   const [preview, setPreview] = useState<LinkPreview | null>(editing?.preview ?? null)
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(editing?.checklist ?? [{ text: '', done: false }])
   const [imageUrl, setImageUrl] = useState<string>(editing?.kind === 'image' ? (editing.url ?? '') : '')
+  const [body, setBody] = useState(editing?.body ?? '')
   const [loadingPrev, setLoadingPrev] = useState(false)
   const [uploading, setUploading] = useState(false)
   // 공통 메타
@@ -67,10 +68,10 @@ export default function ArchiveItemSheet(
     let payload: Omit<ArchiveItem, 'id' | 'created_at' | 'updated_at'>
     if (kind === 'link') {
       const norm = normalizeUrl(url); if (!norm) return
-      payload = { folder_id: folderId, kind, title: title.trim() || preview?.title || norm, body: null, url: norm, preview, checklist: null, ...meta }
+      payload = { folder_id: folderId, kind, title: title.trim() || preview?.title || norm, body: body.trim() || null, url: norm, preview, checklist: null, ...meta }
     } else if (kind === 'image') {
       if (!imageUrl) { alert('사진을 선택해 주세요.'); return }
-      payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: imageUrl, preview: null, checklist: null, ...meta }
+      payload = { folder_id: folderId, kind, title: title.trim(), body: body.trim() || null, url: imageUrl, preview: null, checklist: null, ...meta }
     } else {
       // 체크리스트: 기한 필수 (캘린더에 뜨는 유일한 종류라서다)
       if (!dueDate) { alert('기한을 선택해 주세요.'); return }
@@ -130,6 +131,7 @@ export default function ArchiveItemSheet(
               </div>
             )}
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (비우면 자동)" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
+            <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="메모 (선택)" className="w-full bg-card rounded-xl px-3 py-2 outline-none resize-none" />
           </>
         ) : kind === 'image' ? (
           <>
@@ -139,6 +141,7 @@ export default function ArchiveItemSheet(
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickImage(e.target.files?.[0])} />
             </label>
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (선택)" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
+            <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="메모 (선택)" className="w-full bg-card rounded-xl px-3 py-2 outline-none resize-none" />
           </>
         ) : (
           <>

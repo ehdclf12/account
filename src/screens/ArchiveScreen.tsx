@@ -16,6 +16,16 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
 
+// 메모: 기본 2줄까지만(길면 ...로 잘림), 탭하면 전체 펼침·다시 탭하면 접힘
+function MemoBlock({ text }: { text: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <button onClick={() => setOpen((v) => !v)} className="block w-full text-left px-4 pb-3 active:opacity-70">
+      <p className={`text-sub text-sm whitespace-pre-wrap ${open ? '' : 'line-clamp-2'}`}>{text}</p>
+    </button>
+  )
+}
+
 export default function ArchiveScreen() {
   const { data: folders = [] } = useFolders()
   const { data: items = [] } = useArchiveItems()
@@ -109,19 +119,23 @@ export default function ArchiveScreen() {
                         {it.preview?.site && <p className="text-sub text-xs mt-1">{it.preview.site}</p>}
                       </div>
                     </a>
+                    {it.body && <MemoBlock text={it.body} />}
                     <button onClick={() => setEditing(it)} className="w-full text-right text-sub text-xs px-4 pb-3">편집</button>
                   </div>
                 )
               }
               if (it.kind === 'image') {
                 return (
-                  <button key={it.id} onClick={() => setEditing(it)} className="w-full text-left bg-card rounded-2xl overflow-hidden active:opacity-70" style={stripStyle(it.color)}>
-                    {it.url && <img src={it.url} alt="" className="w-full max-h-60 object-cover" />}
-                    <div className="p-3 flex items-center justify-between gap-2">
-                      <p className="text-ink font-medium truncate">{it.title || '사진'}</p>
-                      <Badges it={it} />
-                    </div>
-                  </button>
+                  <div key={it.id} className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
+                    <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
+                      {it.url && <img src={it.url} alt="" className="w-full max-h-60 object-cover" />}
+                      <div className="p-3 flex items-center justify-between gap-2">
+                        <p className="text-ink font-medium truncate">{it.title || '사진'}</p>
+                        <Badges it={it} />
+                      </div>
+                    </button>
+                    {it.body && <MemoBlock text={it.body} />}
+                  </div>
                 )
               }
               // 남은 종류는 checklist 뿐이다
