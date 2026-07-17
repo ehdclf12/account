@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useFolders, useArchiveItems } from '@/hooks/useArchive'
-import { sortItems, dueStatus, buildFolderTree, ARCHIVE_COLORS } from '@/lib/archive'
+import { sortItems, dueStatus, buildFolderTree, checklistProgress, ARCHIVE_COLORS } from '@/lib/archive'
 import { todayISO } from '@/lib/date'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import FolderSheet from '@/components/FolderSheet'
@@ -16,17 +16,22 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
 
-// 보기: 1=세로형(리스트), 2/3=바둑판(다단)
+// 보기: 1=세로형(리스트), 2/3=바둑판(균등 그리드)
 function readCols(): number {
   const v = Number(localStorage.getItem('archive_cols'))
   return v === 2 || v === 3 ? v : 1
 }
 
-// 메모: 기본 2줄까지만(길면 ...로 잘림), 탭하면 전체 펼침·다시 탭하면 접힘
+function hostname(url: string | null): string {
+  if (!url) return ''
+  try { return new URL(url).hostname.replace(/^www\./, '') } catch { return '' }
+}
+
+// 메모: 미리보기와 구분선으로 분리. 기본 2줄까지만(길면 ...로 잘림), 탭하면 전체 펼침·다시 탭하면 접힘
 function MemoBlock({ text }: { text: string }) {
   const [open, setOpen] = useState(false)
   return (
-    <button onClick={() => setOpen((v) => !v)} className="block w-full text-left px-4 pb-3 active:opacity-70">
+    <button onClick={() => setOpen((v) => !v)} className="block w-full text-left border-t border-line px-4 pt-3 pb-3 active:opacity-70">
       <p className={`text-sub text-sm whitespace-pre-wrap ${open ? '' : 'line-clamp-2'}`}>{text}</p>
     </button>
   )
@@ -139,14 +144,56 @@ export default function ArchiveScreen() {
     return <ChecklistCard item={it} onEdit={() => setEditing(it)} badges={<Badges it={it} />} />
   }
 
-  // cols=1: 세로 스택 / cols>=2: CSS 다단(카드 안 잘림)
-  const boardCls = cols === 1 ? 'space-y-3' : cols === 2 ? 'columns-2 gap-3' : 'columns-3 gap-3'
-  const wrapCls = cols === 1 ? '' : 'mb-3 break-inside-avoid'
+  // 바둑판 카드: 고정비율 썸네일 + 하단 제목/부제(균등 높이). 메모는 리스트 전용
+  function renderGridCard(it: ArchiveItem) {
+    let thumb
+    if (it.kind === 'image' && it.url) {
+      thumb = <img src={it.url} alt="" className="w-full h-full object-cover" />
+    } else if (it.kind === 'link' && it.preview?.image) {
+      thumb = <img src={it.preview.image} alt="" className="w-full h-full object-cover" />
+    } else if (it.kind === 'checklist') {
+      const { done, total } = checklistProgress(it.checklist)
+      thumb = (
+        <div className="w-full h-full flex flex-col items-center justify-center gap-0.5">
+          <span className="text-ink text-lg font-bold">{done}/{total}</span>
+          <span className="text-sub text-xs">할 일</span>
+        </div>
+      )
+    } else {
+      thumb = (
+        <div className="w-full h-full flex items-center justify-center px-2">
+          <span className="text-sub text-xs text-center break-all line-clamp-2">{it.preview?.site || hostname(it.url) || '링크'}</span>
+        </div>
+      )
+    }
+    const subtitle = it.kind === 'link' ? (it.preview?.site || hostname(it.url)) : it.kind === 'image' ? '사진' : '체크리스트'
+    const titleText = it.title || (it.kind === 'image' ? '사진' : it.kind === 'link' ? (it.url ?? '링크') : '체크리스트')
+    const thumbBox = (
+      <div className="relative aspect-[4/3] bg-line/30 overflow-hidden">
+        {thumb}
+        <span className="absolute top-1.5 right-1.5"><Badges it={it} /></span>
+      </div>
+    )
+    return (
+      <div className="bg-card rounded-2xl overflow-hidden h-full flex flex-col" style={stripStyle(it.color)}>
+        {it.kind === 'link' && it.url
+          ? <a href={it.url} target="_blank" rel="noreferrer" className="block active:opacity-70">{thumbBox}</a>
+          : <button onClick={() => setEditing(it)} className="block w-full active:opacity-70">{thumbBox}</button>}
+        <button onClick={() => setEditing(it)} className="flex-1 text-left px-3 py-2 active:opacity-70">
+          <p className="text-ink text-sm font-medium truncate">{titleText}</p>
+          {subtitle && <p className="text-sub text-xs truncate mt-0.5">{subtitle}</p>}
+        </button>
+      </div>
+    )
+  }
+
+  // cols=1: 세로 스택(리스트 카드) / cols>=2: 균등 그리드(바둑판 카드)
+  const boardCls = cols === 1 ? 'space-y-3' : cols === 2 ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-3 gap-3'
   function renderBoard(list: ArchiveItem[]) {
     return (
       <div className={boardCls}>
         {list.map((it) => (
-          <div key={it.id} className={wrapCls}>{renderCard(it)}</div>
+          <div key={it.id}>{cols === 1 ? renderCard(it) : renderGridCard(it)}</div>
         ))}
       </div>
     )
