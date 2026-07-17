@@ -48,6 +48,7 @@ export default function ArchiveScreen() {
   const [drawer, setDrawer] = useState(false)
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<ArchiveItem | null>(null)
+  const [detail, setDetail] = useState<ArchiveItem | null>(null) // 바둑판 카드 탭 → 상세 팝업
   const [manageFolders, setManageFolders] = useState(false)
 
   const today = todayISO()
@@ -59,6 +60,8 @@ export default function ArchiveScreen() {
     .filter((i) => i.archived === showArchived)
     .filter((i) => effSel === 'all' ? true : i.folder_id === effSel)
   const shown = sortItems(filtered, sort)
+  // 상세 팝업은 최신 items에서 다시 찾아 반영(체크 토글 등 변경이 즉시 보이도록)
+  const detailItem = detail ? (items.find((i) => i.id === detail.id) ?? null) : null
 
   function changeCols(n: number) {
     setCols(n)
@@ -168,22 +171,18 @@ export default function ArchiveScreen() {
     }
     const subtitle = it.kind === 'link' ? (it.preview?.site || hostname(it.url)) : it.kind === 'image' ? '사진' : '체크리스트'
     const titleText = it.title || (it.kind === 'image' ? '사진' : it.kind === 'link' ? (it.url ?? '링크') : '체크리스트')
-    const thumbBox = (
-      <div className="relative aspect-[4/3] bg-line/30 overflow-hidden">
-        {thumb}
-        <span className="absolute top-1.5 right-1.5"><Badges it={it} /></span>
-      </div>
-    )
+    // 탭하면 상세 팝업(풀 카드)으로 — 링크 열기·메모·완료체크 등 상호작용은 상세에서
     return (
-      <div className="bg-card rounded-2xl overflow-hidden h-full flex flex-col" style={stripStyle(it.color)}>
-        {it.kind === 'link' && it.url
-          ? <a href={it.url} target="_blank" rel="noreferrer" className="block active:opacity-70">{thumbBox}</a>
-          : <button onClick={() => setEditing(it)} className="block w-full active:opacity-70">{thumbBox}</button>}
-        <button onClick={() => setEditing(it)} className="flex-1 text-left px-3 py-2 active:opacity-70">
+      <button onClick={() => setDetail(it)} className="w-full text-left bg-card rounded-2xl overflow-hidden h-full flex flex-col active:opacity-70" style={stripStyle(it.color)}>
+        <div className="relative aspect-[4/3] bg-line/30 overflow-hidden">
+          {thumb}
+          <span className="absolute top-1.5 right-1.5"><Badges it={it} /></span>
+        </div>
+        <div className="flex-1 px-3 py-2">
           <p className="text-ink text-sm font-medium truncate">{titleText}</p>
           {subtitle && <p className="text-sub text-xs truncate mt-0.5">{subtitle}</p>}
-        </button>
-      </div>
+        </div>
+      </button>
     )
   }
 
@@ -244,9 +243,20 @@ export default function ArchiveScreen() {
         </>
       )}
 
+      {detailItem && !editing && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-dim" onClick={() => setDetail(null)}>
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-end mb-2">
+              <button onClick={() => setDetail(null)} className="text-white text-sm font-medium px-2 py-1">닫기</button>
+            </div>
+            {renderCard(detailItem)}
+          </div>
+        </div>
+      )}
+
       <FolderDrawer open={drawer} onClose={() => setDrawer(false)} selected={effSel} onSelect={setSel} onManage={() => { setDrawer(false); setManageFolders(true) }} cols={cols} onCols={changeCols} />
       {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultFolderId={effSel !== 'all' ? effSel : null} />}
-      {editing && <ArchiveItemSheet open onClose={() => setEditing(null)} editing={editing} />}
+      {editing && <ArchiveItemSheet open onClose={() => { setEditing(null); setDetail(null) }} editing={editing} />}
       {manageFolders && <FolderSheet open onClose={() => setManageFolders(false)} />}
     </div>
   )
