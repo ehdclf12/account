@@ -91,6 +91,8 @@ export default function ArchiveScreen() {
         </div>
       ) : (
         <>
+          <button onClick={() => setAdding(true)} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">항목 추가</button>
+
           <div className="space-y-3">
             {shown.length === 0 && <p className="text-sub text-sm text-center py-8">항목이 없어요</p>}
             {shown.map((it) => {
@@ -126,8 +128,6 @@ export default function ArchiveScreen() {
               return <ChecklistCard key={it.id} item={it} onEdit={() => setEditing(it)} badges={<Badges it={it} />} />
             })}
           </div>
-
-          <button onClick={() => setAdding(true)} className="w-full bg-brand text-white rounded-2xl py-3 font-bold">항목 추가</button>
         </>
       )}
 
