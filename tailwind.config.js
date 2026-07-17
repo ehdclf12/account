@@ -17,6 +17,9 @@ export default {
       backgroundColor: {
         dim: 'rgb(var(--dim))',
       },
+      fontFamily: {
+        script: ['"Great Vibes"', 'cursive'],
+      },
     },
   },
   plugins: [],

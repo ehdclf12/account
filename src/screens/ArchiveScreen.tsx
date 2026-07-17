@@ -163,11 +163,13 @@ export default function ArchiveScreen() {
               <span className="text-brand text-2xl font-bold leading-none">✓</span>
               <span className="text-sub text-xs">완료</span>
             </>
-          ) : (
+          ) : total > 0 ? (
             <>
-              <span className="text-ink text-lg font-bold">{total > 0 ? `${done}/${total}` : '할 일'}</span>
-              {total > 0 && <span className="text-sub text-xs">할 일</span>}
+              <span className="text-ink text-lg font-bold">{done}/{total}</span>
+              <span className="text-sub font-script text-xl leading-none">Checklist</span>
             </>
+          ) : (
+            <span className="text-ink font-script text-3xl leading-none">Checklist</span>
           )}
         </div>
       )
