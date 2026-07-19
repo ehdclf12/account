@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { useTimeBlocks, useTimeSessions, useBlockGroups, useStartTimer, useStopTimer, useDeleteBlock, useUpdateBlock } from '@/hooks/useTimeBlocks'
 import { elapsedSeconds, formatDuration, totalsByBlock, sumInRange, weekStartISO } from '@/lib/time'
 import { todayISO } from '@/lib/date'
@@ -8,6 +9,8 @@ import TimeGroupSheet from '@/components/TimeGroupSheet'
 import BlockIcon from '@/components/BlockIcon'
 import NavButton from '@/components/NavButton'
 import type { ArchiveColor, TimeBlock } from '@/types'
+
+const NONE = '__none__'   // '일반 블럭'(group_id null) 섹션 키
 
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
@@ -32,7 +35,13 @@ export default function TimeScreen() {
   const [editing, setEditing] = useState<TimeBlock | null>(null)
   const [editMode, setEditMode] = useState(false)
   const [managingGroups, setManagingGroups] = useState(false)
-  const [picked, setPicked] = useState<Set<string>>(new Set())
+
+  // 드래그로 그룹 이동. 편집 모드에서만 동작한다.
+  // 편집 모드에선 탭이 타이머와 겹치지 않아 길게 누르기 없이 이동 임계값으로 시작한다.
+  const pressRef = useRef<{ id: string; sx: number; sy: number; dragging: boolean } | null>(null)
+  const dragRef = useRef<{ id: string; from: string; over: string } | null>(null)
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+  const [, force] = useReducer((x: number) => x + 1, 0)
 
   const running = sessions.find((s) => s.ended_at === null) ?? null
 
@@ -60,7 +69,8 @@ export default function TimeScreen() {
     ...(() => {
       const known = new Set(groups.map((g) => g.id))
       const rest = blocks.filter((b) => !b.group_id || !known.has(b.group_id))
-      return rest.length ? [{ id: '__none__', label: '일반 블럭', items: rest }] : []
+      // 편집 중에는 비어 있어도 렌더한다 — 드롭 대상이 없으면 일반으로 되돌릴 수 없다
+      return rest.length || editMode ? [{ id: NONE, label: '일반 블럭', items: rest }] : []
     })(),
   ]
 
@@ -69,21 +79,60 @@ export default function TimeScreen() {
     else start.mutate({ blockId: b.id, runningId: running?.id ?? null })
   }
 
-  function togglePick(id: string) {
-    setPicked((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id); else next.add(id)
-      return next
-    })
+  const MOVE_THRESHOLD = 6
+  const groupIdOf = (sectionId: string) => (sectionId === NONE ? null : sectionId)
+
+  // 포인터가 올라가 있는 섹션을 찾는다(격자 어디에 떨어뜨려도 그 그룹으로 간다)
+  // 드롭 하이라이트는 ring/bg만 쓴다 — 드래그 중 패딩을 바꾸면 섹션 크기가
+  // 변해 히트 영역이 흔들린다(폴더 드래그에서 겪었던 지터와 같은 부류).
+  function sectionAt(x: number, y: number): string | null {
+    for (const [id, el] of Object.entries(sectionRefs.current)) {
+      if (!el) continue
+      const r = el.getBoundingClientRect()
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return id
+    }
+    return null
   }
 
-  async function movePicked(groupId: string | null) {
-    const ids = [...picked]
-    try {
-      // 한 건이라도 실패하면 전역 토스트가 알린다. 성공분은 그대로 둔다.
-      await Promise.all(ids.map((id) => upd.mutateAsync({ id, group_id: groupId })))
-      setPicked(new Set())
-    } catch { /* 전역 토스트 */ }
+  function onCardDown(e: ReactPointerEvent, b: TimeBlock) {
+    if (!editMode) return
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    pressRef.current = { id: b.id, sx: e.clientX, sy: e.clientY, dragging: false }
+    dragRef.current = null
+  }
+
+  function onCardMove(e: ReactPointerEvent, sectionId: string) {
+    const p = pressRef.current
+    if (!p) return
+    if (!p.dragging) {
+      if (Math.abs(e.clientX - p.sx) <= MOVE_THRESHOLD && Math.abs(e.clientY - p.sy) <= MOVE_THRESHOLD) return
+      p.dragging = true
+      try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId) } catch { /* noop */ }
+      dragRef.current = { id: p.id, from: sectionId, over: sectionId }
+    }
+    e.preventDefault()
+    const d = dragRef.current
+    if (!d) return
+    const over = sectionAt(e.clientX, e.clientY) ?? d.over
+    if (over !== d.over) { dragRef.current = { ...d, over }; force() }
+  }
+
+  async function onCardUp(b: TimeBlock) {
+    const p = pressRef.current
+    const d = dragRef.current
+    pressRef.current = null
+    dragRef.current = null
+    if (!p) return
+    if (!p.dragging) { setEditing(b); return }   // 움직이지 않았으면 수정
+    force()
+    if (!d || d.over === d.from) return
+    try { await upd.mutateAsync({ id: b.id, group_id: groupIdOf(d.over) }) }
+    catch { /* 전역 토스트 */ }
+  }
+
+  function onCardCancel() {
+    pressRef.current = null
+    if (dragRef.current) { dragRef.current = null; force() }
   }
 
   async function removeBlock(b: TimeBlock) {
@@ -91,25 +140,31 @@ export default function TimeScreen() {
     try { await del.mutateAsync(b.id) } catch { /* 전역 토스트 */ }
   }
 
-  function renderCard(b: TimeBlock) {
+  function renderCard(b: TimeBlock, sectionId: string) {
     const isRunning = running?.block_id === b.id
+    const isDragging = dragRef.current?.id === b.id
     return (
       <div key={b.id} className="relative">
         {/* 편집 모드에선 탭이 타이머가 아니라 '선택'이다(여러 개 골라 그룹 이동).
             개별 수정·삭제는 모서리 배지로 뺐다. */}
-        <button onClick={() => (editMode ? togglePick(b.id) : onTapBlock(b))}
+        <button
+          onClick={() => { if (!editMode) onTapBlock(b) }}
+          onPointerDown={(e) => onCardDown(e, b)}
+          onPointerMove={(e) => onCardMove(e, sectionId)}
+          onPointerUp={() => { if (editMode) void onCardUp(b) }}
+          onPointerCancel={onCardCancel}
+          style={editMode ? { touchAction: 'none', WebkitTouchCallout: 'none' } : undefined}
           className={`w-full aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 overflow-hidden active:opacity-70
             ${isRunning && !editMode ? 'bg-brand/15 ring-2 ring-brand' : 'bg-surface'}
-            ${editMode ? (picked.has(b.id) ? 'ring-2 ring-brand bg-brand/10' : 'ring-1 ring-dashed ring-sub/40') : ''}`}>
+            ${editMode ? 'ring-1 ring-dashed ring-sub/40' : ''}
+            ${isDragging ? 'opacity-40 scale-95' : ''}`}>
           {b.color && (
             <span className="absolute top-0 right-3.5 w-2.5 h-4 rounded-b-full" style={{ backgroundColor: COLOR_HEX[b.color] }} />
           )}
           <BlockIcon name={b.icon} className={`w-7 h-7 ${isRunning && !editMode ? 'text-brand' : 'text-ink'}`} />
           <span className="text-ink text-[11px] font-medium truncate max-w-[85%] px-1">{b.name}</span>
           {editMode ? (
-            <span className={`text-[10px] ${picked.has(b.id) ? 'text-brand font-bold' : 'text-sub'}`}>
-              {picked.has(b.id) ? '선택됨' : '선택'}
-            </span>
+            <span className="text-sub text-[10px]">끌어서 이동</span>
           ) : (totals[b.id] ?? 0) > 0 ? (
             <span className="text-sub text-[10px]">{formatDuration(totals[b.id])}</span>
           ) : null}
@@ -166,7 +221,7 @@ export default function TimeScreen() {
         <div className="flex items-center justify-between">
           <span className="font-bold text-ink">블럭 선택</span>
           <div className="flex items-center gap-1">
-            <button onClick={() => { setEditMode((v) => !v); setPicked(new Set()) }}
+            <button onClick={() => { setEditMode((v) => !v); pressRef.current = null; dragRef.current = null }}
               className={`rounded-xl px-3 py-1.5 text-sm font-medium ${editMode ? 'bg-ink text-bg' : 'bg-surface text-sub'}`}>
               {editMode ? '완료' : '편집'}
             </button>
@@ -181,44 +236,28 @@ export default function TimeScreen() {
           </p>
         ) : (
           sections.map((s) => (
-            <div key={s.id}>
+            <div key={s.id}
+              ref={(el) => { sectionRefs.current[s.id] = el }}
+              className={`rounded-xl transition-colors ${
+                dragRef.current && dragRef.current.over === s.id && dragRef.current.from !== s.id
+                  ? 'bg-brand/10 ring-1 ring-brand ring-dashed' : ''}`}>
               <h2 className="text-sub text-sm font-bold mb-2">{s.label}</h2>
               {s.items.length === 0 ? (
-                <p className="text-sub/60 text-xs pb-1">아직 블럭이 없어요</p>
+                <p className="text-sub/60 text-xs pb-1">
+                  {editMode ? '여기로 끌어다 놓으세요' : '아직 블럭이 없어요'}
+                </p>
               ) : (
-                <div className="grid grid-cols-3 gap-2.5">{s.items.map(renderCard)}</div>
+                <div className="grid grid-cols-3 gap-2.5">{s.items.map((b) => renderCard(b, s.id))}</div>
               )}
             </div>
           ))
         )}
 
         {editMode && (
-          <div className="space-y-2">
-            {picked.size > 0 && (
-              <div className="bg-surface rounded-xl p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-ink text-sm font-bold">{picked.size}개 선택됨 · 옮길 그룹</span>
-                  <button onClick={() => setPicked(new Set())} className="text-sub text-xs">선택 해제</button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {groups.map((g) => (
-                    <button key={g.id} onClick={() => movePicked(g.id)}
-                      className="bg-card text-ink rounded-xl px-3 py-1.5 text-sm active:opacity-70">
-                      {g.name}
-                    </button>
-                  ))}
-                  <button onClick={() => movePicked(null)}
-                    className="bg-card text-sub rounded-xl px-3 py-1.5 text-sm active:opacity-70">
-                    일반 블럭
-                  </button>
-                </div>
-              </div>
-            )}
-            <button onClick={() => setManagingGroups(true)}
-              className="w-full bg-surface text-sub rounded-xl py-2.5 text-sm font-medium active:opacity-70">
-              그룹 관리
-            </button>
-          </div>
+          <button onClick={() => setManagingGroups(true)}
+            className="w-full bg-surface text-sub rounded-xl py-2.5 text-sm font-medium active:opacity-70">
+            그룹 관리
+          </button>
         )}
       </div>
 
