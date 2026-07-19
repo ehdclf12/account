@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   checklistProgress, normalizeUrl,
   buildFolderTree, sortItems, dueStatus, storagePathFromPublicUrl, moveItem,
+  applyChecklistToggle,
 } from './archive'
 import type { ArchiveFolder, ArchiveItem } from '@/types'
 
@@ -111,5 +112,43 @@ describe('moveItem', () => {
     const src = ['a', 'b', 'c']
     moveItem(src, 0, 2)
     expect(src).toEqual(['a', 'b', 'c'])
+  })
+})
+
+describe('applyChecklistToggle', () => {
+  const items = () => [
+    item({ id: 'a', checklist: [{ text: '우유', done: false }, { text: '빵', done: false }] }),
+    item({ id: 'b', checklist: [{ text: '청소', done: true }] }),
+  ]
+
+  it('지정한 항목만 토글', () => {
+    expect(applyChecklistToggle(items(), 'a', 0)[0].checklist).toEqual([
+      { text: '우유', done: true }, { text: '빵', done: false },
+    ])
+  })
+  it('다른 카드는 건드리지 않는다', () => {
+    expect(applyChecklistToggle(items(), 'a', 0)[1].checklist).toEqual([{ text: '청소', done: true }])
+  })
+  it('이미 완료된 항목은 해제', () => {
+    expect(applyChecklistToggle(items(), 'b', 0)[1].checklist).toEqual([{ text: '청소', done: false }])
+  })
+  it('연속 토글이 누적된다(갱신 유실 방지)', () => {
+    const once = applyChecklistToggle(items(), 'a', 0)
+    expect(applyChecklistToggle(once, 'a', 1)[0].checklist).toEqual([
+      { text: '우유', done: true }, { text: '빵', done: true },
+    ])
+  })
+  it('checklist가 null이면 무시', () => {
+    const withNull = [item({ id: 'a', checklist: null })]
+    expect(applyChecklistToggle(withNull, 'a', 0)).toEqual(withNull)
+  })
+  it('없는 id·범위 밖 인덱스는 무시', () => {
+    expect(applyChecklistToggle(items(), 'zzz', 0)).toEqual(items())
+    expect(applyChecklistToggle(items(), 'a', 9)).toEqual(items())
+  })
+  it('원본 배열을 변형하지 않는다', () => {
+    const src = items()
+    applyChecklistToggle(src, 'a', 0)
+    expect(src[0].checklist).toEqual([{ text: '우유', done: false }, { text: '빵', done: false }])
   })
 })
