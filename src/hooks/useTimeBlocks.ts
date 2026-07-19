@@ -41,6 +41,26 @@ export function useTimeSessions() {
   })
 }
 
+/**
+ * 임의 구간의 세션. 캘린더 히트맵은 42칸 격자가 보는 범위가 매달 달라
+ * 고정 60일 캐시로는 지난 달을 못 채운다.
+ */
+export function useSessionsInRange(fromISO: string, toExclusiveISO: string) {
+  const who = useIdentity()
+  return useQuery({
+    queryKey: ['time_sessions', 'range', who, fromISO, toExclusiveISO],
+    queryFn: async (): Promise<TimeSession[]> => {
+      const { data, error } = await supabase.from('time_sessions')
+        .select('*').eq('who', who)
+        .gte('started_at', new Date(`${fromISO}T00:00:00`).toISOString())
+        .lt('started_at', new Date(`${toExclusiveISO}T00:00:00`).toISOString())
+        .order('started_at', { ascending: false })
+      if (error) throw error
+      return data as TimeSession[]
+    },
+  })
+}
+
 export function useBlockGroups() {
   const who = useIdentity()
   return useQuery({

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { elapsedSeconds, formatDuration, totalsByBlock, sumInRange, weekStartISO } from './time'
+import { elapsedSeconds, formatDuration, totalsByBlock, sumInRange, weekStartISO, dailyTotals, heatLevel } from './time'
 import type { TimeSession } from '@/types'
 
 const s = (over: Partial<TimeSession>): TimeSession => ({
@@ -103,5 +103,50 @@ describe('sumInRange', () => {
       s({ started_at: '2026-07-27T10:00:00+09:00', ended_at: '2026-07-27T10:30:00+09:00' }), // 다음 주 월
     ]
     expect(sumInRange(list, '2026-07-20', '2026-07-27', at('2026-07-27T12:00:00+09:00'))).toBe(5400)
+  })
+})
+
+describe('dailyTotals', () => {
+  const now = at('2026-07-19T23:00:00+09:00')
+  it('날짜별로 합산한다(시작일 기준)', () => {
+    const list = [
+      s({ started_at: '2026-07-19T10:00:00+09:00', ended_at: '2026-07-19T10:10:00+09:00' }),
+      s({ started_at: '2026-07-19T14:00:00+09:00', ended_at: '2026-07-19T14:20:00+09:00' }),
+      s({ started_at: '2026-07-18T09:00:00+09:00', ended_at: '2026-07-18T09:30:00+09:00' }),
+    ]
+    expect(dailyTotals(list, now)).toEqual({ '2026-07-19': 1800, '2026-07-18': 1800 })
+  })
+  it('진행 중 세션도 포함', () => {
+    const list = [s({ started_at: '2026-07-19T22:59:00+09:00', ended_at: null })]
+    expect(dailyTotals(list, now)).toEqual({ '2026-07-19': 60 })
+  })
+  it('자정 넘긴 세션은 시작일에만 잡힌다', () => {
+    const list = [s({ started_at: '2026-07-19T23:30:00+09:00', ended_at: '2026-07-20T00:30:00+09:00' })]
+    expect(dailyTotals(list, at('2026-07-20T01:00:00+09:00'))).toEqual({ '2026-07-19': 3600 })
+  })
+  it('빈 목록은 빈 객체', () => {
+    expect(dailyTotals([], now)).toEqual({})
+  })
+})
+
+describe('heatLevel', () => {
+  it('기록 없으면 0', () => {
+    expect(heatLevel(0)).toBe(0)
+  })
+  it('30분 미만은 1', () => {
+    expect(heatLevel(1)).toBe(1)
+    expect(heatLevel(1799)).toBe(1)
+  })
+  it('30분~1시간은 2', () => {
+    expect(heatLevel(1800)).toBe(2)
+    expect(heatLevel(3599)).toBe(2)
+  })
+  it('1~2시간은 3', () => {
+    expect(heatLevel(3600)).toBe(3)
+    expect(heatLevel(7199)).toBe(3)
+  })
+  it('2시간 이상은 4', () => {
+    expect(heatLevel(7200)).toBe(4)
+    expect(heatLevel(36000)).toBe(4)
   })
 })

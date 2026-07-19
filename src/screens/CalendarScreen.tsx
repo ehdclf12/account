@@ -8,6 +8,9 @@ import { ARCHIVE_COLORS } from '@/lib/archive'
 import ChecklistCard from '@/components/ChecklistCard'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
 import NavButton from '@/components/NavButton'
+import TimeHeatmap from '@/components/TimeHeatmap'
+import { useIdentity } from '@/App'
+import { NAME_BY_ROLE } from '@/lib/users'
 import type { ArchiveColor, ArchiveItem } from '@/types'
 
 const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
@@ -24,6 +27,7 @@ const TONE_CLS = { red: 'text-danger', blue: 'text-brand', normal: 'text-ink' } 
 
 export default function CalendarScreen() {
   const { data: items = [] } = useArchiveItems()
+  const who = useIdentity()
   const today = todayISO()
 
   const [cursor, setCursor] = useState(() => {
@@ -32,6 +36,7 @@ export default function CalendarScreen() {
   })
   const [selected, setSelected] = useState(today)
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const [mode, setMode] = useState<'shared' | 'time'>('shared')
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<ArchiveItem | null>(null)
 
@@ -95,10 +100,18 @@ export default function CalendarScreen() {
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 touch-pan-y" onPointerDown={onDown} onPointerUp={onUp}>
+      <div className="touch-pan-y space-y-2" onPointerDown={onDown} onPointerUp={onUp}>
+      <div className="grid grid-cols-7 gap-1">
         {WEEK.map((w, i) => (
           <div key={w} className={`text-center text-xs pb-1 ${WEEK_CLS[i] || 'text-sub'}`}>{w}</div>
         ))}
+      </div>
+
+      {mode === 'time' ? (
+        <TimeHeatmap cells={cells} selected={selected} onSelect={setSelected} today={today} />
+      ) : (
+      <>
+      <div className="grid grid-cols-7 gap-1">
         {cells.map((c) => {
           const list = byDue[c.iso] ?? []
           const isToday = c.iso === today
@@ -167,6 +180,20 @@ export default function CalendarScreen() {
           className="w-full bg-card text-sub rounded-2xl py-3 font-medium active:opacity-70">
           + 새로운 이벤트
         </button>
+      </div>
+      </>
+      )}
+      </div>
+
+      {/* 모드 전환: 공유 캘린더 ↔ 내 시간관리 히트맵 */}
+      <div className="flex gap-2 pt-1">
+        {([['shared', '캘린더'], ['time', NAME_BY_ROLE[who]]] as const).map(([key, label]) => (
+          <button key={key} onClick={() => setMode(key)}
+            className={`flex-1 rounded-2xl py-2.5 text-sm font-bold active:opacity-70 ${
+              mode === key ? 'bg-ink text-bg' : 'bg-card text-sub'}`}>
+            {label}
+          </button>
+        ))}
       </div>
 
       {adding && <ArchiveItemSheet open onClose={() => setAdding(false)} defaultDueDate={selected} />}

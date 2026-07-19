@@ -57,3 +57,22 @@ export function sumInRange(
 function localISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
+
+/** 날짜(ISO) → 그날 총 초. 자정을 넘긴 세션은 시작일에 귀속(sumInRange와 동일 규칙). */
+export function dailyTotals(list: TimeSession[], nowMs: number): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const s of list) {
+    const day = localISO(new Date(s.started_at))
+    out[day] = (out[day] ?? 0) + elapsedSeconds(s, nowMs)
+  }
+  return out
+}
+
+/** 히트맵 진하기 0~4. 절대 기준이라 날마다 의미가 흔들리지 않는다. */
+export function heatLevel(seconds: number): 0 | 1 | 2 | 3 | 4 {
+  if (seconds <= 0) return 0
+  if (seconds < 1800) return 1   // ~30분
+  if (seconds < 3600) return 2   // ~1시간
+  if (seconds < 7200) return 3   // ~2시간
+  return 4                       // 2시간+
+}
