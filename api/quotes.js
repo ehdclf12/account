@@ -11,9 +11,14 @@ async function fetchQuote(symbol) {
   return { price: meta.regularMarketPrice, currency: meta.currency || 'USD' }
 }
 
+// 한 요청이 야후로 만들 수 있는 동시 요청 수 상한.
+// 없으면 콤마 5,000개짜리 요청 하나로 5,000건이 나가 함수가 타임아웃되고
+// 배포본이 야후에서 차단당할 수 있다.
+const MAX_SYMBOLS = 50
+
 export default async function handler(req, res) {
   const raw = (req.query && req.query.symbols ? req.query.symbols : '').toString()
-  const symbols = raw.split(',').map((s) => s.trim()).filter(Boolean)
+  const symbols = [...new Set(raw.split(',').map((s) => s.trim()).filter(Boolean))].slice(0, MAX_SYMBOLS)
   const quotes = {}
   let usdkrw = null
   await Promise.all([
