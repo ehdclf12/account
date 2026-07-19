@@ -27,13 +27,16 @@ export default function FixedCostSheet(
     const d = Math.min(31, Math.max(1, Number(day) || 1))
     if (!name || amt <= 0) return
     const payload = { name, amount: amt, category_id: categoryId || null, day: d, who: whoVal || null }
-    if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
-    else await add.mutateAsync({ scope, active: true, ...payload })
-    onClose()
+    try {
+      if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
+      else await add.mutateAsync({ scope, active: true, ...payload })
+      onClose()
+    } catch { /* 실패 시 시트를 열어둔다(사유는 전역 토스트로 안내) */ }
   }
 
   async function remove() {
-    if (editing && confirm('이 고정비를 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() }
+    if (!editing || !confirm('이 고정비를 삭제할까요?')) return
+    try { await del.mutateAsync(editing.id); onClose() } catch { /* 전역 토스트 */ }
   }
 
   const roles: (Role | '')[] = ['', 'husband', 'wife']

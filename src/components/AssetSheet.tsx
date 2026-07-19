@@ -39,13 +39,16 @@ export default function AssetSheet(
       quantity: hasHolding ? qty : null,
       active: true,
     }
-    if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
-    else await add.mutateAsync(payload)
-    onClose()
+    try {
+      if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
+      else await add.mutateAsync(payload)
+      onClose()
+    } catch { /* 실패 시 시트를 열어둔다(사유는 전역 토스트로 안내) */ }
   }
 
   async function remove() {
-    if (editing && confirm('이 자산을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() }
+    if (!editing || !confirm('이 자산을 삭제할까요?')) return
+    try { await del.mutateAsync(editing.id); onClose() } catch { /* 전역 토스트 */ }
   }
 
   return (

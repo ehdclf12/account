@@ -45,9 +45,11 @@ export default function TransactionSheet(
       date, memo, scope: 'household' as const,
       savings_goal_id: isSavings ? savingsGoalId : null,
     }
-    if (editing) await update.mutateAsync({ id: editing.id, ...payload })
-    else await add.mutateAsync(payload)
-    onClose()
+    try {
+      if (editing) await update.mutateAsync({ id: editing.id, ...payload })
+      else await add.mutateAsync(payload)
+      onClose()
+    } catch { /* 실패 시 시트를 열어둔다(사유는 전역 토스트로 안내) */ }
   }
 
   return (
@@ -119,7 +121,10 @@ export default function TransactionSheet(
           저장하기
         </button>
         {editing && (
-          <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
+          <button onClick={async () => {
+            if (!confirm('이 내역을 삭제할까요?')) return
+            try { await del.mutateAsync(editing.id); onClose() } catch { /* 전역 토스트 */ }
+          }}
             className="w-full text-danger text-sm py-1">삭제</button>
         )}
       </div>

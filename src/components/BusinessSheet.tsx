@@ -31,9 +31,11 @@ export default function BusinessSheet(
   async function save() {
     if (amt <= 0 || !categoryId) return
     const payload = { who, type, amount: amt, category_id: categoryId, payment_method_id: null, date, memo, scope: 'business' as const }
-    if (editing) await update.mutateAsync({ id: editing.id, ...payload })
-    else await add.mutateAsync(payload)
-    onClose()
+    try {
+      if (editing) await update.mutateAsync({ id: editing.id, ...payload })
+      else await add.mutateAsync(payload)
+      onClose()
+    } catch { /* 실패 시 시트를 열어둔다(사유는 전역 토스트로 안내) */ }
   }
 
   return (
@@ -77,7 +79,10 @@ export default function BusinessSheet(
         <button onClick={save} disabled={amt <= 0 || !categoryId}
           className="w-full bg-brand disabled:bg-sub text-white rounded-2xl py-3 font-bold">저장하기</button>
         {editing && (
-          <button onClick={async () => { if (confirm('이 내역을 삭제할까요?')) { await del.mutateAsync(editing.id); onClose() } }}
+          <button onClick={async () => {
+            if (!confirm('이 내역을 삭제할까요?')) return
+            try { await del.mutateAsync(editing.id); onClose() } catch { /* 전역 토스트 */ }
+          }}
             className="w-full text-danger text-sm py-1">삭제</button>
         )}
       </div>

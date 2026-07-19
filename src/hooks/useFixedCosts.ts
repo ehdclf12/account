@@ -44,7 +44,12 @@ export function useDeleteFixedCost() {
       const { error } = await supabase.from('fixed_costs').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['fixed_costs'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['fixed_costs'] })
+      // transactions.fixed_cost_id on delete set null → "이번 달 등록됨" 표시가
+      // 실제 상태와 어긋나는 것을 막는다.
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+    },
   })
 }
 

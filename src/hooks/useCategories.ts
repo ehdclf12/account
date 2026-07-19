@@ -47,6 +47,13 @@ export function useDeleteCategory() {
       const { error } = await supabase.from('categories').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY })
+      // budgets.category_id on delete cascade → 삭제된 카테고리 예산이 남아
+      // 이달 예산 합계를 부풀리는 것을 막는다.
+      qc.invalidateQueries({ queryKey: ['budgets'] })
+      // transactions.category_id on delete set null
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+    },
   })
 }

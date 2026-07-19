@@ -15,13 +15,18 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
 
   async function addTop() {
     const n = name.trim(); if (!n) return
-    await add.mutateAsync({ name: n, sort_order: folders.length, parent_id: null })
-    setName('')
+    // 실패 시 입력값을 지우지 않는다(사유는 전역 토스트로 안내)
+    try {
+      await add.mutateAsync({ name: n, sort_order: folders.length, parent_id: null })
+      setName('')
+    } catch { /* 전역 토스트 */ }
   }
   async function addSub(parentId: string) {
     const n = subName.trim(); if (!n) return
-    await add.mutateAsync({ name: n, sort_order: folders.length, parent_id: parentId })
-    setSubName(''); setSubFor(null)
+    try {
+      await add.mutateAsync({ name: n, sort_order: folders.length, parent_id: parentId })
+      setSubName(''); setSubFor(null)
+    } catch { /* 전역 토스트 */ }
   }
   function canDelete(id: string): boolean {
     const hasItems = items.some((i) => i.folder_id === id)

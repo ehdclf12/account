@@ -81,6 +81,23 @@ export const ARCHIVE_COLORS: { key: ArchiveColor; hex: string }[] = [
   { key: 'purple', hex: '#8B5CF6' },
 ]
 
+// 캐시에 들어있는 전체 목록을 입력으로 받아 토글 결과를 새 배열로 돌려준다.
+// 렌더 시점 스냅샷이 아니라 "현재 캐시"를 기준으로 누적시키기 위한 형태 —
+// 연속 탭에서 앞선 체크가 되돌아가는 갱신 유실을 막는다.
+export function applyChecklistToggle(
+  items: ArchiveItem[],
+  itemId: string,
+  index: number,
+): ArchiveItem[] {
+  return items.map((it) => {
+    if (it.id !== itemId || !it.checklist || index < 0 || index >= it.checklist.length) return it
+    return {
+      ...it,
+      checklist: it.checklist.map((c, i) => (i === index ? { ...c, done: !c.done } : c)),
+    }
+  })
+}
+
 export function moveItem<T>(arr: T[], from: number, to: number): T[] {
   const copy = [...arr]
   if (from < 0 || from >= copy.length || to < 0 || to >= copy.length || from === to) return copy

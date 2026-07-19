@@ -34,6 +34,10 @@ export function useDeletePaymentMethod() {
       const { error } = await supabase.from('payment_methods').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY })
+      // transactions.payment_method_id on delete set null
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+    },
   })
 }
