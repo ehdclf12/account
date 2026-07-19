@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useFolders, useArchiveItems, useAddFolder, useUpdateFolder, useDeleteFolder } from '@/hooks/useArchive'
 import { buildFolderTree } from '@/lib/archive'
+import { showToast } from '@/lib/toast'
 
 export default function FolderSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data: folders = [] } = useFolders()
@@ -34,7 +35,7 @@ export default function FolderSheet({ open, onClose }: { open: boolean; onClose:
     return !hasItems && !hasChildren
   }
   function tryDelete(id: string, label: string) {
-    if (!canDelete(id)) { alert('폴더에 항목이나 하위폴더가 있어요. 먼저 비워주세요.'); return }
+    if (!canDelete(id)) { showToast('폴더에 항목이나 하위폴더가 있어요. 먼저 비워주세요.'); return }
     if (confirm(`'${label}' 폴더를 삭제할까요?`)) del.mutate(id)
   }
 

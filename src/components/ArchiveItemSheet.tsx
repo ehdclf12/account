@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useFolders, useAddItem, useUpdateItem, useDeleteItem, fetchLinkPreview, uploadArchiveImage } from '@/hooks/useArchive'
 import { normalizeUrl, buildFolderTree, ARCHIVE_COLORS } from '@/lib/archive'
+import { showToast } from '@/lib/toast'
 import type { ArchiveColor, ArchiveItem, ArchiveKind, ChecklistEntry, LinkPreview } from '@/types'
 
 const KIND_OPTIONS: { value: ArchiveKind; label: string }[] = [
@@ -42,18 +43,20 @@ export default function ArchiveItemSheet(
 
   async function loadPreview() {
     const norm = normalizeUrl(url)
-    if (!norm) return
+    if (!norm) { showToast('링크 주소를 확인해 주세요.'); return }
     setUrl(norm); setLoadingPrev(true)
     const p = await fetchLinkPreview(norm)
     setLoadingPrev(false)
     if (p) { setPreview(p); if (!title) setTitle(p.title) }
+    // 미리보기가 없는 사이트도 많다 — 실패인지 원래 없는 건지 알 수 있게 알린다
+    else showToast('미리보기를 가져오지 못했어요. 제목을 직접 입력해 주세요.')
   }
 
   async function onPickImage(file: File | undefined) {
     if (!file) return
     setUploading(true)
     try { setImageUrl(await uploadArchiveImage(file)) }
-    catch { alert('사진 업로드에 실패했어요.') }
+    catch { showToast('사진 업로드에 실패했어요. 다시 시도해 주세요.') }
     finally { setUploading(false) }
   }
 
@@ -64,19 +67,23 @@ export default function ArchiveItemSheet(
   const meta = { pinned, due_date: kind === 'checklist' ? (dueDate || null) : null, color, archived, done: editing?.done ?? false }
 
   async function save() {
-    if (!folderId) { alert('폴더를 선택해 주세요.'); return }
+    if (!folderId) { showToast('폴더를 선택해 주세요.'); return }
     let payload: Omit<ArchiveItem, 'id' | 'created_at' | 'updated_at'>
     if (kind === 'link') {
-      const norm = normalizeUrl(url); if (!norm) return
+      const norm = normalizeUrl(url)
+      if (!norm) { showToast('링크 주소를 확인해 주세요.'); return }
       payload = { folder_id: folderId, kind, title: title.trim() || preview?.title || norm, body: body.trim() || null, url: norm, preview, checklist: null, ...meta }
     } else if (kind === 'image') {
-      if (!imageUrl) { alert('사진을 선택해 주세요.'); return }
+      if (!imageUrl) { showToast('사진을 선택해 주세요.'); return }
       payload = { folder_id: folderId, kind, title: title.trim(), body: body.trim() || null, url: imageUrl, preview: null, checklist: null, ...meta }
     } else {
       // 체크리스트: 기한 필수 (캘린더에 뜨는 유일한 종류라서다)
-      if (!dueDate) { alert('기한을 선택해 주세요.'); return }
+      if (!dueDate) { showToast('기한을 선택해 주세요.'); return }
       const cleaned = checklist.filter((c) => c.text.trim()).map((c) => ({ text: c.text.trim(), done: c.done }))
-      if (!title.trim() && cleaned.length === 0) return
+      if (!title.trim() && cleaned.length === 0) {
+        showToast('제목이나 할 일을 하나는 입력해 주세요.')
+        return
+      }
       payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: null, preview: null, checklist: cleaned, ...meta }
     }
     try {
