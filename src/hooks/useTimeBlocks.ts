@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useIdentity } from '@/App'
-import type { Role, TimeBlock, TimeSession } from '@/types'
+import type { Role, TimeBlock, TimeBlockGroup, TimeSession } from '@/types'
 
 // 세션 조회 범위. 오늘·이번 주 집계에는 7일이면 충분하지만, 2단계 월간 히트맵까지
 // 같은 캐시를 쓰도록 넉넉히 잡는다.
@@ -41,10 +41,36 @@ export function useTimeSessions() {
   })
 }
 
+export function useBlockGroups() {
+  const who = useIdentity()
+  return useQuery({
+    queryKey: ['time_block_groups', who],
+    queryFn: async (): Promise<TimeBlockGroup[]> => {
+      const { data, error } = await supabase.from('time_block_groups')
+        .select('*').eq('who', who).order('sort_order').order('created_at')
+      if (error) throw error
+      return data as TimeBlockGroup[]
+    },
+  })
+}
+
+export function useAddGroup() {
+  const qc = useQueryClient(); const who = useIdentity()
+  return useMutation({
+    mutationFn: async (g: { name: string; sort_order: number }): Promise<string> => {
+      const { data, error } = await supabase.from('time_block_groups')
+        .insert({ ...g, who }).select('id').single()
+      if (error) throw error
+      return (data as { id: string }).id
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['time_block_groups', who] }),
+  })
+}
+
 export function useAddBlock() {
   const qc = useQueryClient(); const who = useIdentity()
   return useMutation({
-    mutationFn: async (b: { name: string; emoji: string; color: string | null; sort_order: number }) => {
+    mutationFn: async (b: { name: string; icon: string; color: string | null; group_id: string | null; sort_order: number }) => {
       const { error } = await supabase.from('time_blocks').insert({ ...b, who })
       if (error) throw error
     },

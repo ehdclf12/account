@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useTimeBlocks, useTimeSessions, useStartTimer, useStopTimer } from '@/hooks/useTimeBlocks'
+import { useTimeBlocks, useTimeSessions, useBlockGroups, useStartTimer, useStopTimer } from '@/hooks/useTimeBlocks'
 import { elapsedSeconds, formatDuration, totalsByBlock, sumInRange, weekStartISO } from '@/lib/time'
 import { todayISO } from '@/lib/date'
 import { ARCHIVE_COLORS } from '@/lib/archive'
 import TimeBlockSheet from '@/components/TimeBlockSheet'
+import BlockIcon from '@/components/BlockIcon'
 import NavButton from '@/components/NavButton'
 import type { ArchiveColor, TimeBlock } from '@/types'
 
@@ -11,11 +12,6 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
 
-function nextDayISO(iso: string): string {
-  const d = new Date(`${iso}T00:00:00`)
-  d.setDate(d.getDate() + 1)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
 function addDaysISO(iso: string, n: number): string {
   const d = new Date(`${iso}T00:00:00`)
   d.setDate(d.getDate() + n)
@@ -25,6 +21,7 @@ function addDaysISO(iso: string, n: number): string {
 export default function TimeScreen() {
   const { data: blocks = [] } = useTimeBlocks()
   const { data: sessions = [] } = useTimeSessions()
+  const { data: groups = [] } = useBlockGroups()
   const start = useStartTimer()
   const stop = useStopTimer()
 
@@ -43,15 +40,52 @@ export default function TimeScreen() {
 
   const today = todayISO()
   const totals = totalsByBlock(sessions, now)
-  const todayTotal = sumInRange(sessions, today, nextDayISO(today), now)
+  const todayTotal = sumInRange(sessions, today, addDaysISO(today, 1), now)
   const weekFrom = weekStartISO(today)
   const weekTotal = sumInRange(sessions, weekFrom, addDaysISO(weekFrom, 7), now)
 
   const runningBlock = running ? blocks.find((b) => b.id === running.block_id) ?? null : null
 
+  // 그룹 순서대로 묶고, 그룹 없는 블럭은 '일반 블럭'으로 마지막에.
+  // 빈 그룹은 숨긴다(아카이빙 전체 뷰와 같은 방식).
+  const sections = [
+    ...groups
+      .map((g) => ({ id: g.id, label: g.name, items: blocks.filter((b) => b.group_id === g.id) }))
+      .filter((s) => s.items.length > 0),
+    ...(() => {
+      const known = new Set(groups.map((g) => g.id))
+      const rest = blocks.filter((b) => !b.group_id || !known.has(b.group_id))
+      return rest.length ? [{ id: '__none__', label: '일반 블럭', items: rest }] : []
+    })(),
+  ]
+
   function onTapBlock(b: TimeBlock) {
     if (running?.block_id === b.id) stop.mutate(running.id)
     else start.mutate({ blockId: b.id, runningId: running?.id ?? null })
+  }
+
+  function renderCard(b: TimeBlock) {
+    const isRunning = running?.block_id === b.id
+    return (
+      <div key={b.id} className="relative">
+        <button onClick={() => onTapBlock(b)}
+          className={`w-full aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 overflow-hidden active:opacity-70
+            ${isRunning ? 'bg-brand/15 ring-2 ring-brand' : 'bg-surface'}`}>
+          {b.color && (
+            <span className="absolute top-0 right-3.5 w-2.5 h-4 rounded-b-full" style={{ backgroundColor: COLOR_HEX[b.color] }} />
+          )}
+          <BlockIcon name={b.icon} className={`w-7 h-7 ${isRunning ? 'text-brand' : 'text-ink'}`} />
+          <span className="text-ink text-[11px] font-medium truncate max-w-[85%] px-1">{b.name}</span>
+          {(totals[b.id] ?? 0) > 0 && (
+            <span className="text-sub text-[10px]">{formatDuration(totals[b.id])}</span>
+          )}
+        </button>
+        <button onClick={() => setEditing(b)} aria-label={`${b.name} 수정`}
+          className="absolute -top-1 -left-1 w-7 h-7 rounded-full text-sub text-xs flex items-center justify-center active:opacity-60">
+          ⋯
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -74,50 +108,38 @@ export default function TimeScreen() {
 
       {running && runningBlock && (
         <div className="bg-brand text-white rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs opacity-80 truncate">{runningBlock.emoji} {runningBlock.name}</p>
-            <p className="font-bold text-2xl tabular-nums mt-0.5">
-              {hhmmss(elapsedSeconds(running, now))}
-            </p>
+          <div className="min-w-0 flex items-center gap-2.5">
+            <BlockIcon name={runningBlock.icon} className="w-6 h-6 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs opacity-80 truncate">{runningBlock.name}</p>
+              <p className="font-bold text-2xl tabular-nums leading-tight">{hhmmss(elapsedSeconds(running, now))}</p>
+            </div>
           </div>
           <button onClick={() => stop.mutate(running.id)}
-            className="bg-white/20 rounded-xl px-4 py-2 font-bold shrink-0 active:opacity-70">
-            정지
-          </button>
+            className="bg-white/20 rounded-xl px-4 py-2 font-bold shrink-0 active:opacity-70">정지</button>
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        {blocks.map((b) => {
-          const isRunning = running?.block_id === b.id
-          return (
-            <button key={b.id} onClick={() => onTapBlock(b)}
-              onContextMenu={(e) => { e.preventDefault(); setEditing(b) }}
-              className={`relative aspect-square rounded-2xl flex flex-col items-center justify-center gap-1.5 overflow-hidden active:opacity-70
-                ${isRunning ? 'bg-brand/15 ring-2 ring-brand' : 'bg-card'}`}>
-              {b.color && (
-                <span className="absolute top-0 right-4 w-3 h-5 rounded-b-full" style={{ backgroundColor: COLOR_HEX[b.color] }} />
-              )}
-              <span className="text-4xl leading-none">{b.emoji}</span>
-              <span className="text-ink text-sm font-medium truncate max-w-[80%]">{b.name}</span>
-              <span className="text-sub text-xs">{formatDuration(totals[b.id] ?? 0)}</span>
-              <span onClick={(e) => { e.stopPropagation(); setEditing(b) }}
-                className="absolute bottom-1.5 right-2 text-sub text-xs px-1.5 py-0.5">수정</span>
-            </button>
-          )
-        })}
+      <div className="bg-card rounded-2xl p-4 space-y-5">
+        <div className="flex items-center justify-between">
+          <span className="font-bold text-ink">블럭 선택</span>
+          <button onClick={() => setAdding(true)} aria-label="블럭 추가"
+            className="text-ink text-2xl leading-none w-8 h-8 flex items-center justify-center active:opacity-60">+</button>
+        </div>
 
-        <button onClick={() => setAdding(true)}
-          className="aspect-square rounded-2xl border-2 border-dashed border-sub/30 flex flex-col items-center justify-center gap-2 active:opacity-70">
-          <span className="w-10 h-10 rounded-full bg-sub/15 text-sub text-2xl flex items-center justify-center leading-none">+</span>
-        </button>
+        {sections.length === 0 ? (
+          <p className="text-sub text-sm text-center py-6">
+            어제보다 한 블럭 더,<br />그게 성장이에요
+          </p>
+        ) : (
+          sections.map((s) => (
+            <div key={s.id}>
+              <h2 className="text-sub text-sm font-bold mb-2">{s.label}</h2>
+              <div className="grid grid-cols-3 gap-2.5">{s.items.map(renderCard)}</div>
+            </div>
+          ))
+        )}
       </div>
-
-      {blocks.length === 0 && (
-        <p className="text-sub text-sm text-center py-2">
-          어제보다 한 블럭 더,<br />그게 성장이에요
-        </p>
-      )}
 
       {adding && <TimeBlockSheet open onClose={() => setAdding(false)} nextOrder={blocks.length} />}
       {editing && <TimeBlockSheet open onClose={() => setEditing(null)} editing={editing} nextOrder={blocks.length} />}

@@ -120,12 +120,21 @@ export interface ArchiveItem {
   updated_at: string
 }
 
+export interface TimeBlockGroup {
+  id: string
+  who: Role
+  name: string
+  sort_order: number
+  created_at: string
+}
+
 export interface TimeBlock {
   id: string
   who: Role
   name: string
-  emoji: string
+  icon: string          // 아이콘 키('book' 등). 못 찾으면 문자열을 그대로 그린다
   color: ArchiveColor | null
+  group_id: string | null   // null = '일반 블럭'
   sort_order: number
   archived: boolean
   created_at: string
