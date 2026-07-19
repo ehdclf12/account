@@ -32,7 +32,7 @@ export default function AssetsScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <NavButton to="/budget" label="예산관리" />
+      <NavButton to="/budget" label="Budget" />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-ink">자산 현황</h1>
         <button onClick={() => quotesQuery.refetch()} disabled={quotesQuery.isFetching} className="text-sub text-sm">

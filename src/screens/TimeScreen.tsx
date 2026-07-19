@@ -145,8 +145,8 @@ export default function TimeScreen() {
     const isDragging = dragRef.current?.id === b.id
     return (
       <div key={b.id} className="relative">
-        {/* 편집 모드에선 탭이 타이머가 아니라 '선택'이다(여러 개 골라 그룹 이동).
-            개별 수정·삭제는 모서리 배지로 뺐다. */}
+        {/* 평소엔 탭 = 타이머 시작/정지. 편집 모드에선 끌면 그룹 이동,
+            안 움직이고 떼면 수정. 삭제는 모서리 배지로 뺐다. */}
         <button
           onClick={() => { if (!editMode) onTapBlock(b) }}
           onPointerDown={(e) => onCardDown(e, b)}
@@ -188,7 +188,7 @@ export default function TimeScreen() {
   return (
     <div className="p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-ink">시간관리</h1>
+        <h1 className="text-xl font-bold text-ink">Time</h1>
         <NavButton to="/" label="홈" />
       </div>
 

@@ -22,7 +22,7 @@ export default function HomeMenuScreen() {
         <button onClick={() => nav('/budget')}
           className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
           <div>
-            <span className="font-bold text-ink text-lg">예산관리</span>
+            <span className="font-bold text-ink text-lg">Budget</span>
             <p className="text-sub text-sm mt-1">집 · 코스모스 가계부</p>
           </div>
           <span className="text-sub text-xl">›</span>
@@ -30,7 +30,7 @@ export default function HomeMenuScreen() {
         <button onClick={() => nav('/archive')}
           className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
           <div>
-            <span className="font-bold text-ink text-lg">아카이빙</span>
+            <span className="font-bold text-ink text-lg">Archive</span>
             <p className="text-sub text-sm mt-1">메모 · 체크리스트 · 링크</p>
           </div>
           <span className="text-sub text-xl">›</span>
@@ -38,7 +38,7 @@ export default function HomeMenuScreen() {
         <button onClick={() => nav('/time')}
           className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
           <div>
-            <span className="font-bold text-ink text-lg">시간관리</span>
+            <span className="font-bold text-ink text-lg">Time</span>
             <p className="text-sub text-sm mt-1">블럭으로 쌓는 내 시간</p>
           </div>
           <span className="text-sub text-xl">›</span>

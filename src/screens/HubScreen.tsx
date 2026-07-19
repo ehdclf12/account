@@ -31,7 +31,7 @@ export default function HubScreen() {
   return (
     <div className="p-5 space-y-5">
       <NavButton to="/" label="홈" />
-      <h1 className="text-xl font-bold text-ink">예산관리</h1>
+      <h1 className="text-xl font-bold text-ink">Budget</h1>
 
       <button onClick={() => nav('/assets')}
         className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70">

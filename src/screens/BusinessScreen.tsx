@@ -32,7 +32,7 @@ export default function BusinessScreen() {
   return (
     <div className="p-5 space-y-6">
       <div className="flex justify-between items-center">
-        <NavButton to="/budget" label="예산관리" />
+        <NavButton to="/budget" label="Budget" />
         <div className="flex items-center gap-3">
           <button onClick={() => nav('/business/stats')} className="text-sub text-sm">통계</button>
           <button onClick={() => nav('/business/manage')} className="text-sub text-sm">관리</button>
