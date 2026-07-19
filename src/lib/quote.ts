@@ -5,7 +5,8 @@ export function isLivePriced(
   quote: Quote | undefined,
   usdkrw: number | null,
 ): boolean {
-  if (!asset.symbol || asset.quantity == null || !quote || !(quote.price > 0)) return false
+  // quantity는 > 0 이어야 한다. `== null`만 보면 0이 통과해 평가액이 0으로 지워진다.
+  if (!asset.symbol || !(asset.quantity != null && asset.quantity > 0) || !quote || !(quote.price > 0)) return false
   if (quote.currency === 'USD') return !!usdkrw && usdkrw > 0
   return true
 }

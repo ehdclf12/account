@@ -41,4 +41,9 @@ describe('effectiveAmount', () => {
   it('price 0이면 폴백', () => {
     expect(effectiveAmount(aapl, { price: 0, currency: 'USD' }, 1380)).toBe(900000)
   })
+  it('수량 0이면 수동 amount 폴백(0으로 지우지 않는다)', () => {
+    const zeroQty = { amount: 5000000, symbol: 'AAPL', quantity: 0 }
+    expect(isLivePriced(zeroQty, { price: 250, currency: 'USD' }, 1400)).toBe(false)
+    expect(effectiveAmount(zeroQty, { price: 250, currency: 'USD' }, 1400)).toBe(5000000)
+  })
 })
