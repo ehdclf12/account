@@ -79,16 +79,19 @@ export default function ArchiveItemSheet(
       if (!title.trim() && cleaned.length === 0) return
       payload = { folder_id: folderId, kind, title: title.trim(), body: null, url: null, preview: null, checklist: cleaned, ...meta }
     }
-    if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
-    else await add.mutateAsync(payload)
-    onClose()
+    try {
+      if (editing) await upd.mutateAsync({ id: editing.id, ...payload })
+      else await add.mutateAsync(payload)
+      onClose()
+    } catch { /* 실패 시 시트를 열어둔다(사유는 전역 토스트로 안내) */ }
   }
 
   async function remove() {
-    if (editing && confirm('이 항목을 삭제할까요?')) {
+    if (!editing || !confirm('이 항목을 삭제할까요?')) return
+    try {
       await del.mutateAsync({ id: editing.id, kind: editing.kind, url: editing.url })
       onClose()
-    }
+    } catch { /* 전역 토스트 */ }
   }
 
   return (

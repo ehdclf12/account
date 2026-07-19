@@ -24,8 +24,10 @@ export default function TransferSheet(
 
   async function save() {
     if (amt <= 0 || !transferCatId) return
-    await transfer.mutateAsync({ direction, amount: amt, date, memo, who, transferCategoryId: transferCatId })
-    onClose()
+    try {
+      await transfer.mutateAsync({ direction, amount: amt, date, memo, who, transferCategoryId: transferCatId })
+      onClose()
+    } catch { /* 실패 시 시트를 열어둔다(사유는 전역 토스트로 안내) */ }
   }
 
   return (

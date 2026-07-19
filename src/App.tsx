@@ -21,6 +21,7 @@ import SavingsManageScreen from '@/screens/SavingsManageScreen'
 import AssetsScreen from '@/screens/AssetsScreen'
 import ArchiveScreen from '@/screens/ArchiveScreen'
 import CalendarScreen from '@/screens/CalendarScreen'
+import Toaster from '@/components/Toaster'
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -88,5 +89,5 @@ export default function App() {
 
 function Shell({ children }: { children: ReactNode }) {
   useRealtime()
-  return <>{children}</>
+  return <>{children}<Toaster /></>
 }
