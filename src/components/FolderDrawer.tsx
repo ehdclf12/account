@@ -166,8 +166,8 @@ export default function FolderDrawer(
 
         <div className="border-t border-line p-4 space-y-2">
           <span className="text-sub text-xs font-bold">보기</span>
-          <div className="grid grid-cols-3 gap-2">
-            {[{ n: 1, label: '세로형' }, { n: 2, label: '2열' }, { n: 3, label: '3열' }].map((o) => (
+          <div className="grid grid-cols-2 gap-2">
+            {[{ n: 1, label: '세로형' }, { n: 2, label: '2열' }].map((o) => (
               <button key={o.n} onClick={() => onCols(o.n)}
                 className={`rounded-xl py-2 text-sm font-medium ${cols === o.n ? 'bg-brand text-white' : 'bg-card text-sub'}`}>
                 {o.label}

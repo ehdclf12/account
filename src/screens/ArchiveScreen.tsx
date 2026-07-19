@@ -16,10 +16,12 @@ const COLOR_HEX: Record<ArchiveColor, string> = Object.fromEntries(
   ARCHIVE_COLORS.map((c) => [c.key, c.hex]),
 ) as Record<ArchiveColor, string>
 
-// 보기: 1=세로형(리스트), 2/3=바둑판(균등 그리드)
+// 보기: 1=세로형(리스트), 2=바둑판(균등 그리드)
 function readCols(): number {
   const v = Number(localStorage.getItem('archive_cols'))
-  return v === 2 || v === 3 ? v : 1
+  // 3열은 제거됨. 기존에 3열을 쓰던 경우 세로형으로 떨어뜨리지 않고 2열로 잇는다.
+  if (v === 3) return 2
+  return v === 2 ? 2 : 1
 }
 
 function hostname(url: string | null): string {
@@ -197,8 +199,8 @@ export default function ArchiveScreen() {
     )
   }
 
-  // cols=1: 세로 스택(리스트 카드) / cols>=2: 균등 그리드(바둑판 카드)
-  const boardCls = cols === 1 ? 'space-y-3' : cols === 2 ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-3 gap-3'
+  // cols=1: 세로 스택(리스트 카드) / cols=2: 균등 그리드(바둑판 카드)
+  const boardCls = cols === 1 ? 'space-y-3' : 'grid grid-cols-2 gap-3'
   function renderBoard(list: ArchiveItem[]) {
     return (
       <div className={boardCls}>
