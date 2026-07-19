@@ -156,3 +156,86 @@ DM Task 5: complete (commit 7a0e346, NavButton 알약 + 9개 화면 교체 + 죽
 리뷰수정: complete (commit 69ebae9, 7건 전부). 재검증(opus): VERIFIED — READY TO MERGE. 하드코딩 색 잔여 = CAT_COLORS·ARCHIVE_COLORS(의도적 제외) + theme.ts 상태바 상수뿐.
 main 병합 + 푸시 완료 → Vercel 자동배포. *** 다크모드 + NavButton 통일 전부 완성·병합·배포. ***
 남은 것: 배포본 두 계정 런타임 확인(라이트 회귀 없는지, 다크 전 화면).
+
+=== 아카이빙 리디자인 (2026-07-17, main 직접 작업) ===
+※ 이 구간은 세션 기록 없이 커밋 메시지만 보고 사후 재구성한 것 — 리뷰 내역·판단 근거는 남아있지 않음.
+d42a2c1 아카이빙 뷰 전환(세로형/2열/3열) + 전체 뷰 폴더별 그룹핑
+c2c488c 메모 구분선 + 바둑판을 균등 그리드(썸네일 카드)로 리디자인
+5d0ca1c 바둑판 카드 탭 → 상세 팝업(상호작용 풀 카드)
+abf485f 체크리스트 카드 전체 완료 토글(done 컬럼) ← schema-archive-done.sql 동반
+26c8867 바둑판 썸네일 '할 일' → 'Checklist'(빈티지 필기체)
+※ abf485f는 마이그레이션과 기능 코드가 같은 커밋. 배포 후 사용자 SQL 실행 여부가 원장에 없어
+  2026-07-19 점검에서 "배포본이 깨져 있을 수 있음"으로 지적됨 → 실제로는 실행돼 있었음(REST로 확인).
+
+=== 프로젝트 점검 (2026-07-19, branch fix/audit-2026-07-19 → main 병합 0fa6bcf) ===
+사용자 요청 "프로젝트 점검". 서브에이전트 2개(보안·데이터계층 / 계산로직)로 감사 후 사용자 승인 하에 수정.
+기준선: tsc 0, 86 tests, build clean, npm audit 0, TODO/console.log 잔여 없음.
+
+발견·수정 (커밋순):
+9a5c965 계산 버그 3건 (TDD)
+  - monthsUntil 오프바이원: 이번 달을 빼고 세어 저축 월납입액이 최대 2배 과다.
+    ※ savings.test.ts:18이 오답(14)을 정답으로 고정하고 있었음 — 테스트도 함께 정정(15).
+  - goalProgress: Math.round라 99.5%부터 100% → "남은 1원 + 100% 완료" 동시 표시. floor로 변경 + 음수 하한.
+  - fixedCostDate: day<=0에서 "2026-07-00" 생성 → 모든 월 필터에서 누락. 하한 1.
+  - isLivePriced: quantity==null만 검사해 0이 통과, 평가액이 0으로 지워짐(UI로는 도달 불가, 잠재).
+1b2d79a API 보안
+  - preview.js가 스킴만 검사하고 임의 URL을 서버에서 fetch = SSRF + 오픈 프록시.
+    _urlGuard.js 신설(TDD 11): 루프백·사설·CGNAT·링크로컬·IPv6 ULA·v4-mapped·.local 차단.
+    난독화 IP(2130706433 등)는 WHATWG URL이 정규화해 주므로 정규화 hostname만 검사.
+    리다이렉트 홉마다 재검증(3홉), 8초 타임아웃, 500KB 상한, content-type 검사.
+    ※ DNS 리바인딩은 미차단(소켓 고정 필요, 서버리스에서 비용 큼) — 주석에 명시.
+  - quotes.js: 심볼 무제한 Promise.all → 중복제거 + 50개 상한.
+c4b7678 데이터 계층
+  - useToggleCheck가 렌더 시점 스냅샷으로 checklist 배열 전체를 덮어써 연속 탭 시 갱신 유실.
+    onMutate에서 현재 캐시 기준 누적 + 낙관적 반영 + 실패 롤백. 병합로직은 applyChecklistToggle로 분리(TDD 7).
+  - useDeleteItem: 스토리지 정리 실패가 DB 삭제의 실패 경로에 있어 캐시가 안 지워짐 → warn만.
+  - FK cascade 무효화 누락 3건(Category→budgets/transactions, PaymentMethod·FixedCost→transactions).
+46ce378 전역 오류 처리
+  - onError·에러바운더리 0건, 21곳이 try 없이 await mutateAsync → 실패가 "시트가 안 닫힘"으로만 드러남.
+    lib/errors.ts(TDD 7) + lib/toast.ts(TDD 4) + Toaster + MutationCache.onError, 21곳 try/catch.
+    42703·PGRST204를 "마이그레이션 실행 필요"로 매핑 — 마이그레이션 누락이 화면에 드러나게 됨.
+9c0c1f7 SQL (사용자 직접 실행)
+  - schema-realtime.sql 신설: useRealtime이 9개 테이블을 구독하는데 게시된 건 2개뿐이었음.
+    나머지 7개가 실시간 이벤트를 전혀 못 받고 있었다(= "앱이 굼뜨다"의 원인).
+  - schema-rls-scope.sql 신설: 전 정책이 using(true)라 DB는 "유효한 JWT" 외 아무것도 보장 안 함.
+    is_household_member()로 이메일 스코프 + 11개 테이블 + 스토리지 정책 교체.
+  - schema-savings.sql: 파일 전체를 감싼 큰따옴표 제거(그대로는 실행 불가였음).
+
+사용자 SQL 3건 모두 적용 완료. 검증(REST 직접 질의):
+  archive_items.done 존재 O / is_household_member() 존재·anon에 false O (대조군 42703·PGRST202로 구분)
+  ※ "anon이 transactions를 못 읽음"은 증거가 안 됨 — 기존 정책도 to authenticated라 원래 []였음. 함수 존재로 재확인.
+사용자 두 계정 로그인 정상 확인 → RLS 스코프 정상 동작.
+테스트 86 → 124. main 병합 후 푸시 → 배포.
+
+미해결(설계 판단 대기):
+  - 자금 이동을 가계 지출로 세는 문제. TransferSheet가 "가계 지출로 기록돼요"라 명시해 의도로 판단, 미변경.
+    부작용: useCategories는 is_fund_transfer=false로 거르는데 useRangeTransactions는 안 걸러,
+    통계 도넛에서 catName 조회 실패 → "기타" 지출로 잡힘(StatsScreen.tsx:81 ?? '기타').
+  - budget.ts totalSpent가 예산 미설정 카테고리 지출을 제외. budget.test.ts:32가 명시 검증 중이라 의도로 판단.
+    다만 그 합계에 "사용" 라벨이 붙고 막대 색이 "안전"을 신호함.
+기타 이월: 스토리지 버킷 public(서명 URL 전환 필요) / 번들 573kB 단일 청크 / settings.local.json 일회성 permission 누적.
+
+=== 3열 보기 제거 (73daf44, 2026-07-19) ===
+사용자: "3열 배열은 삭제해줘 보기가 너무 안좋다". 세로형/2열만 남김.
+기존 archive_cols=3은 세로형으로 떨구지 않고 2열로 승계(바둑판 의도 유지).
+
+=== 캘린더 한국 공휴일 (spec a346e95, 구현 d9ea355, 2026-07-19) ===
+설계서: docs/superpowers/specs/2026-07-19-korean-holidays-design.md
+출처: 공공데이터포털 특일정보 getRestDeInfo. 사용자가 서비스키 발급·전달.
+구현 전 실제 API로 검증해 설계에 반영한 사실:
+  - totalCount 22(2026). numOfRows 기본값이 10이라 미지정 시 12개 잘림 ← 가장 잘 깨지는 지점
+  - locdate가 문자열이 아니라 숫자(20260101), 1건이면 items.item이 단일 객체, 결과 없으면 items가 빈 문자열
+  - 대체공휴일은 "대체공휴일(삼일절)" 별도 항목으로 들어옴
+  - 제헌절(7/17)·노동절(5/1)도 isHoliday=Y로 옴. 실제로는 관공서 근무일이지만 공식 데이터 그대로 표시하기로 함.
+  - 키는 디코딩 버전을 env에 넣고 URLSearchParams가 인코딩(인코딩 키를 또 인코딩하면 401)
+구성: api/_holidays.js(정규화, TDD 8) / api/holidays.js(프록시) / lib/holidays.ts(weekdayTone·holidayName, TDD 8)
+      / useHolidays(격자에 등장하는 연도만 조회 — 42칸이라 연말엔 2개년, 성공 결과만 localStorage 영속)
+화면: 토=파랑 일·공휴일=빨강(헤더+날짜숫자), 공휴일명 표시(그 칸은 항목 3→2개로 높이 유지), 하단 상세에 공휴일명.
+실패 시 빈 맵 반환 → 공휴일만 안 보이고 앱은 정상(조회 실패는 mutation이 아니라 토스트도 안 뜸).
+env: DATA_GO_KR_SERVICE_KEY (서버 전용, VITE_ 접두 금지). Vercel 대시보드 등록 완료.
+※ Vercel 환경변수는 배포 시점 주입 — 추가 후 재배포해야 반영됨(세션 중 오설명 정정함).
+테스트 124 → 140.
+
+미검증(사용자 확인 필요): 화면 실제 모양. vite dev는 /api/*를 서빙하지 않고 Vercel CLI 미설치라
+  순수로직 16 tests + 핸들러 end-to-end(2026:22건, 2027:24건, 잘못된 연도 400)까지만 확인.
+  볼 것: 공휴일명 들어간 칸 높이 / 토·일 색 / 다크모드 대비 / 2026-03(삼일절+대체공휴일 연속)로 확인 권장.
