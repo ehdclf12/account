@@ -29,7 +29,7 @@ export default function BudgetEditScreen({ scope, backTo }: { scope: 'household'
 
   return (
     <div className="p-5 space-y-5">
-      <NavButton to={backTo} label="뒤로" />
+      <NavButton to={backTo} label="Back" />
       <h1 className="text-xl font-bold text-ink">예산 편집</h1>
       <div className="flex items-center justify-center gap-6">
         <button onClick={() => move(-1)} className="text-2xl text-sub">‹</button>

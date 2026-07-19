@@ -15,7 +15,7 @@ export default function HouseholdSettingsScreen() {
 
   return (
     <div className="p-5 space-y-8">
-      <NavButton to="/household" label="집" />
+      <NavButton to="/household" label="Household" />
       <h1 className="text-xl font-bold text-ink">집 설정</h1>
 
       <section>

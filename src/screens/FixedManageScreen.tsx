@@ -37,7 +37,7 @@ export default function FixedManageScreen({ scope, backTo }: { scope: 'household
 
   return (
     <div className="p-5 space-y-5">
-      <NavButton to={backTo} label={scope === 'household' ? '집' : '코스모스'} />
+      <NavButton to={backTo} label={scope === 'household' ? 'Household' : '코스모스'} />
       <h1 className="text-xl font-bold text-ink">고정비 관리</h1>
 
       <div className="flex gap-2">

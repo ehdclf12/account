@@ -30,7 +30,7 @@ export default function HubScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <NavButton to="/" label="홈" />
+      <NavButton to="/" label="Home" />
       <h1 className="text-xl font-bold text-ink">Budget</h1>
 
       <button onClick={() => nav('/assets')}
@@ -46,7 +46,7 @@ export default function HubScreen() {
       <button onClick={() => nav('/household')}
         className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70">
         <div className="flex justify-between items-center">
-          <span className="font-bold text-ink text-lg">집</span>
+          <span className="font-bold text-ink text-lg">Household</span>
           <span className="text-sub text-xl">›</span>
         </div>
         <p className="text-sub text-sm mt-3">이번 달 남은 돈</p>

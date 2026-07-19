@@ -30,7 +30,7 @@ export default function LedgerScreen() {
 
   return (
     <div className="p-5">
-      <div className="mb-2"><NavButton to="/household" label="집" /></div>
+      <div className="mb-2"><NavButton to="/household" label="Household" /></div>
       <div className="flex items-center justify-center gap-6 mb-2">
         <button onClick={() => move(-1)} className="text-2xl text-sub">‹</button>
         <span className="font-bold">{year}년 {month}월</span>

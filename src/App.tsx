@@ -51,7 +51,7 @@ export default function App() {
   if (!info) return (
     <div className="p-6 text-sub">
       등록되지 않은 계정이에요.
-      <button onClick={() => supabase.auth.signOut()} className="block mt-3 text-brand">로그아웃</button>
+      <button onClick={() => supabase.auth.signOut()} className="block mt-3 text-brand">Logout</button>
     </div>
   )
 

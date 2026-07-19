@@ -189,7 +189,7 @@ export default function TimeScreen() {
     <div className="p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-ink">Time</h1>
-        <NavButton to="/" label="홈" />
+        <NavButton to="/" label="Home" />
       </div>
 
       <div className="flex gap-3">

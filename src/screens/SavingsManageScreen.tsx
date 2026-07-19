@@ -22,7 +22,7 @@ export default function SavingsManageScreen() {
 
   return (
     <div className="p-5 space-y-5">
-      <NavButton to="/household" label="집" />
+      <NavButton to="/household" label="Household" />
       <h1 className="text-xl font-bold text-ink">저축 목표</h1>
 
       <div className="space-y-3">

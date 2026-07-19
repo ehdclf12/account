@@ -39,7 +39,7 @@ export default function StatsScreen({ scope, backTo }: { scope: 'household' | 'b
 
   return (
     <div className="p-5 space-y-6">
-      <NavButton to={backTo} label="뒤로" />
+      <NavButton to={backTo} label="Back" />
       <h1 className="text-xl font-bold text-ink">통계</h1>
 
       {/* 지난달 대비 */}

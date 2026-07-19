@@ -46,7 +46,7 @@ export default function HomeMenuScreen() {
       </div>
       <div className="mt-auto pt-8 flex items-center justify-between">
         <span className="text-sm text-sub">
-          {NAME_BY_ROLE[who]}님 · <button onClick={() => supabase.auth.signOut()} className="text-brand font-medium">로그아웃</button>
+          {NAME_BY_ROLE[who]}님 · <button onClick={() => supabase.auth.signOut()} className="text-brand font-medium">Logout</button>
         </span>
         <ThemeToggle />
       </div>

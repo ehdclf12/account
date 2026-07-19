@@ -218,7 +218,7 @@ export default function ArchiveScreen() {
           <button onClick={() => setDrawer(true)} className="text-ink text-xl">☰</button>
           <h1 className="text-xl font-bold text-ink">{viewName}</h1>
         </div>
-        <NavButton to="/" label="홈" />
+        <NavButton to="/" label="Home" />
       </div>
 
       <div className="flex items-center justify-between">
