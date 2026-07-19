@@ -87,6 +87,44 @@ export function useAddGroup() {
   })
 }
 
+export function useUpdateGroup() {
+  const qc = useQueryClient(); const who = useIdentity()
+  return useMutation({
+    mutationFn: async ({ id, ...rest }: Partial<TimeBlockGroup> & { id: string }) => {
+      const { error } = await supabase.from('time_block_groups').update(rest).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['time_block_groups', who] }),
+  })
+}
+
+export function useDeleteGroup() {
+  const qc = useQueryClient(); const who = useIdentity()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('time_block_groups').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['time_block_groups', who] })
+      // blocks.group_id는 on delete set null → 블럭은 '일반 블럭'으로 내려간다
+      qc.invalidateQueries({ queryKey: ['time_blocks', who] })
+    },
+  })
+}
+
+export function useReorderGroups() {
+  const qc = useQueryClient(); const who = useIdentity()
+  return useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      await Promise.all(updates.map(({ id, sort_order }) =>
+        supabase.from('time_block_groups').update({ sort_order }).eq('id', id)
+          .then(({ error }) => { if (error) throw error })))
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['time_block_groups', who] }),
+  })
+}
+
 export function useAddBlock() {
   const qc = useQueryClient(); const who = useIdentity()
   return useMutation({

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useTimeBlocks, useTimeSessions, useBlockGroups, useStartTimer, useStopTimer } from '@/hooks/useTimeBlocks'
+import { useTimeBlocks, useTimeSessions, useBlockGroups, useStartTimer, useStopTimer, useDeleteBlock } from '@/hooks/useTimeBlocks'
 import { elapsedSeconds, formatDuration, totalsByBlock, sumInRange, weekStartISO } from '@/lib/time'
 import { todayISO } from '@/lib/date'
 import { ARCHIVE_COLORS } from '@/lib/archive'
 import TimeBlockSheet from '@/components/TimeBlockSheet'
+import TimeGroupSheet from '@/components/TimeGroupSheet'
 import BlockIcon from '@/components/BlockIcon'
 import NavButton from '@/components/NavButton'
 import type { ArchiveColor, TimeBlock } from '@/types'
@@ -24,9 +25,12 @@ export default function TimeScreen() {
   const { data: groups = [] } = useBlockGroups()
   const start = useStartTimer()
   const stop = useStopTimer()
+  const del = useDeleteBlock()
 
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<TimeBlock | null>(null)
+  const [editMode, setEditMode] = useState(false)
+  const [managingGroups, setManagingGroups] = useState(false)
 
   const running = sessions.find((s) => s.ended_at === null) ?? null
 
@@ -64,26 +68,37 @@ export default function TimeScreen() {
     else start.mutate({ blockId: b.id, runningId: running?.id ?? null })
   }
 
+  async function removeBlock(b: TimeBlock) {
+    if (!confirm(`'${b.name}' 블럭을 삭제할까요?\n이 블럭에 쌓인 기록도 함께 지워집니다.`)) return
+    try { await del.mutateAsync(b.id) } catch { /* 전역 토스트 */ }
+  }
+
   function renderCard(b: TimeBlock) {
     const isRunning = running?.block_id === b.id
     return (
       <div key={b.id} className="relative">
-        <button onClick={() => onTapBlock(b)}
+        {/* 편집 모드에선 탭이 타이머가 아니라 수정으로 간다 */}
+        <button onClick={() => (editMode ? setEditing(b) : onTapBlock(b))}
           className={`w-full aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 overflow-hidden active:opacity-70
-            ${isRunning ? 'bg-brand/15 ring-2 ring-brand' : 'bg-surface'}`}>
+            ${isRunning && !editMode ? 'bg-brand/15 ring-2 ring-brand' : 'bg-surface'}
+            ${editMode ? 'ring-1 ring-dashed ring-sub/40' : ''}`}>
           {b.color && (
             <span className="absolute top-0 right-3.5 w-2.5 h-4 rounded-b-full" style={{ backgroundColor: COLOR_HEX[b.color] }} />
           )}
-          <BlockIcon name={b.icon} className={`w-7 h-7 ${isRunning ? 'text-brand' : 'text-ink'}`} />
+          <BlockIcon name={b.icon} className={`w-7 h-7 ${isRunning && !editMode ? 'text-brand' : 'text-ink'}`} />
           <span className="text-ink text-[11px] font-medium truncate max-w-[85%] px-1">{b.name}</span>
-          {(totals[b.id] ?? 0) > 0 && (
+          {editMode ? (
+            <span className="text-sub text-[10px]">수정</span>
+          ) : (totals[b.id] ?? 0) > 0 ? (
             <span className="text-sub text-[10px]">{formatDuration(totals[b.id])}</span>
-          )}
+          ) : null}
         </button>
-        <button onClick={() => setEditing(b)} aria-label={`${b.name} 수정`}
-          className="absolute -top-1 -left-1 w-7 h-7 rounded-full text-sub text-xs flex items-center justify-center active:opacity-60">
-          ⋯
-        </button>
+        {editMode && (
+          <button onClick={() => removeBlock(b)} aria-label={`${b.name} 삭제`}
+            className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-danger text-white text-sm font-bold flex items-center justify-center shadow active:opacity-70">
+            ×
+          </button>
+        )}
       </div>
     )
   }
@@ -123,8 +138,14 @@ export default function TimeScreen() {
       <div className="bg-card rounded-2xl p-4 space-y-5">
         <div className="flex items-center justify-between">
           <span className="font-bold text-ink">블럭 선택</span>
-          <button onClick={() => setAdding(true)} aria-label="블럭 추가"
-            className="text-ink text-2xl leading-none w-8 h-8 flex items-center justify-center active:opacity-60">+</button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setEditMode((v) => !v)}
+              className={`rounded-xl px-3 py-1.5 text-sm font-medium ${editMode ? 'bg-ink text-bg' : 'bg-surface text-sub'}`}>
+              {editMode ? '완료' : '편집'}
+            </button>
+            <button onClick={() => setAdding(true)} aria-label="블럭 추가"
+              className="text-ink text-2xl leading-none w-8 h-8 flex items-center justify-center active:opacity-60">+</button>
+          </div>
         </div>
 
         {sections.length === 0 ? (
@@ -139,10 +160,18 @@ export default function TimeScreen() {
             </div>
           ))
         )}
+
+        {editMode && (
+          <button onClick={() => setManagingGroups(true)}
+            className="w-full bg-surface text-sub rounded-xl py-2.5 text-sm font-medium active:opacity-70">
+            그룹 관리
+          </button>
+        )}
       </div>
 
       {adding && <TimeBlockSheet open onClose={() => setAdding(false)} nextOrder={blocks.length} />}
       {editing && <TimeBlockSheet open onClose={() => setEditing(null)} editing={editing} nextOrder={blocks.length} />}
+      {managingGroups && <TimeGroupSheet open onClose={() => setManagingGroups(false)} />}
     </div>
   )
 }
