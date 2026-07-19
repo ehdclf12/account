@@ -119,3 +119,23 @@ export interface ArchiveItem {
   created_at: string
   updated_at: string
 }
+
+export interface TimeBlock {
+  id: string
+  who: Role
+  name: string
+  emoji: string
+  color: ArchiveColor | null
+  sort_order: number
+  archived: boolean
+  created_at: string
+}
+
+export interface TimeSession {
+  id: string
+  block_id: string
+  who: Role
+  started_at: string
+  ended_at: string | null   // null = 진행 중
+  created_at: string
+}

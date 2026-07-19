@@ -28,6 +28,10 @@ export function useRealtime() {
         () => qc.invalidateQueries({ queryKey: ['folders'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'archive_items' },
         () => qc.invalidateQueries({ queryKey: ['archive_items'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'time_blocks' },
+        () => qc.invalidateQueries({ queryKey: ['time_blocks'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'time_sessions' },
+        () => qc.invalidateQueries({ queryKey: ['time_sessions'] }))
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [qc])

@@ -35,6 +35,14 @@ export default function HomeMenuScreen() {
           </div>
           <span className="text-sub text-xl">›</span>
         </button>
+        <button onClick={() => nav('/time')}
+          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
+          <div>
+            <span className="font-bold text-ink text-lg">시간관리</span>
+            <p className="text-sub text-sm mt-1">블럭으로 쌓는 내 시간</p>
+          </div>
+          <span className="text-sub text-xl">›</span>
+        </button>
       </div>
       <div className="mt-auto pt-8 flex items-center justify-between">
         <span className="text-sm text-sub">

@@ -21,6 +21,7 @@ import SavingsManageScreen from '@/screens/SavingsManageScreen'
 import AssetsScreen from '@/screens/AssetsScreen'
 import ArchiveScreen from '@/screens/ArchiveScreen'
 import CalendarScreen from '@/screens/CalendarScreen'
+import TimeScreen from '@/screens/TimeScreen'
 import Toaster from '@/components/Toaster'
 
 const IdentityCtx = createContext<Role>('husband')
@@ -63,6 +64,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomeMenuScreen />} />
             <Route path="/calendar" element={<CalendarScreen />} />
+            <Route path="/time" element={<TimeScreen />} />
             <Route path="/budget" element={<HubScreen />} />
             <Route path="/assets" element={<AssetsScreen />} />
             <Route path="/archive" element={<ArchiveScreen />} />
