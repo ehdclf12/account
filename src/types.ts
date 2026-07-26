@@ -148,3 +148,12 @@ export interface TimeSession {
   ended_at: string | null   // null = 진행 중
   created_at: string
 }
+
+export interface TimeGoal {
+  id: string
+  who: Role
+  title: string
+  checklist: ChecklistEntry[]   // 서브목표
+  sort_order: number
+  created_at: string
+}
