@@ -32,6 +32,10 @@ export function useRealtime() {
         () => qc.invalidateQueries({ queryKey: ['time_blocks'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'time_sessions' },
         () => qc.invalidateQueries({ queryKey: ['time_sessions'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'time_goals' },
+        () => qc.invalidateQueries({ queryKey: ['time_goals'] }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'time_quotes' },
+        () => qc.invalidateQueries({ queryKey: ['time_quote'] }))
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [qc])
