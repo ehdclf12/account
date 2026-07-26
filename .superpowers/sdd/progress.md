@@ -240,3 +240,12 @@ env: DATA_GO_KR_SERVICE_KEY (서버 전용, VITE_ 접두 금지). Vercel 대시�
 ※ 아래는 확인 전 기록: 화면 실제 모양. vite dev는 /api/*를 서빙하지 않고 Vercel CLI 미설치라
   순수로직 16 tests + 핸들러 end-to-end(2026:22건, 2027:24건, 잘못된 연도 400)까지만 확인.
   볼 것: 공휴일명 들어간 칸 높이 / 토·일 색 / 다크모드 대비 / 2026-03(삼일절+대체공휴일 연속)로 확인 권장.
+
+
+=== Time 목표 & 명언 (branch feat/time-goals, plan 2026-07-26-time-goals.md, base 5ccf88d) ===
+계획: 대목표 여러 개 + 서브목표 체크리스트(JSONB) + 고정 명언 1개. 개인별(who). 아카이브 체크리스트 패턴 재사용.
+Task 1: complete (commit f28e7fd, schema-time-goals.sql + TimeGoal 타입, tsc clean, 리뷰 clean)
+Task 2: complete (commit 1decc57, useTimeGoals 6훅 + useRealtime 2구독, tsc clean, 리뷰 clean)
+Task 3: complete (commit cec8441 목표카드+시트+TimeScreen삽입, 리뷰 Critical 1(서브목표 연속탭 갱신유실 stale-closure) → fix 7c5120d 낙관적 업데이트, 재리뷰 clean). build+166 tests clean.
+Task3 이월 Minor(무해/의도, 최종리뷰 트리아지): (1)Tailwind 허용목록 외 토큰 bg-ink/bg-line/text-white/border-sub30 등 — 기존 ChecklistCard·TimeScreen 관례와 동일 (2)서브목표 삭제 confirm 없음 — 아카이브 체크리스트와 동일, 단일항목 (3)key={i} — ChecklistCard와 동일, 행 로컬상태 없음 (4)useUpdateGoal onSuccess만 invalidate(onSettled 아님) — onError 롤백이 서버일관, 무해.
+최종 whole-branch 리뷰(opus): READY TO MERGE. 치명/중요 0. 낙관적 업데이트 stale-closure 수정 정확·query-key/realtime 일관·마이그레이션 멱등/RLS 정상. Minor 전부 기존 관례와 동일(비차단).
