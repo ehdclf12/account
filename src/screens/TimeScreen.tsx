@@ -6,6 +6,7 @@ import { todayISO } from '@/lib/date'
 import { ARCHIVE_COLORS } from '@/lib/archive'
 import TimeBlockSheet from '@/components/TimeBlockSheet'
 import TimeGroupSheet from '@/components/TimeGroupSheet'
+import TimeGoals from '@/components/TimeGoals'
 import BlockIcon from '@/components/BlockIcon'
 import NavButton from '@/components/NavButton'
 import type { ArchiveColor, TimeBlock } from '@/types'
@@ -216,6 +217,8 @@ export default function TimeScreen() {
             className="bg-white/20 rounded-xl px-4 py-2 font-bold shrink-0 active:opacity-70">정지</button>
         </div>
       )}
+
+      <TimeGoals />
 
       <div className="bg-card rounded-2xl p-4 space-y-5">
         <div className="flex items-center justify-between">
