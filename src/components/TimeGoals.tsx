@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useIdentity } from '@/App'
 import { useTimeGoals, useUpdateGoal, useQuote, useSetQuote } from '@/hooks/useTimeGoals'
 import { checklistProgress } from '@/lib/archive'
 import TimeGoalSheet from '@/components/TimeGoalSheet'
@@ -12,6 +14,8 @@ export default function TimeGoals() {
   const { data: quote = '' } = useQuote()
   const upd = useUpdateGoal()
   const setQuote = useSetQuote()
+  const qc = useQueryClient()
+  const who = useIdentity()
 
   const [editMode, setEditMode] = useState(false)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
@@ -32,16 +36,25 @@ export default function TimeGoals() {
   async function saveChecklist(g: TimeGoal, checklist: ChecklistEntry[]) {
     try { await upd.mutateAsync({ id: g.id, checklist }) } catch { /* 전역 토스트 */ }
   }
+  // 연속 탭 시 렌더 시점 스냅샷(g)이 아니라 캐시의 최신 값을 기준으로 checklist를
+  // 파생시킨다. useUpdateGoal의 onMutate가 캐시를 즉시 갱신하므로, 두 번째 탭은
+  // 첫 번째 탭의 낙관적 결과 위에서 계산된다.
+  function freshGoal(g: TimeGoal): TimeGoal {
+    return qc.getQueryData<TimeGoal[]>(['time_goals', who])?.find((x) => x.id === g.id) ?? g
+  }
   function toggleSub(g: TimeGoal, i: number) {
-    void saveChecklist(g, g.checklist.map((c, idx) => (idx === i ? { ...c, done: !c.done } : c)))
+    const cur = freshGoal(g)
+    void saveChecklist(cur, cur.checklist.map((c, idx) => (idx === i ? { ...c, done: !c.done } : c)))
   }
   function deleteSub(g: TimeGoal, i: number) {
-    void saveChecklist(g, g.checklist.filter((_, idx) => idx !== i))
+    const cur = freshGoal(g)
+    void saveChecklist(cur, cur.checklist.filter((_, idx) => idx !== i))
   }
   function addSub(g: TimeGoal) {
     const t = sub?.id === g.id ? sub.text.trim() : ''
     if (!t) return
-    void saveChecklist(g, [...g.checklist, { text: t, done: false }])
+    const cur = freshGoal(g)
+    void saveChecklist(cur, [...cur.checklist, { text: t, done: false }])
     setSub({ id: g.id, text: '' })
   }
 

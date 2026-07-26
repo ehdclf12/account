@@ -31,11 +31,25 @@ export function useAddGoal() {
 export function useUpdateGoal() {
   const qc = useQueryClient(); const who = useIdentity()
   return useMutation({
+    // 낙관적 업데이트를 onMutate에서 "현재 캐시" 기준으로 즉시 반영한다. 렌더 시점
+    // 스냅샷으로 checklist 배열 전체를 덮어쓰면 연속 탭 시 앞선 변경이 되돌아간다(갱신 유실).
+    onMutate: async (
+      patch: { id: string; title?: string; checklist?: ChecklistEntry[]; sort_order?: number },
+    ) => {
+      await qc.cancelQueries({ queryKey: ['time_goals', who] })
+      const prev = qc.getQueryData<TimeGoal[]>(['time_goals', who])
+      qc.setQueryData<TimeGoal[]>(['time_goals', who], (old) =>
+        old?.map((g) => (g.id === patch.id ? { ...g, ...patch } : g)))
+      return { prev }
+    },
     mutationFn: async (
       { id, ...rest }: { id: string; title?: string; checklist?: ChecklistEntry[]; sort_order?: number },
     ) => {
       const { error } = await supabase.from('time_goals').update(rest).eq('id', id)
       if (error) throw error
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(['time_goals', who], ctx.prev)
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['time_goals', who] }),
   })
