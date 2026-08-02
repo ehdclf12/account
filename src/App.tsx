@@ -1,28 +1,32 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, lazy, Suspense, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { userForEmail } from '@/lib/users'
 import type { Role } from '@/types'
 import { useRealtime } from '@/hooks/useRealtime'
+import Toaster from '@/components/Toaster'
+
+// Login과 HomeMenuScreen은 첫 화면이라 즉시 필요하다. 나머지는 라우트별로
+// 쪼개서 실제로 그 화면에 들어갈 때 받는다.
 import Login from '@/screens/Login'
 import HomeMenuScreen from '@/screens/HomeMenuScreen'
-import HubScreen from '@/screens/HubScreen'
-import HomeScreen from '@/screens/HomeScreen'
-import HouseholdSettingsScreen from '@/screens/HouseholdSettingsScreen'
-import LedgerScreen from '@/screens/LedgerScreen'
-import BusinessScreen from '@/screens/BusinessScreen'
-import BusinessCalculatorScreen from '@/screens/BusinessCalculatorScreen'
-import BusinessSettingsScreen from '@/screens/BusinessSettingsScreen'
-import BudgetEditScreen from '@/screens/BudgetEditScreen'
-import StatsScreen from '@/screens/StatsScreen'
-import FixedManageScreen from '@/screens/FixedManageScreen'
-import SavingsManageScreen from '@/screens/SavingsManageScreen'
-import AssetsScreen from '@/screens/AssetsScreen'
-import ArchiveScreen from '@/screens/ArchiveScreen'
-import CalendarScreen from '@/screens/CalendarScreen'
-import TimeScreen from '@/screens/TimeScreen'
-import Toaster from '@/components/Toaster'
+
+const HubScreen = lazy(() => import('@/screens/HubScreen'))
+const HomeScreen = lazy(() => import('@/screens/HomeScreen'))
+const HouseholdSettingsScreen = lazy(() => import('@/screens/HouseholdSettingsScreen'))
+const LedgerScreen = lazy(() => import('@/screens/LedgerScreen'))
+const BusinessScreen = lazy(() => import('@/screens/BusinessScreen'))
+const BusinessCalculatorScreen = lazy(() => import('@/screens/BusinessCalculatorScreen'))
+const BusinessSettingsScreen = lazy(() => import('@/screens/BusinessSettingsScreen'))
+const BudgetEditScreen = lazy(() => import('@/screens/BudgetEditScreen'))
+const StatsScreen = lazy(() => import('@/screens/StatsScreen'))
+const FixedManageScreen = lazy(() => import('@/screens/FixedManageScreen'))
+const SavingsManageScreen = lazy(() => import('@/screens/SavingsManageScreen'))
+const AssetsScreen = lazy(() => import('@/screens/AssetsScreen'))
+const ArchiveScreen = lazy(() => import('@/screens/ArchiveScreen'))
+const CalendarScreen = lazy(() => import('@/screens/CalendarScreen'))
+const TimeScreen = lazy(() => import('@/screens/TimeScreen'))
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -61,32 +65,39 @@ export default function App() {
     <IdentityCtx.Provider value={info.role}>
       <Shell>
         <div className={`${wide ? 'max-w-2xl' : 'max-w-md'} mx-auto min-h-full pb-8`}>
-          <Routes>
-            <Route path="/" element={<HomeMenuScreen />} />
-            <Route path="/calendar" element={<CalendarScreen />} />
-            <Route path="/time" element={<TimeScreen />} />
-            <Route path="/budget" element={<HubScreen />} />
-            <Route path="/assets" element={<AssetsScreen />} />
-            <Route path="/archive" element={<ArchiveScreen />} />
-            <Route path="/household" element={<HomeScreen />} />
-            <Route path="/household/manage" element={<HouseholdSettingsScreen />} />
-            <Route path="/household/budget" element={<BudgetEditScreen scope="household" backTo="/household" />} />
-            <Route path="/household/stats" element={<StatsScreen scope="household" backTo="/household" />} />
-            <Route path="/household/fixed" element={<FixedManageScreen scope="household" backTo="/household" />} />
-            <Route path="/household/savings" element={<SavingsManageScreen />} />
-            <Route path="/business/fixed" element={<FixedManageScreen scope="business" backTo="/business" />} />
-            <Route path="/ledger" element={<LedgerScreen />} />
-            <Route path="/business" element={<BusinessScreen />} />
-            <Route path="/business/calculator" element={<BusinessCalculatorScreen />} />
-            <Route path="/business/manage" element={<BusinessSettingsScreen />} />
-            <Route path="/business/budget" element={<BudgetEditScreen scope="business" backTo="/business" />} />
-            <Route path="/business/stats" element={<StatsScreen scope="business" backTo="/business" />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+          <Suspense fallback={<ScreenFallback />}>
+            <Routes>
+              <Route path="/" element={<HomeMenuScreen />} />
+              <Route path="/calendar" element={<CalendarScreen />} />
+              <Route path="/time" element={<TimeScreen />} />
+              <Route path="/budget" element={<HubScreen />} />
+              <Route path="/assets" element={<AssetsScreen />} />
+              <Route path="/archive" element={<ArchiveScreen />} />
+              <Route path="/household" element={<HomeScreen />} />
+              <Route path="/household/manage" element={<HouseholdSettingsScreen />} />
+              <Route path="/household/budget" element={<BudgetEditScreen scope="household" backTo="/household" />} />
+              <Route path="/household/stats" element={<StatsScreen scope="household" backTo="/household" />} />
+              <Route path="/household/fixed" element={<FixedManageScreen scope="household" backTo="/household" />} />
+              <Route path="/household/savings" element={<SavingsManageScreen />} />
+              <Route path="/business/fixed" element={<FixedManageScreen scope="business" backTo="/business" />} />
+              <Route path="/ledger" element={<LedgerScreen />} />
+              <Route path="/business" element={<BusinessScreen />} />
+              <Route path="/business/calculator" element={<BusinessCalculatorScreen />} />
+              <Route path="/business/manage" element={<BusinessSettingsScreen />} />
+              <Route path="/business/budget" element={<BudgetEditScreen scope="business" backTo="/business" />} />
+              <Route path="/business/stats" element={<StatsScreen scope="business" backTo="/business" />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Suspense>
         </div>
       </Shell>
     </IdentityCtx.Provider>
   )
+}
+
+// 화면 청크를 받는 동안 잠깐 보이는 자리. 캐시된 뒤에는 거의 나타나지 않는다.
+function ScreenFallback() {
+  return <div className="p-6 text-sub">불러오는 중…</div>
 }
 
 function Shell({ children }: { children: ReactNode }) {
