@@ -55,10 +55,9 @@ end $$;
 --  영수증·사진이 URL만 알면 전부 공개)
 --
 -- ⚠️ 버킷이 public 이면 정책과 무관하게 공개 URL로 접근됩니다.
---    아래 한 줄로 비공개 전환하면 앱의 getPublicUrl 방식은 더 이상
---    동작하지 않으므로, 서명 URL(createSignedUrl)로 코드도 함께 바꿔야
---    합니다. 지금은 주석 처리해 두었습니다 — 코드 변경과 함께 진행하세요.
--- update storage.buckets set public = false where id = 'archive';
+--    비공개 전환은 앱을 서명 URL 방식으로 바꾼 뒤에 해야 해서 이 파일에서
+--    빠져 있었습니다. 코드 변경이 끝났으니 schema-archive-private.sql 을
+--    이어서 실행하세요.
 
 drop policy if exists archive_read on storage.objects;
 create policy archive_read on storage.objects

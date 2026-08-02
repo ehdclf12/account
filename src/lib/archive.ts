@@ -73,6 +73,17 @@ export function storagePathFromPublicUrl(url: string): string | null {
   return url.slice(i + marker.length) || null
 }
 
+// archive_items.url 에는 두 세대가 섞여 있다.
+//   예전 행: 공개 URL (https://…/object/public/archive/abc.jpg)
+//   지금 행: 스토리지 경로 (abc.jpg)
+// 버킷을 비공개로 돌린 뒤로는 둘 다 경로로 환원해야 서명 URL을 만들 수 있다.
+// link 종류의 외부 주소는 마커가 없으므로 null로 걸러진다.
+export function archiveStoragePath(stored: string | null | undefined): string | null {
+  if (!stored) return null
+  if (stored.includes('://')) return storagePathFromPublicUrl(stored)
+  return stored
+}
+
 export const ARCHIVE_COLORS: { key: ArchiveColor; hex: string }[] = [
   { key: 'red', hex: '#F04452' },
   { key: 'orange', hex: '#FF9500' },

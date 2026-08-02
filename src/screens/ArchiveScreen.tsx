@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useFolders, useArchiveItems } from '@/hooks/useArchive'
+import { useFolders, useArchiveItems, useSignedArchiveUrls } from '@/hooks/useArchive'
 import { sortItems, dueStatus, buildFolderTree, checklistProgress, ARCHIVE_COLORS } from '@/lib/archive'
 import { todayISO } from '@/lib/date'
 import ArchiveItemSheet from '@/components/ArchiveItemSheet'
@@ -42,6 +42,9 @@ function MemoBlock({ text }: { text: string }) {
 export default function ArchiveScreen() {
   const { data: folders = [] } = useFolders()
   const { data: items = [] } = useArchiveItems()
+  // archive 버킷은 비공개다. 사진은 저장된 경로를 서명 URL로 바꿔야 보인다.
+  const signed = useSignedArchiveUrls(items.map((i) => (i.kind === 'image' ? i.url : null)))
+  const imageSrc = (it: ArchiveItem) => (it.url ? signed[it.url] : undefined)
 
   const [sel, setSel] = useState<string>('all') // 'all' | folderId
   const [sort, setSort] = useState<SortMode>('updated')
@@ -135,7 +138,7 @@ export default function ArchiveScreen() {
       return (
         <div className="bg-card rounded-2xl overflow-hidden" style={stripStyle(it.color)}>
           <button onClick={() => setEditing(it)} className="w-full text-left active:opacity-70">
-            {it.url && <img src={it.url} alt="" className="w-full max-h-60 object-cover" />}
+            {imageSrc(it) && <img src={imageSrc(it)} alt="" className="w-full max-h-60 object-cover" />}
             <div className="p-3 flex items-center justify-between gap-2">
               <p className="text-ink font-medium truncate">{it.title || '사진'}</p>
               <Badges it={it} />
@@ -152,8 +155,11 @@ export default function ArchiveScreen() {
   // 바둑판 카드: 고정비율 썸네일 + 하단 제목/부제(균등 높이). 메모는 리스트 전용
   function renderGridCard(it: ArchiveItem) {
     let thumb
-    if (it.kind === 'image' && it.url) {
-      thumb = <img src={it.url} alt="" className="w-full h-full object-cover" />
+    if (it.kind === 'image') {
+      // 서명 URL을 받기 전에는 빈 자리(감싼 div의 bg-line/30)로 둔다.
+      // 여기서 떨어뜨리면 아래 else의 '링크' 플레이스홀더가 잘못 뜬다.
+      const src = imageSrc(it)
+      thumb = src ? <img src={src} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full" />
     } else if (it.kind === 'link' && it.preview?.image) {
       thumb = <img src={it.preview.image} alt="" className="w-full h-full object-cover" />
     } else if (it.kind === 'checklist') {

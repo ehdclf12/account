@@ -1,7 +1,8 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import type { ArchiveFolder, ArchiveItem, LinkPreview } from '@/types'
-import { storagePathFromPublicUrl, applyChecklistToggle } from '@/lib/archive'
+import { archiveStoragePath, applyChecklistToggle } from '@/lib/archive'
 
 export function useFolders() {
   return useQuery({
@@ -106,7 +107,7 @@ export function useDeleteItem() {
       const { error } = await supabase.from('archive_items').delete().eq('id', item.id)
       if (error) throw error
       if (item.kind === 'image' && item.url) {
-        const path = storagePathFromPublicUrl(item.url)
+        const path = archiveStoragePath(item.url)
         // 스토리지 정리는 DB 삭제의 실패 경로에 두지 않는다. 여기서 throw하면
         // onSuccess가 안 뛰어 캐시가 남고, 행은 지워졌는데 화면엔 계속 보인다.
         if (path) {
@@ -160,13 +161,55 @@ export function useToggleDone() {
   })
 }
 
+// 버킷이 비공개라 공개 URL이 없다. 행에는 스토리지 경로만 저장하고,
+// 보여줄 때마다 useSignedArchiveUrls로 서명 URL을 만든다.
 export async function uploadArchiveImage(file: File): Promise<string> {
   const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg'
   const path = `${crypto.randomUUID()}.${ext}`
   const { error } = await supabase.storage.from('archive').upload(path, file, { upsert: false })
   if (error) throw error
-  const { data } = supabase.storage.from('archive').getPublicUrl(path)
-  return data.publicUrl
+  return path
+}
+
+const SIGNED_TTL_SEC = 3600
+// 만료 직전 URL을 물고 있다가 깨진 이미지가 뜨는 걸 막으려고 5분 일찍 새로 받는다.
+const SIGNED_STALE_MS = (SIGNED_TTL_SEC - 300) * 1000
+
+// 저장값(경로 또는 예전 공개 URL) → 서명 URL 맵.
+// 이미지마다 한 건씩 요청하면 폴더를 열 때 수십 건이 나가므로 한 번에 묶어 서명한다.
+export function useSignedArchiveUrls(stored: (string | null | undefined)[]): Record<string, string> {
+  const pairs = useMemo(() => {
+    const seen = new Map<string, string>() // stored -> path
+    for (const s of stored) {
+      if (!s || seen.has(s)) continue
+      const path = archiveStoragePath(s)
+      if (path) seen.set(s, path)
+    }
+    return [...seen.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+    // 배열은 렌더마다 새 참조다. 내용을 이어붙인 문자열을 의존성으로 둔다.
+  }, [stored.join('|')])
+
+  const { data } = useQuery({
+    queryKey: ['archive_signed', pairs.map(([, p]) => p)],
+    enabled: pairs.length > 0,
+    staleTime: SIGNED_STALE_MS,
+    gcTime: SIGNED_TTL_SEC * 1000,
+    queryFn: async (): Promise<Record<string, string>> => {
+      const paths = pairs.map(([, p]) => p)
+      const { data, error } = await supabase.storage.from('archive')
+        .createSignedUrls(paths, SIGNED_TTL_SEC)
+      if (error) throw error
+      const byPath = new Map((data ?? []).map((d) => [d.path ?? '', d.signedUrl]))
+      const out: Record<string, string> = {}
+      for (const [key, path] of pairs) {
+        const signed = byPath.get(path)
+        if (signed) out[key] = signed
+      }
+      return out
+    },
+  })
+
+  return data ?? {}
 }
 
 export async function fetchLinkPreview(url: string): Promise<LinkPreview | null> {

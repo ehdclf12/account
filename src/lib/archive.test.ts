@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   checklistProgress, normalizeUrl,
   buildFolderTree, sortItems, dueStatus, storagePathFromPublicUrl, moveItem,
-  applyChecklistToggle,
+  applyChecklistToggle, archiveStoragePath,
 } from './archive'
 import type { ArchiveFolder, ArchiveItem } from '@/types'
 
@@ -91,6 +91,23 @@ describe('storagePathFromPublicUrl', () => {
   })
   it('해당 마커 없으면 null', () => {
     expect(storagePathFromPublicUrl('https://x/other/abc.jpg')).toBeNull()
+  })
+})
+
+describe('archiveStoragePath', () => {
+  it('예전 행의 공개 URL은 경로로 환원한다', () => {
+    expect(archiveStoragePath('https://x.supabase.co/storage/v1/object/public/archive/abc.jpg')).toBe('abc.jpg')
+  })
+  it('지금 행의 경로는 그대로 쓴다', () => {
+    expect(archiveStoragePath('abc.jpg')).toBe('abc.jpg')
+  })
+  it('link 종류의 외부 주소는 null', () => {
+    expect(archiveStoragePath('https://naver.com/article/1')).toBeNull()
+  })
+  it('빈 값은 null', () => {
+    expect(archiveStoragePath('')).toBeNull()
+    expect(archiveStoragePath(null)).toBeNull()
+    expect(archiveStoragePath(undefined)).toBeNull()
   })
 })
 

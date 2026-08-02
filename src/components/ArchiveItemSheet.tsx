@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useFolders, useAddItem, useUpdateItem, useDeleteItem, fetchLinkPreview, uploadArchiveImage } from '@/hooks/useArchive'
+import { useFolders, useAddItem, useUpdateItem, useDeleteItem, fetchLinkPreview, uploadArchiveImage, useSignedArchiveUrls } from '@/hooks/useArchive'
 import { normalizeUrl, buildFolderTree, ARCHIVE_COLORS } from '@/lib/archive'
 import { showToast } from '@/lib/toast'
 import type { ArchiveColor, ArchiveItem, ArchiveKind, ChecklistEntry, LinkPreview } from '@/types'
@@ -23,7 +23,7 @@ export default function ArchiveItemSheet(
   const [url, setUrl] = useState(editing?.url ?? '')
   const [preview, setPreview] = useState<LinkPreview | null>(editing?.preview ?? null)
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(editing?.checklist ?? [{ text: '', done: false }])
-  const [imageUrl, setImageUrl] = useState<string>(editing?.kind === 'image' ? (editing.url ?? '') : '')
+  const [imagePath, setImagePath] = useState<string>(editing?.kind === 'image' ? (editing.url ?? '') : '')
   const [body, setBody] = useState(editing?.body ?? '')
   const [loadingPrev, setLoadingPrev] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -32,6 +32,11 @@ export default function ArchiveItemSheet(
   const [dueDate, setDueDate] = useState(editing?.due_date ?? defaultDueDate ?? '')
   const [color, setColor] = useState<ArchiveColor | null>(editing?.color ?? null)
   const [archived, setArchived] = useState(editing?.archived ?? false)
+
+  // 미리보기도 서명 URL이 있어야 뜬다(경로를 그대로 src에 넣으면 깨진다).
+  // 훅이라 open 여부와 무관하게 항상 호출한다.
+  const signed = useSignedArchiveUrls([imagePath])
+  const imagePreview = signed[imagePath]
 
   if (!open) return null
 
@@ -55,7 +60,7 @@ export default function ArchiveItemSheet(
   async function onPickImage(file: File | undefined) {
     if (!file) return
     setUploading(true)
-    try { setImageUrl(await uploadArchiveImage(file)) }
+    try { setImagePath(await uploadArchiveImage(file)) }
     catch { showToast('사진 업로드에 실패했어요. 다시 시도해 주세요.') }
     finally { setUploading(false) }
   }
@@ -74,8 +79,8 @@ export default function ArchiveItemSheet(
       if (!norm) { showToast('링크 주소를 확인해 주세요.'); return }
       payload = { folder_id: folderId, kind, title: title.trim() || preview?.title || norm, body: body.trim() || null, url: norm, preview, checklist: null, ...meta }
     } else if (kind === 'image') {
-      if (!imageUrl) { showToast('사진을 선택해 주세요.'); return }
-      payload = { folder_id: folderId, kind, title: title.trim(), body: body.trim() || null, url: imageUrl, preview: null, checklist: null, ...meta }
+      if (!imagePath) { showToast('사진을 선택해 주세요.'); return }
+      payload = { folder_id: folderId, kind, title: title.trim(), body: body.trim() || null, url: imagePath, preview: null, checklist: null, ...meta }
     } else {
       // 체크리스트: 기한 필수 (캘린더에 뜨는 유일한 종류라서다)
       if (!dueDate) { showToast('기한을 선택해 주세요.'); return }
@@ -145,9 +150,9 @@ export default function ArchiveItemSheet(
           </>
         ) : kind === 'image' ? (
           <>
-            {imageUrl && <img src={imageUrl} alt="" className="w-full max-h-60 object-cover rounded-xl" />}
+            {imagePreview && <img src={imagePreview} alt="" className="w-full max-h-60 object-cover rounded-xl" />}
             <label className="block w-full bg-card rounded-xl px-3 py-2 text-sub text-sm text-center active:opacity-70">
-              {uploading ? '업로드 중…' : (imageUrl ? '사진 변경' : '앨범에서 사진 선택')}
+              {uploading ? '업로드 중…' : (imagePath ? '사진 변경' : '앨범에서 사진 선택')}
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickImage(e.target.files?.[0])} />
             </label>
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (선택)" className="w-full bg-card rounded-xl px-3 py-2 outline-none" />
