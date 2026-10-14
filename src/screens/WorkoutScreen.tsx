@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import NavButton from '@/components/NavButton'
 import { useWorkoutLogs, useWorkoutProgram } from '@/hooks/useWorkout'
-import { todayISO } from '@/lib/date'
+import { useToday } from '@/components/workout/useToday'
 import SetupForm from '@/components/workout/SetupForm'
 import TodayTab from '@/components/workout/TodayTab'
 import WeekTab from '@/components/workout/WeekTab'
@@ -17,7 +17,7 @@ export default function WorkoutScreen() {
   const logsQ = useWorkoutLogs()
   const [tab, setTab] = useState<Tab>('today')
   const [regenerating, setRegenerating] = useState(false)
-  const today = todayISO()
+  const today = useToday()
   const logs = logsQ.data ?? []
 
   function startRegenerate() {

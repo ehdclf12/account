@@ -18,6 +18,19 @@ function slotView(slot: Slot, logs: WorkoutLog[], today: string): SlotView {
   }
 }
 
+/**
+ * 처방 무게가 없을 때(첫 기록) 미리 채울 무게: 오늘 이 종목에서 저장된 바로 앞(낮은 setIndex) 세트의 무게.
+ * 1세트에 무게를 넣고 체크하면 2세트부터 그 무게로 채워진다.
+ */
+export function carriedWeight(todayLog: WorkoutLog | undefined, exerciseId: string, setIndex: number): number | null {
+  let best: SetEntry | undefined
+  for (const s of todayLog?.sets ?? []) {
+    if (s.exerciseId !== exerciseId || s.setIndex >= setIndex || s.weightKg === null) continue
+    if (!best || s.setIndex > best.setIndex) best = s
+  }
+  return best?.weightKg ?? null
+}
+
 /** 종목 카드. 슬롯이 둘이면 슈퍼세트: 한 카드에서 두 종목 세트를 번갈아 보여준다. */
 export default function ExerciseCard(
   { slots, logs, today, todayLog, onSaveSet }:
@@ -51,7 +64,7 @@ export default function ExerciseCard(
           <SetRow key={`${v.slot.id}#${i}`}
             label={`${v.name} ${i + 1}세트`} short={superset ? v.name : `${i + 1}세트`}
             saved={todayLog?.sets.find((s) => s.exerciseId === v.slot.exerciseId && s.setIndex === i)}
-            prefillWeight={v.rx?.weightKg ?? null}
+            prefillWeight={v.rx?.weightKg ?? carriedWeight(todayLog, v.slot.exerciseId, i)}
             prefillReps={v.rx?.targetReps[i] ?? v.slot.repMax}
             onSave={(w, r, done) => onSaveSet(v.slot.exerciseId, i, w, r, done)} />
         ))}

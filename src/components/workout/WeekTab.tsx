@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useSaveProgram } from '@/hooks/useWorkout'
 import { intervalTexts, swapDays, weekdayIndex } from '@/engine/workout/schedule'
 import type { ScheduleViolation } from '@/engine/workout/schedule'
 import { candidatesFor, swapExercise } from '@/engine/workout/generate'
@@ -9,15 +8,16 @@ import { getExercise } from '@/data/workout/exercises'
 import { showToast } from '@/lib/toast'
 import type { Program, Settings, Slot, WorkoutLog } from '@/engine/workout/types'
 import Sheet from './Sheet'
+import { useProgramEditor } from './latestLog'
 import { STATUS_LABEL } from './format'
 
-interface PendingSwap { a: number; b: number; program: Program; violations: ScheduleViolation[]; alternatives: number[] }
+interface PendingSwap { a: number; b: number; violations: ScheduleViolation[]; alternatives: number[] }
 
 export default function WeekTab(
   { program, settings, logs, today, onRegenerate }:
   { program: Program; settings: Settings; logs: WorkoutLog[]; today: string; onRegenerate: () => void },
 ) {
-  const save = useSaveProgram()
+  const editor = useProgramEditor({ settings, program })
   const [swapMode, setSwapMode] = useState(false)
   const [first, setFirst] = useState<number | null>(null)
   const [pending, setPending] = useState<PendingSwap | null>(null)
@@ -30,9 +30,7 @@ export default function WeekTab(
   const logAt = (d: number) => weekLogs.find((l) => weekdayIndex(l.date) === d)
   const nameAt = (d: number) => findSession(program, program.weekSchedule[d])?.name ?? '휴식'
 
-  function persist(next: Program) {
-    save.mutate({ settings, program: next })
-  }
+  const persist = editor.persist
 
   function endSwap() { setSwapMode(false); setFirst(null); setPending(null) }
 
@@ -44,14 +42,14 @@ export default function WeekTab(
   }
 
   function trySwap(a: number, b: number) {
-    const r = swapDays(program, a, b)
+    const r = swapDays(editor.latest(), a, b)
     if (r.violations.length === 0) { persist(r.program); endSwap(); return }
-    setPending({ a, b, ...r })
+    setPending({ a, b, violations: r.violations, alternatives: r.alternatives })
   }
 
   function pickExercise(exerciseId: string) {
     if (!picking) return
-    const r = swapExercise(program, picking.sessionId, picking.slot.id, exerciseId)
+    const r = swapExercise(editor.latest(), picking.sessionId, picking.slot.id, exerciseId)
     persist(r.program)
     if (r.warning) showToast(r.warning)
     setPicking(null)
@@ -129,7 +127,7 @@ export default function WeekTab(
               ))}
             </div>
           ) : <p className="text-sub text-xs">규칙을 지키는 다른 요일이 없어요.</p>}
-          <button onClick={() => { persist(pending.program); endSwap() }}
+          <button onClick={() => { persist(swapDays(editor.latest(), pending.a, pending.b).program); endSwap() }}
             className="w-full min-h-[44px] rounded-xl bg-danger/15 text-danger font-bold active:opacity-70">
             그래도 바꾸기
           </button>

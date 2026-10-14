@@ -18,8 +18,8 @@ vi.mock('@/hooks/useWorkout', () => ({
 }))
 vi.mock('@/App', () => ({ useIdentity: () => 'husband' }))
 
-function renderQ(ui: ReactElement) {
-  return render(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>)
+function renderQ(ui: ReactElement, qc = new QueryClient()) {
+  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>)
 }
 
 const six = generateProgram({ daysPerWeek: 6, timeBudgetMin: 70 }, DEFAULT_SEED)
@@ -130,6 +130,22 @@ describe('TodayTab', () => {
     expect(m.saveLog).toHaveBeenCalledWith({ ...log, sets: [{ ...log.sets[0], weightKg: 52.5 }] })
   })
 
+  it('첫 기록: 앞 세트에 저장한 무게를 다음 세트들이 이어받는다', () => {
+    const qc = new QueryClient()
+    const { rerender } = renderQ(<TodayTab program={six} logs={[]} today={TUE} />, qc)
+    const w1 = screen.getByLabelText('오버헤드프레스 1세트 무게') as HTMLInputElement
+    fireEvent.change(w1, { target: { value: '30' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: '오버헤드프레스 1세트 완료' }))
+    const saved = m.saveLog.mock.calls[0][0] as WorkoutLog
+    expect(saved.sets[0].weightKg).toBe(30)
+    rerender(<QueryClientProvider client={qc}><TodayTab program={six} logs={[saved]} today={TUE} /></QueryClientProvider>)
+    for (const n of [2, 3, 4]) {
+      expect((screen.getByLabelText(`오버헤드프레스 ${n}세트 무게`) as HTMLInputElement).value).toBe('30')
+    }
+    // 다른 종목은 영향 없음
+    expect((screen.getByLabelText('바벨 벤치프레스 2세트 무게') as HTMLInputElement).value).toBe('')
+  })
+
   it('슈퍼세트 두 종목은 한 카드에서 번갈아 나온다', () => {
     renderQ(<TodayTab program={six} logs={[]} today={TUE} />)
     const card = screen.getByText(/슈퍼세트/).parentElement as HTMLElement
@@ -223,6 +239,23 @@ describe('WeekTab', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /덤벨 숄더프레스/ }))
     const p = m.saveProgram.mock.calls[0][0].program
     expect(p.sessions.find((s: { id: string }) => s.id === 'shoulder-a').slots[0].exerciseId).toBe('dumbbell-shoulder-press')
+  })
+})
+
+describe('WeekTab 연속 저장', () => {
+  it('빠르게 두 번 종목을 바꿔도 두 번째 저장이 첫 번째 변경을 유지한다(캐시 기준)', () => {
+    const qc = new QueryClient()
+    qc.setQueryData(['workout_program', 'husband'], { settings: settings6, program: six })
+    renderQ(<WeekTab program={six} settings={settings6} logs={[]} today={TUE} onRegenerate={vi.fn()} />, qc)
+    fireEvent.click(screen.getByRole('button', { name: '화요일 어깨 A' }))
+    fireEvent.click(screen.getByRole('button', { name: /오버헤드프레스/ }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /덤벨 숄더프레스/ }))
+    fireEvent.click(screen.getByRole('button', { name: /바벨 벤치프레스/ }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^딥스/ }))
+    expect(m.saveProgram).toHaveBeenCalledTimes(2)
+    const slots = m.saveProgram.mock.calls[1][0].program.sessions.find((x: { id: string }) => x.id === 'shoulder-a').slots
+    expect(slots[0].exerciseId).toBe('dumbbell-shoulder-press')
+    expect(slots[1].exerciseId).toBe('dips')
   })
 })
 
