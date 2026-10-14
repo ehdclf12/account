@@ -46,7 +46,7 @@ AI·서버 계산 없음, 무료. 참고한 사용자 명세(SPEC-2)의 "느낌"
 | 어깨 | v_push 4×6~8 · h_push 3×6~10 · lateral_raise 4×12~15 · fly 3×10~12 · [SS] triceps_ext 3×10~12 + triceps_ext 3×12~15 |
 | 등 | v_pull 4×6~10 · h_pull 3×6~10 · h_pull 3×10~12 · rear_delt 3×15 · [SS] curl 3×10~12 + curl 3×10~12 |
 | 하체 A | squat 4×6~8 · hinge 3×8~10 · squat 3×10~12 · leg_curl 3×10~12 · [SS] calf_raise 3×12~15 + core 3×10~15 |
-| 하체 B | hinge 3×5 · lunge 3×8~10 · hip_thrust 3×8~10 · leg_ext 3×12~15 · [SS] calf_raise 3×15 + core 3×12~15 |
+| 하체 B | hinge 3×5 · lunge 3×8~10 · leg_ext 3×12~15 · [SS] calf_raise 3×15 + core 3×12~15 |
 | 상체 | h_push 4×6~8 · h_pull 4×6~10 · v_pull 3×8~12 · lateral_raise 3×12~15 · [SS] curl 3×10~12 + triceps_ext 3×10~12 |
 | 전신 | squat 3×6~8 · h_push 3×6~10 · h_pull 3×8~10 · hinge 3×8~10 · lateral_raise 3×12~15 · [SS] curl 2×10~12 + triceps_ext 2×10~12 |
 
@@ -63,7 +63,7 @@ AI·서버 계산 없음, 무료. 참고한 사용자 명세(SPEC-2)의 "느낌"
 | 하체 A | 백스쿼트 / 루마니안 데드리프트 / 레그프레스 / 시티드 레그컬 / [SS] 스탠딩 카프레이즈 + 행잉 레그레이즈 |
 | 어깨 B | 덤벨 숄더프레스 / 인클라인 덤벨프레스 / 케이블 레터럴 / 덤벨 플라이 / [SS] 스컬크러셔 + 리버스그립 푸시다운 |
 | 등 B | 랫풀다운 / 체스트 서포티드 로우 / 싱글암 덤벨로우 / 리버스 펙덱 / [SS] 베이징 케이블컬 + 해머컬 |
-| 하체 B | 데드리프트 / 불가리안 스플릿 스쿼트 / 힙 쓰러스트 / 레그 익스텐션 / [SS] 시티드 카프레이즈 + 케이블 크런치 |
+| 하체 B | 데드리프트 / 불가리안 스플릿 스쿼트 / 레그 익스텐션 / [SS] 시티드 카프레이즈 + 케이블 크런치 |
 
    reason: "기본 루틴(어깨·하체·등 × 2)".
 2. **그 외(3·4·5일, 또는 "다시 생성")**: 슬롯마다 같은 `pattern`·`type`의 종목 중에서 고른다.
@@ -157,7 +157,7 @@ workout_logs
   Slot = `{ id, pattern, type, role: 'main'|'accessory', sets, repMin, repMax, superset?: string, exerciseId, reason }`.
 - 종목 시드: `src/data/workout/exercises.ts`(타입 있는 TS 배열). 필드는 쓰는 것만:
   `id, nameKo, pattern, type, primaryMuscles, secondaryMuscles, stretchEmphasis, weightIncrementKg`.
-  SPEC-2 6장 표 + 시드 프로그램 종목 전부를 포함한다. 패턴에 `rear_delt`, `hip_thrust`를 추가한다.
+  SPEC-2 6장 표 + 시드 프로그램 종목 전부를 포함한다. 패턴에 `rear_delt`를 추가한다. 힙 쓰러스트는 넣지 않는다(사용자 요청).
 
 ## 구조
 
