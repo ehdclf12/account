@@ -39,3 +39,14 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* 홈 대시보드(성운) 애니메이션. SVG 속성 애니메이션 대신 CSS로 해야 모션 줄이기 설정을 따른다. */
+@keyframes nb-blink { 50% { opacity: 0.3; } }
+@keyframes nb-pulse { 50% { transform: scale(1.5); } }
+@keyframes nb-twinkle { 50% { opacity: 0.15; } }
+.nb-blink { animation: nb-blink 1.3s ease-in-out infinite; }
+.nb-pulse { animation: nb-pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.nb-twinkle { animation: nb-twinkle 3.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .nb-blink, .nb-pulse, .nb-twinkle { animation: none; }
+}
