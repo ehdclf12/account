@@ -94,6 +94,18 @@ describe('prescribe', () => {
     // 94.5 → 90
     expect(prescribe(h2, slot({ exerciseId: squat.id }), squat).weightKg).toBe(90)
   })
+  it('10% 내림은 증량 단위 1칸 아래로 내려가지 않는다', () => {
+    const h = [
+      log('2026-10-08', sets(bench.id, [[2.5, 3]])),
+      log('2026-10-10', sets(bench.id, [[2.5, 3]])),
+    ]
+    expect(prescribe(h, slot(), bench).weightKg).toBe(2.5)
+    const h2 = [
+      log('2026-10-08', sets(squat.id, [[5, 3]])),
+      log('2026-10-10', sets(squat.id, [[5, 3]])),
+    ]
+    expect(prescribe(h2, slot({ exerciseId: squat.id }), squat).weightKg).toBe(5)
+  })
   it('기록 순서와 관계없이 가장 최근 수행일과 그 직전 수행일을 쓴다', () => {
     const h = [
       log('2026-10-10', sets(bench.id, [[62.5, 5]])),

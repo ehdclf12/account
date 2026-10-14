@@ -24,6 +24,27 @@ describe('종목 시드', () => {
     for (const e of EXERCISES) expect(e.weightIncrementKg).toBe(lower.includes(e.pattern) ? 5 : 2.5)
     expect(EXERCISES.some((e) => e.pattern === 'rear_delt')).toBe(true)
   })
+  it('SPEC-2 6장 표의 종목과 신장 강조(힙 쓰러스트·미사용 패턴 제외)', () => {
+    const spec: [string, boolean][] = [
+      ['바벨 벤치프레스', false], ['인클라인 덤벨프레스', false], ['딥스', true], ['머신 체스트프레스', false],
+      ['케이블 플라이', false], ['펙덱 플라이', false], ['덤벨 플라이', true],
+      ['풀업', true], ['랫풀다운', false], ['뉴트럴 그립 풀다운', false],
+      ['바벨로우', false], ['시티드 케이블로우', false], ['체스트 서포티드 로우', false], ['티바 로우', false], ['싱글암 덤벨로우', true],
+      ['오버헤드프레스', false], ['덤벨 숄더프레스', false],
+      ['덤벨 사이드 레터럴', false], ['케이블 레터럴', true], ['머신 레터럴', false],
+      ['페이스풀', false], ['리버스 펙덱', false], ['벤트오버 리어델트 레이즈', false],
+      ['바벨컬', false], ['해머컬', false], ['프리처컬', false], ['인클라인 덤벨컬', true], ['베이징 케이블컬', true],
+      ['클로즈그립 벤치', false], ['케이블 푸시다운', false], ['오버헤드 케이블 익스텐션', true], ['스컬크러셔', true],
+      ['백스쿼트', false], ['핵 스쿼트', false], ['레그프레스', false], ['프론트 스쿼트', false], ['레그 익스텐션', false],
+      ['불가리안 스플릿 스쿼트', true], ['시시 스쿼트', true],
+      ['루마니안 데드리프트', true], ['굿모닝', false], ['라잉 레그컬', false], ['시티드 레그컬', true],
+      ['데드리프트', false], ['딥 스쿼트', true], ['스텝업', true],
+      ['스탠딩 카프레이즈', true], ['시티드 카프레이즈', false],
+      ['케이블 크런치', false], ['행잉 레그레이즈', false], ['AB 롤아웃', true],
+    ]
+    for (const [n, stretch] of spec) expect(getExercise(idByName(n))!.stretchEmphasis, n).toBe(stretch)
+    expect(EXERCISES.find((e) => e.nameKo === '트라이셉스 킥백')?.pattern).toBe('triceps_ext')
+  })
   it('모든 슬롯 pattern·type에 후보가 3개 이상', () => {
     const p = generateProgram(settings(6), 7)
     const q = generateProgram(settings(3), 7)

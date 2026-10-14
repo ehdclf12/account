@@ -58,7 +58,8 @@ export function prescribe(
   if (last[0].reps < repMin) {
     const prev = perf[1]
     if (prev && prev.sets[0].reps < repMin) {
-      const cut = base === null ? null : Math.floor((base * 0.9) / inc + 1e-9) * inc
+      // 10% 낮춰 증량 단위로 내림. 단 증량 단위 1칸 아래로는 내리지 않는다(기준 무게보다 높아지지도 않음).
+      const cut = base === null ? null : Math.min(base, Math.max(inc, Math.floor((base * 0.9) / inc + 1e-9) * inc))
       return { weightKg: cut, targetReps: fill(sets, repMin), reason: '2회 연속 목표 미달 → 10% 낮춰 다시 쌓아가요' }
     }
     return { weightKg: base, targetReps: fill(sets, repMin), reason: '이번엔 목표에 못 미쳤어요 → 같은 무게로 재도전' }
