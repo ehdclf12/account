@@ -1,17 +1,22 @@
+import { RECOVERY_EXERCISE_ID } from './constants'
 import { weekdayIndex } from './schedule'
 import type { Program, SetEntry, Session, WorkoutLog } from './types'
 
 export type SessionStatus = 'todo' | 'in_progress' | 'done'
 
-/** 회복 세션 완료 표식: exerciseId 'recovery', done true인 SetEntry 하나. */
-export const RECOVERY_EXERCISE_ID = 'recovery'
+export { RECOVERY_EXERCISE_ID }
 
 function addDaysISO(date: string, n: number): string {
   const [y, m, d] = date.split('-').map(Number)
   return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10)
 }
 
-/** 오늘 할 세션 id. 오늘 기록이 있으면 그 세션(오늘만 바꾸기), 없으면 주간 루틴. null = 휴식. */
+/** 세션 id로 프로그램에서 세션을 찾는다. todaySession이 돌려준 id가 program.sessions에 없을 수 있으므로(재생성 등) 호출부는 undefined를 처리한다. */
+export function findSession(program: Program, id: string | null | undefined): Session | undefined {
+  return id ? program.sessions.find((s) => s.id === id) : undefined
+}
+
+/** 오늘 할 세션 id (program.sessions에 없는 id일 수 있음 → findSession). 오늘 기록이 있으면 그 세션(오늘만 바꾸기), 없으면 주간 루틴. null = 휴식. */
 export function todaySession(program: Program, logs: WorkoutLog[], todayISO: string): string | null {
   const today = logs.find((l) => l.date === todayISO)
   if (today) return today.sessionId
@@ -27,13 +32,21 @@ export function thisWeekLogs(logs: WorkoutLog[], todayISO: string): WorkoutLog[]
 
 /**
  * 세션 상태. 체크된 세트 0 = todo, 일부 = in_progress, 슬롯 세트 전부 = done.
- * 회복 세션은 체크된 세트(= 'recovery' 표식 하나)가 있으면 done.
+ * 회복 세션은 'recovery' 표식(done)이 있으면 done. 체크 해제는 done:false로 기록되어 엔트리가 남는다.
  */
 export function sessionStatus(log: WorkoutLog | undefined, session: Session): SessionStatus {
+  const sets = (log?.sets ?? []).filter((s) => s.done)
+  if (session.kind === 'recovery') {
+    return sets.some((s) => s.exerciseId === RECOVERY_EXERCISE_ID) ? 'done' : 'todo'
+  }
+  // 세션 슬롯에 속한 세트만 센다(오래된·타 세션 엔트리 무시).
+  const setsOf = new Map<string, number>()
+  for (const sl of session.slots) setsOf.set(sl.exerciseId, (setsOf.get(sl.exerciseId) ?? 0) + sl.sets)
   const done = new Set<string>()
-  for (const s of log?.sets ?? []) if (s.done) done.add(`${s.exerciseId}#${s.setIndex}`)
+  for (const s of sets) {
+    if (s.setIndex >= 0 && s.setIndex < (setsOf.get(s.exerciseId) ?? 0)) done.add(`${s.exerciseId}#${s.setIndex}`)
+  }
   if (done.size === 0) return 'todo'
-  if (session.kind === 'recovery') return 'done'
   const total = session.slots.reduce((n, sl) => n + sl.sets, 0)
   return done.size >= total ? 'done' : 'in_progress'
 }

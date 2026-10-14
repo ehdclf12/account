@@ -1,5 +1,8 @@
 import type { ExerciseType, Pattern, SessionKind, SlotRole } from './types'
 
+/** 회복 세션 완료 표식: exerciseId 'recovery'인 SetEntry(done true). 체크 해제는 done:false로 기록하며 엔트리는 남는다. */
+export const RECOVERY_EXERCISE_ID = 'recovery'
+
 // ── 시간 추정(분) ──────────────────────────────────────────
 export const TIME = {
   compoundSet: 3.25,

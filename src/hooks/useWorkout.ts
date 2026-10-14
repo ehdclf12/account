@@ -50,11 +50,20 @@ export function useWorkoutLogs() {
   })
 }
 
-/** 날짜당 한 행(upsert). 낙관적 반영 후 실패하면 이전 캐시(서버 값)로 되돌린다. */
+export const SAVE_LOG_KEY = ['workout_logs', 'save'] as const
+
+/**
+ * 날짜당 한 행(upsert). 낙관적 반영 후 실패하면 이전 캐시(서버 값)로 되돌린다.
+ * 계약: 호출부는 mutate 시점의 "현재 캐시" 로그로 upsertSet(...)을 만들어 전체 로그를 넘긴다.
+ * 저장은 scope로 직렬화되어(같은 scope id는 순차 실행) 오래된 페이로드가 새 것을 덮지 않는다.
+ * 마지막 대기 저장이 끝났을 때만 invalidate하고, 그 전에는 refetch가 체크 상태를 되돌리지 않는다.
+ */
 export function useSaveLog() {
   const qc = useQueryClient(); const who = useIdentity()
   const key = ['workout_logs', who]
   return useMutation({
+    mutationKey: [...SAVE_LOG_KEY, who],
+    scope: { id: 'workout_logs_save' },
     onMutate: async (log: WorkoutLog) => {
       await qc.cancelQueries({ queryKey: key })
       const prev = qc.getQueryData<WorkoutLog[]>(key)
@@ -72,8 +81,12 @@ export function useSaveLog() {
       if (error) throw error
     },
     onError: (_e, _v, ctx) => {
-      if (ctx?.prev) qc.setQueryData(key, ctx.prev)
+      if (ctx) qc.setQueryData(key, ctx.prev)
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onSettled: () => {
+      if (qc.isMutating({ mutationKey: [...SAVE_LOG_KEY, who] }) === 1) {
+        return qc.invalidateQueries({ queryKey: key })
+      }
+    },
   })
 }

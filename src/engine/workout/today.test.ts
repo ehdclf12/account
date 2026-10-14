@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { todaySession, thisWeekLogs, sessionStatus, upsertSet } from './today'
+import { findSession, todaySession, thisWeekLogs, sessionStatus, upsertSet } from './today'
 import type { Program, Session, WorkoutLog, SetEntry } from './types'
 
 const slot = (id: string, sets: number) => ({
@@ -26,6 +26,16 @@ describe('todaySession', () => {
   })
   it('ignores other days logs', () => {
     expect(todaySession(program, [log('2026-10-13', 'rec')], '2026-10-14')).toBe('legs')
+  })
+})
+
+describe('findSession', () => {
+  it('finds sessions and tolerates ids missing from the program', () => {
+    expect(findSession(program, 'legs')).toBe(legs)
+    expect(findSession(program, 'gone')).toBeUndefined()
+    expect(findSession(program, null)).toBeUndefined()
+    const logs = [log('2026-10-14', 'gone')]
+    expect(findSession(program, todaySession(program, logs, '2026-10-14'))).toBeUndefined()
   })
 })
 
@@ -59,10 +69,17 @@ describe('sessionStatus', () => {
   it('does not double count duplicate entries', () => {
     expect(sessionStatus(log('d', 'legs', [e('sq', 0), e('sq', 0), e('sq', 1)]), legs)).toBe('in_progress')
   })
-  it('recovery: done iff any done set (recovery marker)', () => {
+  it('ignores stale/foreign entries not in the session slots', () => {
+    expect(sessionStatus(log('d', 'legs', [e('other', 0), e('sq', 5)]), legs)).toBe('todo')
+    expect(sessionStatus(log('d', 'legs', [e('other', 0), e('sq', 0)]), legs)).toBe('in_progress')
+    expect(sessionStatus(log('d', 'legs', [e('sq', 0), e('sq', 1), e('rdl', 0), e('other', 0)]), legs)).toBe('done')
+  })
+  it('recovery: done iff recovery marker done (other entries ignored)', () => {
     expect(sessionStatus(undefined, rec)).toBe('todo')
     expect(sessionStatus(log('d', 'rec', []), rec)).toBe('todo')
     expect(sessionStatus(log('d', 'rec', [e('recovery', 0)]), rec)).toBe('done')
+    expect(sessionStatus(log('d', 'rec', [e('recovery', 0, false)]), rec)).toBe('todo')
+    expect(sessionStatus(log('d', 'rec', [e('sq', 0)]), rec)).toBe('todo')
   })
 })
 

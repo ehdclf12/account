@@ -21,7 +21,11 @@ export function useRealtime() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_programs' },
         () => qc.invalidateQueries({ queryKey: ['workout_program'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_logs' },
-        () => qc.invalidateQueries({ queryKey: ['workout_logs'] }))
+        () => {
+          // 내 저장이 진행 중이면 에코로 낙관적 체크 상태가 되돌아가지 않도록 건너뛴다(저장 끝에 invalidate).
+          if (qc.isMutating({ mutationKey: ['workout_logs', 'save'] }) > 0) return
+          qc.invalidateQueries({ queryKey: ['workout_logs'] })
+        })
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [qc])

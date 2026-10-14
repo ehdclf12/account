@@ -1,4 +1,4 @@
-import { KIND_GROUPS, KIND_LABEL, WEEKDAY_LONG, WEEKDAY_SHORT, waGwa } from './constants'
+import { KIND_GROUPS, RECOVERY_EXERCISE_ID, KIND_LABEL, WEEKDAY_LONG, WEEKDAY_SHORT, waGwa } from './constants'
 import type { Program, Session, WorkoutLog } from './types'
 
 export interface ScheduleViolation {
@@ -22,10 +22,13 @@ export function weekdayIndex(date: string): number {
   return (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7
 }
 
-/** 운동한 날: 체크된 세트 ≥ 1, 회복 세션은 기록만 있으면. */
+/**
+ * 운동한 날: 체크된 세트 ≥ 1. 회복 세션은 'recovery' 표식이 done일 때만
+ * (체크 해제는 done:false로 기록되어 엔트리가 남으므로 기록 존재만으로는 판단하지 않는다).
+ */
 export function isWorkedDay(log: WorkoutLog | undefined, session: Pick<Session, 'kind'> | undefined): boolean {
   if (!log) return false
-  if (session?.kind === 'recovery') return true
+  if (session?.kind === 'recovery') return log.sets.some((s) => s.exerciseId === RECOVERY_EXERCISE_ID && s.done)
   return log.sets.some((s) => s.done)
 }
 
