@@ -1,4 +1,6 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { parseDateParam } from '@/lib/deeplink'
 import { useArchiveItems } from '@/hooks/useArchive'
 import { useHolidays } from '@/hooks/useHolidays'
 import { holidayName, weekdayTone } from '@/lib/holidays'
@@ -30,11 +32,21 @@ export default function CalendarScreen() {
   const who = useIdentity()
   const today = todayISO()
 
+  // 대시보드에서 /calendar?date=YYYY-MM-DD로 들어오면 그 날짜와 그 달로 시작한다
+  const [params, setParams] = useSearchParams()
+  const linked = parseDateParam(params.get('date'))
   const [cursor, setCursor] = useState(() => {
+    if (linked) {
+      const [y, m] = linked.split('-').map(Number)
+      return { year: y, month: m }
+    }
     const n = new Date()
     return { year: n.getFullYear(), month: n.getMonth() + 1 }
   })
-  const [selected, setSelected] = useState(today)
+  const [selected, setSelected] = useState(linked ?? today)
+  useEffect(() => {
+    if (params.has('date')) setParams({}, { replace: true })
+  }, [params, setParams])
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [mode, setMode] = useState<'shared' | 'time'>('shared')
   const [adding, setAdding] = useState(false)
