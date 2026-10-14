@@ -19,14 +19,6 @@ export default function HomeMenuScreen() {
           </div>
           <span className="text-sub text-xl">›</span>
         </button>
-        <button onClick={() => nav('/budget')}
-          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
-          <div>
-            <span className="font-bold text-ink text-lg">Budget</span>
-            <p className="text-sub text-sm mt-1">집 · 코스모스 가계부</p>
-          </div>
-          <span className="text-sub text-xl">›</span>
-        </button>
         <button onClick={() => nav('/archive')}
           className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
           <div>

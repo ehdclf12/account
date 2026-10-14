@@ -12,18 +12,6 @@ import Toaster from '@/components/Toaster'
 import Login from '@/screens/Login'
 import HomeMenuScreen from '@/screens/HomeMenuScreen'
 
-const HubScreen = lazy(() => import('@/screens/HubScreen'))
-const HomeScreen = lazy(() => import('@/screens/HomeScreen'))
-const HouseholdSettingsScreen = lazy(() => import('@/screens/HouseholdSettingsScreen'))
-const LedgerScreen = lazy(() => import('@/screens/LedgerScreen'))
-const BusinessScreen = lazy(() => import('@/screens/BusinessScreen'))
-const BusinessCalculatorScreen = lazy(() => import('@/screens/BusinessCalculatorScreen'))
-const BusinessSettingsScreen = lazy(() => import('@/screens/BusinessSettingsScreen'))
-const BudgetEditScreen = lazy(() => import('@/screens/BudgetEditScreen'))
-const StatsScreen = lazy(() => import('@/screens/StatsScreen'))
-const FixedManageScreen = lazy(() => import('@/screens/FixedManageScreen'))
-const SavingsManageScreen = lazy(() => import('@/screens/SavingsManageScreen'))
-const AssetsScreen = lazy(() => import('@/screens/AssetsScreen'))
 const ArchiveScreen = lazy(() => import('@/screens/ArchiveScreen'))
 const CalendarScreen = lazy(() => import('@/screens/CalendarScreen'))
 const TimeScreen = lazy(() => import('@/screens/TimeScreen'))
@@ -70,22 +58,7 @@ export default function App() {
               <Route path="/" element={<HomeMenuScreen />} />
               <Route path="/calendar" element={<CalendarScreen />} />
               <Route path="/time" element={<TimeScreen />} />
-              <Route path="/budget" element={<HubScreen />} />
-              <Route path="/assets" element={<AssetsScreen />} />
               <Route path="/archive" element={<ArchiveScreen />} />
-              <Route path="/household" element={<HomeScreen />} />
-              <Route path="/household/manage" element={<HouseholdSettingsScreen />} />
-              <Route path="/household/budget" element={<BudgetEditScreen scope="household" backTo="/household" />} />
-              <Route path="/household/stats" element={<StatsScreen scope="household" backTo="/household" />} />
-              <Route path="/household/fixed" element={<FixedManageScreen scope="household" backTo="/household" />} />
-              <Route path="/household/savings" element={<SavingsManageScreen />} />
-              <Route path="/business/fixed" element={<FixedManageScreen scope="business" backTo="/business" />} />
-              <Route path="/ledger" element={<LedgerScreen />} />
-              <Route path="/business" element={<BusinessScreen />} />
-              <Route path="/business/calculator" element={<BusinessCalculatorScreen />} />
-              <Route path="/business/manage" element={<BusinessSettingsScreen />} />
-              <Route path="/business/budget" element={<BudgetEditScreen scope="business" backTo="/business" />} />
-              <Route path="/business/stats" element={<StatsScreen scope="business" backTo="/business" />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Suspense>
