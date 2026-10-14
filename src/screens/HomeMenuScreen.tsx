@@ -53,16 +53,24 @@ export default function HomeMenuScreen() {
     if (window.confirm('로그아웃할까요?')) supabase.auth.signOut()
   }
 
+  // 홈은 화면 전체를 쓴다: 위 막대 아래 남은 높이를 그래프가 채우고, 노치·홈 표시줄 자리(safe area)는 비운다
   return (
-    <div className="min-h-[100dvh]" style={{ background: 'radial-gradient(ellipse at 50% 48%, #06121c 0%, #000 70%)' }}>
-      <div className="flex items-center justify-between px-4 pt-4 font-mono text-xs text-[#7f97a8]">
+    <div className="h-[100dvh] flex flex-col overflow-hidden"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 48%, #06121c 0%, #000 70%)',
+        paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)',
+      }}>
+      <div className="shrink-0 flex items-center justify-between px-4 pt-4 pb-1 font-mono text-xs text-[#9fb3c2]">
         <span>{formatClock(nowMs)}</span>
         <span className="flex items-center gap-3">
           <span className="text-[#7fe8ff]">● LIVE</span>
           <button onClick={logout} aria-label="로그아웃" className="text-base min-w-[44px] min-h-[44px] -my-3 -mr-3 flex items-center justify-center active:opacity-60">⏻</button>
         </span>
       </div>
-      <Nebula dash={{ ...dash, empty: dash.empty && loaded }} failed={failed} onNavigate={(href) => nav(href)} />
+      <div className="flex-1 min-h-0">
+        <Nebula dash={{ ...dash, empty: dash.empty && loaded }} failed={failed} onNavigate={(href) => nav(href)} />
+      </div>
     </div>
   )
 }
