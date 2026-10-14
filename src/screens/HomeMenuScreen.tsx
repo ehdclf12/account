@@ -1,47 +1,57 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useIdentity } from '@/App'
-import { NAME_BY_ROLE } from '@/lib/users'
 import { supabase } from '@/lib/supabase'
-import ThemeToggle from '@/components/ThemeToggle'
+import { todayISO } from '@/lib/date'
+import { addDays, buildDashboard, formatClock, type Domain } from '@/lib/dashboard'
+import { useArchiveItems } from '@/hooks/useArchive'
+import { useTimeBlocks, useTimeSessions } from '@/hooks/useTimeBlocks'
+import { useTimeGoals } from '@/hooks/useTimeGoals'
+import { useHolidays } from '@/hooks/useHolidays'
+import Nebula from '@/components/dashboard/Nebula'
 
 export default function HomeMenuScreen() {
   const nav = useNavigate()
-  const who = useIdentity()
+
+  // 진행 중 기록 시간과 상단 시계를 1분마다 갱신한다
+  const [nowMs, setNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setNowMs(Date.now()), 60_000)
+    return () => clearInterval(t)
+  }, [])
+
+  const today = todayISO()
+  const years = [...new Set([today, addDays(today, 14)].map((d) => Number(d.slice(0, 4))))]
+  const holidays = useHolidays(years)
+  const items = useArchiveItems()
+  const sessions = useTimeSessions()
+  const blocks = useTimeBlocks()
+  const goals = useTimeGoals()
+
+  const dash = buildDashboard({
+    items: items.data ?? [], sessions: sessions.data ?? [], blocks: blocks.data ?? [],
+    goals: goals.data ?? [], holidays, todayISO: today, nowMs,
+  })
+  // 로딩 중에 '비어 있어요'가 번쩍이지 않게, 전부 받아온 뒤에만 빈 상태로 본다
+  const loaded = [items, sessions, blocks, goals].every((q) => q.isSuccess)
+  const timeFailed = sessions.isError || blocks.isError || goals.isError
+  const failed: Partial<Record<Domain, boolean>> = {
+    deadline: items.isError, calendar: items.isError, archive: items.isError, time: timeFailed,
+  }
+
+  function logout() {
+    if (window.confirm('로그아웃할까요?')) supabase.auth.signOut()
+  }
+
   return (
-    <div className="p-5 min-h-[85vh] flex flex-col">
-      <h1 className="text-xl font-bold text-ink mb-5">우리집</h1>
-      <div className="space-y-3">
-        <button onClick={() => nav('/calendar')}
-          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
-          <div>
-            <span className="font-bold text-ink text-lg">Calendar</span>
-            <p className="text-sub text-sm mt-1">체크리스트 기한 한눈에</p>
-          </div>
-          <span className="text-sub text-xl">›</span>
-        </button>
-        <button onClick={() => nav('/archive')}
-          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
-          <div>
-            <span className="font-bold text-ink text-lg">Archive</span>
-            <p className="text-sub text-sm mt-1">메모 · 체크리스트 · 링크</p>
-          </div>
-          <span className="text-sub text-xl">›</span>
-        </button>
-        <button onClick={() => nav('/time')}
-          className="w-full text-left bg-card rounded-2xl p-5 active:opacity-70 flex justify-between items-center">
-          <div>
-            <span className="font-bold text-ink text-lg">Time</span>
-            <p className="text-sub text-sm mt-1">블럭으로 쌓는 내 시간</p>
-          </div>
-          <span className="text-sub text-xl">›</span>
-        </button>
-      </div>
-      <div className="mt-auto pt-8 flex items-center justify-between">
-        <span className="text-sm text-sub">
-          {NAME_BY_ROLE[who]}님 · <button onClick={() => supabase.auth.signOut()} className="text-brand font-medium">Logout</button>
+    <div className="min-h-[100dvh]" style={{ background: 'radial-gradient(ellipse at 50% 48%, #06121c 0%, #000 70%)' }}>
+      <div className="flex items-center justify-between px-4 pt-4 font-mono text-xs text-[#7f97a8]">
+        <span>{formatClock(nowMs)}</span>
+        <span className="flex items-center gap-3">
+          <span className="text-[#7fe8ff]">● LIVE</span>
+          <button onClick={logout} aria-label="로그아웃" className="text-base px-1 active:opacity-60">⏻</button>
         </span>
-        <ThemeToggle />
       </div>
+      <Nebula dash={{ ...dash, empty: dash.empty && loaded }} failed={failed} onNavigate={(href) => nav(href)} />
     </div>
   )
 }
