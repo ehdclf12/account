@@ -53,7 +53,8 @@ export default function App() {
   return (
     <IdentityCtx.Provider value={info.role}>
       <Shell>
-        <div className={`${wide ? 'max-w-2xl' : 'max-w-md'} mx-auto min-h-full ${home ? '' : 'pb-8'}`}>
+        {/* 홈(성운 대시보드)은 폭 제한 없이 화면 전체를 쓴다 */}
+        <div className={home ? 'w-full min-h-full' : `${wide ? 'max-w-2xl' : 'max-w-md'} mx-auto min-h-full pb-8`}>
           <Suspense fallback={<ScreenFallback />}>
             <Routes>
               <Route path="/" element={<HomeMenuScreen />} />
