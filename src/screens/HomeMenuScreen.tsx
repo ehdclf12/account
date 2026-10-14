@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { todayISO } from '@/lib/date'
@@ -8,6 +8,9 @@ import { useTimeBlocks, useTimeSessions } from '@/hooks/useTimeBlocks'
 import { useTimeGoals } from '@/hooks/useTimeGoals'
 import { useHolidays } from '@/hooks/useHolidays'
 import Nebula from '@/components/dashboard/Nebula'
+import SideMenu from '@/components/SideMenu'
+import { useIdentity } from '@/App'
+import { NAME_BY_ROLE } from '@/lib/users'
 
 export default function HomeMenuScreen() {
   const nav = useNavigate()
@@ -49,6 +52,10 @@ export default function HomeMenuScreen() {
     deadline: items.isError, calendar: items.isError, archive: items.isError, time: timeFailed,
   }
 
+  const who = useIdentity()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+
   function logout() {
     if (window.confirm('로그아웃할까요?')) supabase.auth.signOut()
   }
@@ -62,12 +69,16 @@ export default function HomeMenuScreen() {
         paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)',
       }}>
       <div className="shrink-0 flex items-center justify-between px-4 pt-4 pb-1 font-mono text-xs text-[#9fb3c2]">
-        <span>{formatClock(nowMs)}</span>
+        <span className="flex items-center gap-2">
+          <button onClick={() => setMenuOpen(true)} aria-label="메뉴 열기" className="text-lg min-w-[44px] min-h-[44px] -my-3 -ml-3 flex items-center justify-center active:opacity-60">☰</button>
+          <span>{formatClock(nowMs)}</span>
+        </span>
         <span className="flex items-center gap-3">
           <span className="text-[#7fe8ff]">● LIVE</span>
           <button onClick={logout} aria-label="로그아웃" className="text-base min-w-[44px] min-h-[44px] -my-3 -mr-3 flex items-center justify-center active:opacity-60">⏻</button>
         </span>
       </div>
+      <SideMenu open={menuOpen} current="/" userName={NAME_BY_ROLE[who]} onClose={closeMenu} onNavigate={(to) => nav(to)} onLogout={logout} />
       <div className="flex-1 min-h-0">
         <Nebula dash={{ ...dash, empty: dash.empty && loaded }} failed={failed} onNavigate={(href) => nav(href)} />
       </div>

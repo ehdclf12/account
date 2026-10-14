@@ -108,7 +108,7 @@ export default function CalendarScreen() {
           <button onClick={goToday} className="rounded-full border border-sub/30 text-sub text-xs font-medium px-3 py-1 active:opacity-70">
             TODAY
           </button>
-          <NavButton to="/" label="Home" />
+          <NavButton to="/menu" label="Home" />
         </div>
       </div>
 

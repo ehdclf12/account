@@ -50,3 +50,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .nb-blink, .nb-pulse, .nb-twinkle { animation: none; }
 }
+
+/* 대시보드 왼쪽 메뉴바가 밀려 나오는 효과 */
+@keyframes side-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.side-menu { animation: side-in 0.2s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .side-menu { animation: none; }
+}
