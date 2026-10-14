@@ -6,10 +6,11 @@ import type { Settings } from '@/engine/workout/types'
 
 export const MEDICAL_NOTICE = '운동 처방은 일반적인 규칙에 따른 안내이며 의료적 조언이 아니에요'
 const DAYS: Settings['daysPerWeek'][] = [3, 4, 5, 6]
+const primary = 'flex-1 min-h-[48px] rounded-2xl bg-brand text-white font-bold active:opacity-70 disabled:opacity-50'
 
 /**
  * 조건 입력. 처음(regenerate=false)에는 6일이면 기본 루틴(DEFAULT_SEED), 그 외는 새 시드.
- * "다시 생성"(regenerate=true)은 설계서대로 항상 새 시드로 무작위 배정한다.
+ * 다시 만들기(regenerate=true)에서 6일이면 "기본 루틴으로"와 "새 조합으로 만들기" 중 고른다.
  */
 export default function SetupForm(
   { initial, regenerate = false, onDone, onCancel }:
@@ -19,10 +20,11 @@ export default function SetupForm(
   const [days, setDays] = useState<Settings['daysPerWeek']>(initial?.daysPerWeek ?? 6)
   const [budget, setBudget] = useState(String(initial?.timeBudgetMin ?? DEFAULT_TIME_BUDGET_MIN))
 
-  async function create() {
+  const choose = regenerate && days === 6
+
+  async function create(seed: number) {
     const n = parseInt(budget, 10)
     const settings: Settings = { daysPerWeek: days, timeBudgetMin: Number.isFinite(n) && n > 0 ? n : DEFAULT_TIME_BUDGET_MIN }
-    const seed = !regenerate && days === 6 ? DEFAULT_SEED : newSeed()
     try {
       await save.mutateAsync({ settings, program: generateProgram(settings, seed) })
       onDone?.()
@@ -52,14 +54,21 @@ export default function SetupForm(
         </div>
       </div>
       <p className="text-sub text-xs leading-relaxed">{MEDICAL_NOTICE}</p>
-      <div className="flex gap-2">
+      {/* 6일 다시 만들기는 선택지가 둘이라 세로로 쌓는다(375px에서 버튼 셋이 한 줄이면 비좁다) */}
+      <div className={choose ? 'flex flex-col gap-2' : 'flex gap-2'}>
         {onCancel && (
-          <button onClick={onCancel} className="flex-1 min-h-[48px] rounded-2xl bg-card text-ink font-bold active:opacity-70">취소</button>
+          <button onClick={onCancel} className={`${choose ? 'order-last' : ''} flex-1 min-h-[48px] rounded-2xl bg-card text-ink font-bold active:opacity-70`}>취소</button>
         )}
-        <button onClick={create} disabled={save.isPending}
-          className="flex-1 min-h-[48px] rounded-2xl bg-brand text-white font-bold active:opacity-70 disabled:opacity-50">
-          {save.isPending ? '만드는 중…' : '생성'}
-        </button>
+        {choose ? (
+          <>
+            <button onClick={() => create(DEFAULT_SEED)} disabled={save.isPending} className={primary}>기본 루틴으로</button>
+            <button onClick={() => create(newSeed())} disabled={save.isPending} className={primary}>새 조합으로 만들기</button>
+          </>
+        ) : (
+          <button onClick={() => create(!regenerate && days === 6 ? DEFAULT_SEED : newSeed())} disabled={save.isPending} className={primary}>
+            {save.isPending ? '만드는 중…' : '생성'}
+          </button>
+        )}
       </div>
     </div>
   )

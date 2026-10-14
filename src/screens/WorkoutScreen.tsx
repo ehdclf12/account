@@ -21,7 +21,7 @@ export default function WorkoutScreen() {
   const logs = logsQ.data ?? []
 
   function startRegenerate() {
-    if (!confirm('루틴을 다시 만들까요?\n지난 기록은 남아요.')) return
+    if (!confirm('현재 루틴과 바꾼 종목은 사라지고 새로 만들어져요. 지난 기록은 남아요.')) return
     setRegenerating(true)
   }
 

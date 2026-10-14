@@ -3,7 +3,8 @@ import { render, screen, fireEvent, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactElement } from 'react'
 import { generateProgram, DEFAULT_SEED } from '@/engine/workout/generate'
-import { RECOVERY_EXERCISE_ID, RECOVERY_REASON, SPLITS } from '@/engine/workout/constants'
+import { RECOVERY_EXERCISE_ID, RECOVERY_REASON, SPLITS, WEEKDAY_SHORT } from '@/engine/workout/constants'
+import { swapDays } from '@/engine/workout/schedule'
 import type { WorkoutLog } from '@/engine/workout/types'
 import SetupForm, { MEDICAL_NOTICE } from './SetupForm'
 import TodayTab from './TodayTab'
@@ -52,6 +53,42 @@ describe('SetupForm', () => {
     renderQ(<SetupForm />)
     fireEvent.click(screen.getByRole('button', { name: '생성' }))
     expect(m.saveProgramAsync.mock.calls[0][0].program).toEqual(six)
+  })
+})
+
+describe('SetupForm 다시 만들기', () => {
+  const initial = { daysPerWeek: 6 as const, timeBudgetMin: 70 }
+
+  it('6일이면 "기본 루틴으로"와 "새 조합으로 만들기" 두 선택지', () => {
+    renderQ(<SetupForm regenerate initial={initial} onCancel={vi.fn()} />)
+    expect(screen.getByRole('button', { name: '기본 루틴으로' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '새 조합으로 만들기' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '생성' })).toBeNull()
+  })
+
+  it('"기본 루틴으로"는 DEFAULT_SEED 루틴을 저장', () => {
+    renderQ(<SetupForm regenerate initial={initial} />)
+    fireEvent.click(screen.getByRole('button', { name: '기본 루틴으로' }))
+    const arg = m.saveProgramAsync.mock.calls[0][0]
+    expect(arg.settings).toEqual(initial)
+    expect(arg.program).toEqual(generateProgram(initial, DEFAULT_SEED))
+  })
+
+  it('"새 조합으로 만들기"는 다른 시드로 만든다', () => {
+    renderQ(<SetupForm regenerate initial={initial} />)
+    fireEvent.click(screen.getByRole('button', { name: '새 조합으로 만들기' }))
+    const { program, settings } = m.saveProgramAsync.mock.calls[0][0]
+    expect(program.seed).not.toBe(DEFAULT_SEED)
+    expect(program).toEqual(generateProgram(settings, program.seed))
+  })
+
+  it('3·4·5일은 선택지 없이 새 시드로 생성', () => {
+    renderQ(<SetupForm regenerate initial={{ daysPerWeek: 4, timeBudgetMin: 70 }} />)
+    expect(screen.queryByRole('button', { name: '기본 루틴으로' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: '생성' }))
+    const { program } = m.saveProgramAsync.mock.calls[0][0]
+    expect(program.seed).not.toBe(DEFAULT_SEED)
+    expect(program.weekSchedule).toEqual(SPLITS[4])
   })
 })
 
@@ -163,15 +200,20 @@ describe('WeekTab', () => {
   })
 
   it('대안 요일을 누르면 그 요일과 바꿔 저장', () => {
+    const { alternatives } = swapDays(six, 1, 3)
+    expect(alternatives.length).toBeGreaterThan(0)
+    const c = alternatives[0]
     renderQ(<WeekTab {...props} />)
     fireEvent.click(screen.getByRole('button', { name: '요일 바꾸기' }))
     fireEvent.click(screen.getByRole('button', { name: '화요일 어깨 A' }))
     fireEvent.click(screen.getByRole('button', { name: '목요일 등 A' }))
-    const alt = within(screen.getByRole('dialog')).getAllByRole('button', { name: /바꾸기$/ })
-      .filter((b) => b.textContent !== '그래도 바꾸기')[0]
-    fireEvent.click(alt)
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: new RegExp(`^${WEEKDAY_SHORT[c]}요일\\(.*바꾸기$`) }))
     expect(m.saveProgram).toHaveBeenCalledTimes(1)
-    expect(m.saveProgram.mock.calls[0][0].program.weekSchedule).not.toEqual(six.weekSchedule)
+    const ws = m.saveProgram.mock.calls[0][0].program.weekSchedule
+    const expected = [...six.weekSchedule]
+    ;[expected[1], expected[c]] = [expected[c], expected[1]]
+    expect(ws).toEqual(expected)
+    expect(ws[c]).toBe('shoulder-a')
   })
 
   it('종목 바꾸기: 후보를 고르면 그 종목으로 저장', () => {

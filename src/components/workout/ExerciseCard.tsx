@@ -90,21 +90,21 @@ function SetRow(
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sub text-xs w-16 shrink-0 truncate">{short}</span>
-      <div className="flex-1 flex items-center bg-surface rounded-xl px-2 min-h-[44px]">
+    <div className="flex items-center gap-1.5">
+      <span className="text-sub text-xs w-12 shrink-0 truncate">{short}</span>
+      <div className="flex-1 min-w-0 flex items-center bg-surface rounded-xl px-1.5 min-h-[44px]">
         <input aria-label={`${label} 무게`} type="number" inputMode="decimal" step="0.5" min={0}
           value={cur.w} placeholder="—" onBlur={blur}
           onChange={(e) => setDraft({ ...cur, w: e.target.value })}
-          className="w-full bg-transparent outline-none text-ink text-right" />
-        <span className="text-sub text-xs ml-1">kg</span>
+          className="w-full min-w-0 bg-transparent outline-none text-ink text-right" />
+        <span className="text-sub text-xs ml-0.5">kg</span>
       </div>
-      <div className="flex-1 flex items-center bg-surface rounded-xl px-2 min-h-[44px]">
+      <div className="flex-1 min-w-0 flex items-center bg-surface rounded-xl px-1.5 min-h-[44px]">
         <input aria-label={`${label} 횟수`} type="number" inputMode="numeric" step="1" min={0}
           value={cur.r} onBlur={blur}
           onChange={(e) => setDraft({ ...cur, r: e.target.value })}
-          className="w-full bg-transparent outline-none text-ink text-right" />
-        <span className="text-sub text-xs ml-1">회</span>
+          className="w-full min-w-0 bg-transparent outline-none text-ink text-right" />
+        <span className="text-sub text-xs ml-0.5">회</span>
       </div>
       <button role="checkbox" aria-checked={checked} aria-label={`${label} 완료`} onClick={toggle}
         className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center text-lg font-bold active:opacity-70
