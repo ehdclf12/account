@@ -11,8 +11,8 @@ export default defineConfig({
       manifest: {
         name: '우리집 가계부',
         short_name: '가계부',
-        theme_color: '#FFFFFF',
-        background_color: '#ffffff',
+        theme_color: '#17171C',
+        background_color: '#17171C',
         display: 'standalone',
         start_url: '/',
         icons: [

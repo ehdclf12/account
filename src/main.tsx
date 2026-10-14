@@ -4,11 +4,11 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
-import { applyTheme, loadTheme } from '@/lib/theme'
+import { applyTheme } from '@/lib/theme'
 import { errorMessage } from '@/lib/errors'
 import { showToast } from '@/lib/toast'
 
-applyTheme(loadTheme())
+applyTheme('dark')
 
 const qc = new QueryClient({
   defaultOptions: { queries: { staleTime: 10_000 } },
