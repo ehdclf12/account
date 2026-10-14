@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { parseItemParam } from '@/lib/deeplink'
 import { useFolders, useArchiveItems, useSignedArchiveUrls } from '@/hooks/useArchive'
 import { sortItems, dueStatus, buildFolderTree, checklistProgress, ARCHIVE_COLORS } from '@/lib/archive'
 import { todayISO } from '@/lib/date'
@@ -41,7 +43,7 @@ function MemoBlock({ text }: { text: string }) {
 
 export default function ArchiveScreen() {
   const { data: folders = [] } = useFolders()
-  const { data: items = [] } = useArchiveItems()
+  const { data: items = [], isSuccess: itemsLoaded } = useArchiveItems()
   // archive 버킷은 비공개다. 사진은 저장된 경로를 서명 URL로 바꿔야 보인다.
   const signed = useSignedArchiveUrls(items.map((i) => (i.kind === 'image' ? i.url : null)))
   const imageSrc = (it: ArchiveItem) => (it.url ? signed[it.url] : undefined)
@@ -55,6 +57,16 @@ export default function ArchiveScreen() {
   const [editing, setEditing] = useState<ArchiveItem | null>(null)
   const [detail, setDetail] = useState<ArchiveItem | null>(null) // 바둑판 카드 탭 → 상세 팝업
   const [manageFolders, setManageFolders] = useState(false)
+  // 대시보드에서 /archive?item=<id>로 들어오면 그 항목 상세 팝업을 연다.
+  // 항목 목록이 다 온 뒤에 판단하고, 연 뒤에는 주소에서 지워 뒤로 가기·새로고침 때 다시 열리지 않게 한다.
+  const [params, setParams] = useSearchParams()
+  useEffect(() => {
+    if (!params.has('item') || !itemsLoaded) return
+    const id = parseItemParam(params.get('item'))
+    const hit = id ? items.find((i) => i.id === id) : undefined
+    if (hit) setDetail(hit)
+    setParams({}, { replace: true })
+  }, [params, itemsLoaded, items, setParams])
 
   const today = todayISO()
   // 선택한 폴더가 삭제되면 stale id로 남지 않도록 '전체'로 폴백(추가 시 FK 에러 방지)

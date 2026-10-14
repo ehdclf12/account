@@ -48,11 +48,12 @@ export default function App() {
   )
 
   const wide = pathname === '/calendar'
+  const home = pathname === '/'
 
   return (
     <IdentityCtx.Provider value={info.role}>
       <Shell>
-        <div className={`${wide ? 'max-w-2xl' : 'max-w-md'} mx-auto min-h-full pb-8`}>
+        <div className={`${wide ? 'max-w-2xl' : 'max-w-md'} mx-auto min-h-full ${home ? '' : 'pb-8'}`}>
           <Suspense fallback={<ScreenFallback />}>
             <Routes>
               <Route path="/" element={<HomeMenuScreen />} />
