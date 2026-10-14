@@ -1,4 +1,4 @@
-// 메뉴 목록 화면(/menu)과 대시보드 왼쪽 메뉴바가 함께 쓰는 메뉴. 메뉴를 늘릴 땐 여기만 고친다.
+// 대시보드 왼쪽 메뉴바(SideMenu)의 메뉴. 메뉴를 늘릴 땐 여기만 고친다.
 export interface MenuItem { to: string; label: string; desc: string }
 
 export const MENU: MenuItem[] = [
