@@ -111,8 +111,9 @@ function calendarNodes(items: ArchiveItem[], holidays: HolidayMap, today: string
     const [, m, day] = iso.split('-').map(Number)
     out.push({
       id: `cal-${iso}`, domain: 'calendar', label: `${m}/${day}`,
-      sub: [hol, count ? `${count}건` : ''].filter(Boolean).join(' · '),
-      urgency: urgencyFor(d), href: calendarDateHref(iso), dueISO: iso,
+      sub: [hol ? shortLabel(hol) : '', count ? `${count}건` : ''].filter(Boolean).join(' · '),
+      // 빨간 깜빡임은 할 일이 있는 날에만. 공휴일만 있는 날은 오늘이어도 near.
+      urgency: count > 0 ? urgencyFor(d) : d <= 2 ? 'near' : 'far', href: calendarDateHref(iso), dueISO: iso,
     })
   }
   return out

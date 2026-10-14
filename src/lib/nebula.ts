@@ -50,17 +50,37 @@ export function makeDust(seed: number, center: Pt, spread: number, n: number): {
   return { dots, links }
 }
 
-// 영역 노드 둘레, 허브 반대쪽(바깥)을 가운데로 하는 호 위에 항목을 고르게 놓는다
-export function arcPositions(center: Pt, n: number, radius = 40): Pt[] {
+// 라벨 글자 폭 어림. 한글·한자·이모지·기호(U+2000 이상)는 대체 글꼴에서 거의 1em, 나머지 고정폭은 0.6em.
+export function labelWidth(text: string, fontSize: number): number {
+  let em = 0
+  for (const ch of text) em += ch.codePointAt(0)! >= 0x2000 ? 1 : 0.6
+  return em * fontSize
+}
+
+// 항목 라벨(제목 한 줄 + 부제 한 줄)의 글자 크기와 노드 중심 기준 기준선 위치
+export const LABEL = { size: 6, subSize: 5.4, dy: -1, subDy: 6, gap: 5 } as const
+// 한 칸 높이: 제목 위끝(dy - 0.8em)부터 부제 아래끝(subDy + 0.2em)까지 ≈ 12.9 → 위아래 이웃과 안 겹치게 14.5 간격
+const PITCH = 14.5
+
+// 영역 노드에서 허브 반대쪽(위쪽 영역은 위, 아래쪽 영역은 아래)으로 항목을 한 줄씩 쌓는다.
+// 라벨은 화면 바깥쪽(왼쪽 영역은 왼쪽, 오른쪽 영역은 오른쪽)으로 붙이므로, 위아래 간격만 지키면 라벨끼리 겹치지 않는다.
+// 노드는 멀어질수록 허브 쪽으로 조금씩 기울어 호를 이루고, 연결선이 다른 라벨을 가로지르지 않는다.
+export function arcPositions(center: Pt, n: number, pitch = PITCH): Pt[] {
   if (n <= 0) return []
-  const outward = Math.atan2(center.y - HUB.y, center.x - HUB.x)
-  const step = Math.min(0.75, (Math.PI * 1.1) / n)
-  const start = outward - (step * (n - 1)) / 2
-  return Array.from({ length: n }, (_, k) => {
-    const a = start + step * k
-    return {
-      x: clamp(round(center.x + Math.cos(a) * radius), 14, VIEW.w - 14),
-      y: clamp(round(center.y + Math.sin(a) * radius), 28, VIEW.h - 14),
-    }
-  })
+  const v = center.y < HUB.y ? -1 : 1 // 허브 반대쪽 세로 방향
+  const inward = center.x < HUB.x ? 1 : -1 // 허브 쪽 가로 방향
+  // 아래쪽 영역은 영역 이름과 실패 문구(아래쪽에 적힘)를 비켜 조금 더 떨어져 시작한다
+  const first = v < 0 ? 18 : 32
+  return Array.from({ length: n }, (_, k) => ({
+    x: clamp(round(center.x + inward * (2 + 3 * k)), 14, VIEW.w - 14),
+    y: clamp(round(center.y + v * (first + pitch * k)), 28, VIEW.h - 14),
+  }))
+}
+
+// 라벨을 노드의 바깥쪽 옆에 붙인다. 화면 끝을 넘으면 안쪽으로 밀어 [2, 238] 안에 둔다.
+export function labelPlacement(center: Pt, p: Pt, width: number): { x: number; anchor: 'start' | 'end' } {
+  if (center.x < HUB.x) {
+    return { x: Math.ceil(Math.max(p.x - LABEL.gap, 2 + width) * 10) / 10, anchor: 'end' }
+  }
+  return { x: Math.floor(Math.min(p.x + LABEL.gap, VIEW.w - 2 - width) * 10) / 10, anchor: 'start' }
 }

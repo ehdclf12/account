@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { DOMAINS } from './dashboard'
-import { VIEW, HUB, DOMAIN_POS, mulberry32, makeDust, arcPositions } from './nebula'
+import { VIEW, HUB, DOMAIN_POS, mulberry32, makeDust, arcPositions, labelWidth, labelPlacement, LABEL } from './nebula'
 
 describe('mulberry32', () => {
   it('같은 시드 → 같은 수열', () => {
@@ -34,11 +34,20 @@ describe('makeDust', () => {
   })
 })
 
+describe('labelWidth', () => {
+  it('한글·이모지는 1em, 나머지는 0.6em', () => {
+    expect(labelWidth('가나', 6)).toBeCloseTo(12)
+    expect(labelWidth('ab', 10)).toBeCloseTo(12)
+    expect(labelWidth('📌 가', 10)).toBeCloseTo(26)
+  })
+})
+
 describe('arcPositions', () => {
   it('0개면 빈 배열', () => {
     expect(arcPositions(DOMAIN_POS.deadline, 0)).toEqual([])
   })
-  it('모든 영역에서 1~6개가 서로 18 이상 떨어지고 화면 안에 있다', () => {
+  // 라벨이 서로 안 겹치는지는 아래 테스트가 본다. 노드 사이 거리는 탭 영역이 너무 붙지 않을 만큼만 확인한다.
+  it('모든 영역에서 1~6개가 서로 14 이상 떨어지고 화면 안에 있다', () => {
     for (const d of DOMAINS) {
       for (let n = 1; n <= 6; n++) {
         const ps = arcPositions(DOMAIN_POS[d], n)
@@ -50,7 +59,38 @@ describe('arcPositions', () => {
           expect(p.y).toBeLessThanOrEqual(VIEW.h - 14)
         }
         for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-          expect(Math.hypot(ps[i].x - ps[j].x, ps[i].y - ps[j].y)).toBeGreaterThanOrEqual(18)
+          expect(Math.hypot(ps[i].x - ps[j].x, ps[i].y - ps[j].y)).toBeGreaterThanOrEqual(14)
+        }
+      }
+    }
+  })
+  it('8글자 한글 라벨과 부제가 이웃 노드와 겹치지 않고 화면 밖으로 나가지 않는다', () => {
+    const label = '가나다라마바사아', sub = '자차카타파'
+    type Box = { x1: number; x2: number; y1: number; y2: number }
+    const boxOf = (x: number, anchor: 'start' | 'end', w: number, baseline: number, fs: number): Box => ({
+      x1: anchor === 'start' ? x : x - w, x2: anchor === 'start' ? x + w : x,
+      y1: baseline - fs * 0.8, y2: baseline + fs * 0.2,
+    })
+    const hit = (a: Box, b: Box) => a.x1 < b.x2 && b.x1 < a.x2 && a.y1 < b.y2 && b.y1 < a.y2
+    for (const d of DOMAINS) {
+      const c = DOMAIN_POS[d]
+      for (let n = 1; n <= 6; n++) {
+        const boxes = arcPositions(c, n).map((p) => {
+          const lw = labelWidth(label, LABEL.size), sw = labelWidth(sub, LABEL.subSize)
+          const { x, anchor } = labelPlacement(c, p, Math.max(lw, sw))
+          return [
+            boxOf(x, anchor, lw, p.y + LABEL.dy, LABEL.size),
+            boxOf(x, anchor, sw, p.y + LABEL.subDy, LABEL.subSize),
+          ]
+        })
+        for (const b of boxes.flat()) {
+          expect(b.x1).toBeGreaterThanOrEqual(2)
+          expect(b.x2).toBeLessThanOrEqual(VIEW.w - 2)
+          expect(b.y1).toBeGreaterThanOrEqual(0)
+          expect(b.y2).toBeLessThanOrEqual(VIEW.h)
+        }
+        for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+          for (const a of boxes[i]) for (const b of boxes[j]) expect(hit(a, b), `${d} n=${n} ${i}-${j}`).toBe(false)
         }
       }
     }

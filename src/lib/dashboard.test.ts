@@ -132,6 +132,14 @@ describe('Calendar', () => {
     const d = buildDashboard(input({ items: [item({ due_date: TODAY })], holidays: { [TODAY]: '휴일' } }))
     expect(d.calendar.nodes[0]).toMatchObject({ sub: '휴일 · 1건', urgency: 'hot' })
   })
+  it('공휴일만 있는 날은 빨갛게 깜빡이지 않는다 (오늘이어도 near, 3일 뒤부터 far)', () => {
+    const d = buildDashboard(input({ holidays: { [TODAY]: '휴일', '2026-10-16': '휴일2', '2026-10-17': '휴일3' } }))
+    expect(d.calendar.nodes.map((n) => n.urgency)).toEqual(['near', 'near', 'far'])
+  })
+  it('긴 공휴일 이름은 8글자로 줄인다', () => {
+    const d = buildDashboard(input({ items: [item({ due_date: TODAY })], holidays: { [TODAY]: '아주아주긴공휴일이름' } }))
+    expect(d.calendar.nodes[0].sub).toBe('아주아주긴공휴… · 1건')
+  })
 })
 
 describe('Time', () => {

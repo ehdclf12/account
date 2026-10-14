@@ -12,11 +12,22 @@ import Nebula from '@/components/dashboard/Nebula'
 export default function HomeMenuScreen() {
   const nav = useNavigate()
 
-  // 진행 중 기록 시간과 상단 시계를 1분마다 갱신한다
+  // 진행 중 기록 시간과 상단 시계를 매 분 정각에 맞춰 갱신하고, 앱으로 돌아오면 바로 갱신한다
   const [nowMs, setNowMs] = useState(() => Date.now())
   useEffect(() => {
-    const t = setInterval(() => setNowMs(Date.now()), 60_000)
-    return () => clearInterval(t)
+    let interval: ReturnType<typeof setInterval> | undefined
+    const tick = () => setNowMs(Date.now())
+    const first = setTimeout(() => {
+      tick()
+      interval = setInterval(tick, 60_000)
+    }, 60_000 - (Date.now() % 60_000))
+    const onVisible = () => { if (document.visibilityState === 'visible') tick() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      clearTimeout(first)
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [])
 
   const today = todayISO()
@@ -48,7 +59,7 @@ export default function HomeMenuScreen() {
         <span>{formatClock(nowMs)}</span>
         <span className="flex items-center gap-3">
           <span className="text-[#7fe8ff]">● LIVE</span>
-          <button onClick={logout} aria-label="로그아웃" className="text-base px-1 active:opacity-60">⏻</button>
+          <button onClick={logout} aria-label="로그아웃" className="text-base min-w-[44px] min-h-[44px] -my-3 -mr-3 flex items-center justify-center active:opacity-60">⏻</button>
         </span>
       </div>
       <Nebula dash={{ ...dash, empty: dash.empty && loaded }} failed={failed} onNavigate={(href) => nav(href)} />
