@@ -61,12 +61,12 @@ F는 위치로 순서를 보여주지 않으므로 **크기·밝기·깜빡임**
 
 | 영역 | 대상 | 정렬 | 최대 | 누르면 |
 |---|---|---|---|---|
-| Deadline | `calendarItems()` 중 `isAllDone()`이 아니고 기한 ≤ 오늘+7(지난 것 포함) | 기한 오름차순 | 5 | `/archive?item=<id>` |
+| Deadline | `calendarItems()` 중 카드 완료(`done`)도 `isAllDone()`도 아니고 기한 ≤ 오늘+7(지난 것 포함) | 기한 오름차순 | 5 | `/archive?item=<id>` |
 | Calendar | 오늘~+14일 중 공휴일이 있거나 기한 항목이 있는 **날짜** (`10/16 · 2건`, `10/9 한글날`) | 날짜 오름차순 | 3 | `/calendar?date=<YYYY-MM-DD>` |
 | Time | ① 진행 중 세션(`ended_at` null) `● 공부 0:42` ② 오늘 누적 상위 블럭 ③ 서브목표가 남은 목표 `독서 60%` | ①→②→③ | 4 | `/time` |
 | Archive | `pinned && !archived` 항목 | `updated_at` 내림차순 | 3 | `/archive?item=<id>` |
 
-- 최대 개수를 넘으면 마지막 자리에 `+N` 노드를 두고, 누르면 그 영역 화면으로 간다.
+- 최대 개수까지만 노드로 보이고, 넘친 개수는 그 다음 자리에 `+N` 노드로 표시한다. 누르면 그 영역 화면으로 간다.
 - **같은 날 연결**: Deadline 노드 중 기한이 같은 것끼리 보라 점선 + `⚡ 같은 날`.
 - 시간 기록은 **본인(`who`) 것만**(기존 훅이 이미 그렇게 조회한다). Archive는 공용이다.
 - 데이터는 기존 훅을 그대로 쓴다: `useArchiveItems`, `useTimeSessions`, `useTimeBlocks`,
