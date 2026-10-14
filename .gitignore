@@ -16,3 +16,4 @@ dist-ssr/
 /vitest.config.d.ts
 _authcheck.mjs
 .superpowers/brainstorm/
+.superpowers/sdd/*/
