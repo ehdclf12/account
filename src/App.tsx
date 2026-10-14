@@ -15,6 +15,7 @@ import HomeMenuScreen from '@/screens/HomeMenuScreen'
 const ArchiveScreen = lazy(() => import('@/screens/ArchiveScreen'))
 const CalendarScreen = lazy(() => import('@/screens/CalendarScreen'))
 const TimeScreen = lazy(() => import('@/screens/TimeScreen'))
+const WorkoutScreen = lazy(() => import('@/screens/WorkoutScreen'))
 
 const IdentityCtx = createContext<Role>('husband')
 export const useIdentity = () => useContext(IdentityCtx)
@@ -60,6 +61,7 @@ export default function App() {
               <Route path="/" element={<HomeMenuScreen />} />
               <Route path="/calendar" element={<CalendarScreen />} />
               <Route path="/time" element={<TimeScreen />} />
+              <Route path="/workout" element={<WorkoutScreen />} />
               <Route path="/archive" element={<ArchiveScreen />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

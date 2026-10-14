@@ -6,4 +6,5 @@ export const MENU: MenuItem[] = [
   { to: '/calendar', label: 'Calendar', desc: '체크리스트 기한 한눈에' },
   { to: '/archive', label: 'Archive', desc: '메모 · 체크리스트 · 링크' },
   { to: '/time', label: 'Time', desc: '블럭으로 쌓는 내 시간' },
+  { to: '/workout', label: 'Workout', desc: '오늘의 운동 · 루틴 · 기록' },
 ]
