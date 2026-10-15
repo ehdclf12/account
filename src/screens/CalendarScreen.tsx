@@ -137,7 +137,7 @@ export default function CalendarScreen() {
                 if (swiped.current) { swiped.current = false; return }
                 setSelected(c.iso)
               }}
-              className={`min-h-[76px] rounded-lg p-1 text-left align-top active:opacity-70
+              className={`min-h-[76px] rounded-lg p-1 text-left flex flex-col justify-start active:opacity-70
                 ${isSel ? 'bg-brand/10 ring-1 ring-brand' : isToday ? 'bg-card' : ''}`}>
               <div className={`text-xs text-center font-medium ${TONE_CLS[tone]} ${c.inMonth ? '' : 'opacity-40'}`}>
                 {c.day}
